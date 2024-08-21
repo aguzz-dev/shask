@@ -5,7 +5,6 @@ use App\Traits\FindTrait;
 
 class Database
 {
-    use FindTrait;
     public $dbConnection;
     public function __construct()
     {

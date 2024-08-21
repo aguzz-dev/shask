@@ -4,23 +4,20 @@ namespace App\Models;
 
 use App\Database;
 use App\Traits\FindTrait;
-use App\Traits\getAllTrait;
 
 class Asset extends Database
 {
     protected $table = 'assets';
 
-    use getAllTrait;
-    use FindTrait;
 
     public function findById($id)
     {
-        return $this->find($id);
+        return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getAllAssets()
     {
-        return $this->getAll();
+        return $this->query("SELECT * FROM {$this->table}")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getUserAssetsByUserId($id)

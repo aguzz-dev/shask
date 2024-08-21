@@ -8,14 +8,13 @@ use App\Traits\FindTrait;
 
 class Post extends Database
 {
-    use FindTrait;
     protected $table = 'posts';
 
     const DEFAULT_ASSET = 0;
 
     public function findById($id)
     {
-        return $this->find($id);
+        return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function findPublishPostById($postId)

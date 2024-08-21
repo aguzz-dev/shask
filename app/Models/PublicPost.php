@@ -7,12 +7,11 @@ use App\Helpers\CreateRandomUrl;
 
 class PublicPost extends Database
 {
-    use FindTrait;
     protected $table = 'public_posts';
 
     public function findById($id)
     {
-        return $this->find($id);
+        return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getAllUrls()

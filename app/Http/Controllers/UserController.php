@@ -3,9 +3,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
-use App\Helpers\JsonRequest;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
 use App\Middleware\VerifyToken;
 use App\Request\UpdateUserRequest;
 use App\Request\RegisterUserRequest;

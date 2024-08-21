@@ -10,6 +10,11 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\PublicPostController;
 
+
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
 Route::get('/login', function(){ return view('Download');});
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/check-session', [AuthController::class, 'checkSession']);
