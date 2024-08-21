@@ -49,13 +49,13 @@ class Post extends Database
         $userId = (new PersonalAccessToken)->getIdByToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}')");
         $idPost = $this->dbConnection->insert_id;
-        $postCreated = $this->find($idPost);
+        $postCreated = $this->findById($idPost);
         return $postCreated;
     }
 
     public function update($request)
     {
-        $post = $this->find($request->id);
+        $post = $this->findById($request->id);
         if(!$post){
             return response()->json('Post no encontrado', 404);
         }
@@ -67,12 +67,12 @@ class Post extends Database
         $fields = implode(', ', $fields);
         $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request->id}";
         $this->query($sql);
-        return $this->find($request->id);
+        return $this->findById($request->id);
     }
 
     public function destroy($id)
     {
-        $post = $this->find($id);
+        $post = $this->findById($id);
         if(!$post){
             return response()->json('Post no encontrado', 404);
         }

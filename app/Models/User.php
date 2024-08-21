@@ -72,7 +72,7 @@ class User extends Database
         if (!password_verify($password, $user['password'])) {
             throw new Exception('Credenciales incorrectas', 422);
         }
-        $token = GenerateToken::auth();
+        $token = $this->generateToken();
         (new PersonalAccessToken)->destroyToken($user['id']);
         $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$user['id']}')");
         $userData = [
@@ -89,7 +89,7 @@ class User extends Database
 
     public function update($request)
     {
-        $User = $this->find($request['id']);
+        $User = $this->findById($request['id']);
         if(!$User){
             throw new Exception('Usuario no encontrado', 404);
         }
@@ -100,12 +100,12 @@ class User extends Database
         $fields = implode(', ', $fields);
         $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request['id']}";
         $this->query($sql);
-        return $this->find($request['id']);
+        return $this->findById($request['id']);
     }
 
     public function destroy($id)
     {
-        $user = $this->find($id);
+        $user = $this->findById($id);
         if(!$user){
             throw new Exception('Usuario no encontrado', 404);
         }
@@ -117,11 +117,20 @@ class User extends Database
     {
         VerifyToken::jwt();
         $password = password_hash($request->password, PASSWORD_DEFAULT);
-        $isUserExist = $this->find($request->id);
+        $isUserExist = $this->findById($request->id);
         if (!$isUserExist){
             throw new Exception('Usuario no encontrado', 404);
         }
         $this->query("UPDATE `users` SET `password` = '{$password}' WHERE id = '{$request->id}'");
+    }
+
+    public static function generateToken() {
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $token = '';
+        for ($i = 0; $i < 250; $i++) {
+            $token .= $chars[rand(0, 61)];
+        }
+        return $token;
     }
 
 }

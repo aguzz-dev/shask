@@ -43,4 +43,6 @@ class UserController extends Controller
         (new User)->changePassword($request);
         return response()->json('Password actualizada con éxito');
     }
+
+
 }

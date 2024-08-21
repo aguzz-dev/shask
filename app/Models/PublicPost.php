@@ -36,7 +36,7 @@ class PublicPost extends Database
             throw new \Exception('Post no encontrado', 404);
         }
         $userId = (new Post)->findById($id)[0]['user_id'];
-        $url    = CreateRandomUrl::publishPost();
+        $url    = $this->generateRandomUrl();
         $this->query("UPDATE `posts` SET status = 1 WHERE id = {$id}");
         $this->query("INSERT INTO `{$this->table}` (`post_id`,`user_id`,`url`) VALUES ('{$id}', '{$userId}', '{$url}')");
         return $post;
@@ -44,7 +44,7 @@ class PublicPost extends Database
 
     public function makePrivatePost($id)
     {
-        $publicPost = $this->find($id);
+        $publicPost = $this->findById($id);
         $idPost = $publicPost[0]['post_id'];
         if(!$publicPost){
             throw new \Exception('Post no encontrado', 404);
@@ -53,5 +53,14 @@ class PublicPost extends Database
         $this->query("DELETE FROM {$this->table} WHERE id = {$id}");
         $post = (new Post)->findById($idPost);
         return $post;
+    }
+
+    public static function generateRandomUrl() {
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $url = '';
+        for ($i = 0; $i < 4; $i++) {
+            $url .= $chars[rand(0, 61)];
+        }
+        return $url;
     }
 }
