@@ -21,13 +21,8 @@ class UserController extends Controller
     {
         VerifyToken::jwt();
         UpdateUserRequest::validate($request);
-        try {
-            $res = (new User)->update($request);
-            return response()->json(['User actualizado con éxito', $res]);
-        }
-        catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        $res = (new User)->update($request);
+        return response()->json(['User actualizado con éxito', $res]);
     }
 
     public function destroy(Request $request)
@@ -38,23 +33,14 @@ class UserController extends Controller
             echo json_encode(['El campo id es obligatorio']);
             exit;
         }
-        try{
-            (new User)->destroy($request->id);
-            return response()->json('User eliminado correctamente del sistema');
-        }
-        catch(Exception $e){
-            throw new Exception($e->getMessage());
-        }
+        (new User)->destroy($request->id);
+        return response()->json('User eliminado correctamente del sistema');
     }
 
     public function changePassword(Request $request)
     {
         VerifyToken::jwt();
-        try{
-            (new User)->changePassword($request);
-            return response()->json('Password actualizada con éxito');
-        }catch(Exception $e){
-            throw new Exception($e->getMessage());
-        }
+        (new User)->changePassword($request);
+        return response()->json('Password actualizada con éxito');
     }
 }

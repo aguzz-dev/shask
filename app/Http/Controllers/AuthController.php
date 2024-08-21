@@ -16,12 +16,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         LoginRequest::validate($request);
-        try {
-            $data = (new User)->login($request);
-            return response()->json(['Inicio de sesión exitoso', $data]);
-        } catch (Exception $e) {
-            throw new Exception('Error');
-        }
+        $data = (new User)->login($request);
+        return response()->json(['Inicio de sesión exitoso', $data]);
     }
 
     public function checkSession(Request $request)
@@ -33,7 +29,7 @@ class AuthController extends Controller
         if($token != $this->getToken()){
             return response()->json('Token inválido', 401);
         }
-        $user = (new User)->find($request->id)[0];
+        $user = (new User)->findById($request->id)[0];
         $userData = [
             'id' => $user['id'],
             'username' => $user['username'],

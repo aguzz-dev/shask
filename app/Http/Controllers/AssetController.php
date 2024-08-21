@@ -28,12 +28,8 @@ class AssetController extends Controller
     public function buyAsset(Request $request)
     {
         VerifyToken::jwt();
-        try{
-            (new AssetUser)->buyAsset($request->asset_id, $request->user_id);
-            return response()->json('Asset comprado con éxito');
-        }catch(Exception $e){
-            throw new Exception($e->getMessage());
-        }
+        (new AssetUser)->buyAsset($request->asset_id, $request->user_id);
+        return response()->json('Asset comprado con éxito');
     }
 
     public function checkAssetExpired(Request $request)
