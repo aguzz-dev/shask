@@ -41,7 +41,11 @@ Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 
 Route::get('/login', function(){ return view('Download');});
+
 Route::get('/csrf-token', function () {
-    return response()->json(['csrf_token' => csrf_token()]);
+    return response()->json([
+        'message' => 'cookie csrf recibida',
+    ])->withCookie(cookie('X-XSRF-TOKEN', csrf_token(), 120));
 });
+
 
