@@ -45,7 +45,7 @@ Route::get('/login', function(){ return view('Download');});
 Route::get('/csrf-token', function () {
     return response()->json([
         'message' => 'cookie csrf recibida',
-    ])->withCookie(cookie('X-XSRF-TOKEN', csrf_token(), 120));
+    ])->withCookie(cookie('XSRF-TOKEN', csrf_token(), 60*24));
 });
 
 
