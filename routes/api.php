@@ -6,14 +6,15 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\PublicPostController;
-use App\Http\Controllers\UploadImageController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/image/{name}', [ImageController::class, 'get']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/check-session', [AuthController::class, 'checkSession']);
