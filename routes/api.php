@@ -45,16 +45,6 @@ Route::post('/assets/buy', [AssetController::class, 'buyAsset']);
 Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 
-Route::post('/upload-image', [UploadImageController::class, 'uploadBackground']);
-Route::get('/images/backgrounds/{filename}', function ($filename) {
-    $path = public_path('images/background/' . $filename);
-    if (!file_exists($path)) {
-        return response()->json(['message' => 'Imagen no encontrada'], 404);
-    }
-    return response()->file($path);
-});
-
-
 Route::get('/login', function(){ return view('Download');});
 
 Route::get('/csrf-token', function () {
