@@ -7,9 +7,10 @@ use Exception;
 use App\Database;
 use App\Helpers\GenerateToken;
 use App\Middleware\VerifyToken;
+use App\Models\PersonalAccessToken;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Database
 {
@@ -115,7 +116,7 @@ class User extends Database
 
     public function changePassword($request)
     {
-        VerifyToken::jwt();
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         $password = password_hash($request->password, PASSWORD_DEFAULT);
         $isUserExist = $this->findById($request->id);
         if (!$isUserExist){

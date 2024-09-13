@@ -52,7 +52,7 @@
 </style>
 <body>
     <img style="width: 300px;" src="{{asset('assets/logotipo-sd.png')}}" alt="" class="logo">
-    <div style="margin-bottom: 10px;"class="download">Descargá <b>Shhask!</b></div>
+    <div style="margin-bottom: 30px;"class="download">Descargá <b>Shhask!</b></div>
     <div class="container">
         <img src="{{asset('assets/raccoon-1.png')}}" style="width: 430px;" alt="mascota-shhask" class="raccoon1">
         <img src="{{asset('assets/google-play-badge.png')}}" alt="" class="playstore">

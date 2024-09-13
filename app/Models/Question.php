@@ -1,8 +1,9 @@
 <?php
 namespace App\Models;
 
-use App\Middleware\VerifyToken;
 use App\Database;
+use App\Middleware\VerifyToken;
+use App\Models\PersonalAccessToken;
 
 class Question extends Database
 {
@@ -39,8 +40,8 @@ class Question extends Database
 
     public function answerQuestion($request)
     {
-        VerifyToken::jwt();
-        $question = $this->find($request->id)[0];
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        $question = $this->findById($request->id)[0];
         if(!$question){
             throw new \Exception('Pregunta no encontrada', 404);
         }
