@@ -18,7 +18,7 @@ class Question extends Database
 
     public function getQuestionsByPostId($postId)
     {
-        return $this->query("SELECT * FROM {$this->table} WHERE post_id = $postId")->fetch_all(MYSQLI_ASSOC);
+        return $this->query("SELECT * FROM {$this->table} WHERE public_post_id = $postId")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function store($request)

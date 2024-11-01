@@ -11,7 +11,7 @@ class PublicPost extends Database
 
     public function findById($id)
     {
-        return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
+        return $this->query("SELECT * FROM {$this->table} WHERE post_id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getAllUrls()
