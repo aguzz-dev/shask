@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  apishhask-app:
+    container_name: apishhask-app
+    build:
+      context: .
+    ports:
+      - 5000:80  # Aplicación en el puerto 5000
+    volumes:
+      - ./:/var/www
+    networks:
+      - apishhask-network
+    environment:
+      # Agrega la URL de conexión a la base de datos aquí
+      DATABASE_URL: "jdbc:mysql://apishhask-db:3306/apishhask-db"  # Sin parámetros adicionales
+
+  apishhask-db:
+    container_name: apishhask-db
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: apishhask-db
+      # Puedes agregar otras variables de entorno aquí si es necesario
+    command: mysqld --sql_mode="STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION"
+    volumes:
+      - apishhask-db-data:/var/lib/mysql
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+    ports:
+      - "3309:3306"  # Cambiado a puerto 3309
+    networks:
+      - apishhask-network
+
+networks:
+  apishhask-network:
+    driver: bridge
+    name: apishhask-network
+
+volumes:
+  apishhask-db-data:
+    name: apishhask-db-data
