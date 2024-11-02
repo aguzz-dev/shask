@@ -93,7 +93,14 @@
             <div class="image-c">
                 <img src="{{asset('assets/raccoon-1.png')}}" alt="Raccoon">
             </div>
-            <button type="button" class="boton-fachero">Back To Home</button>
+            <button type="button" class="boton-fachero" id="backToHomeButton">Back To Home</button>
+
+            <script>
+                document.getElementById('backToHomeButton').onclick = function() {
+                    window.location.href = '/login';
+                };
+            </script>
+
         </div>
     </section>
 </body>

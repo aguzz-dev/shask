@@ -1,11 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Models\User;
 use App\Models\Question;
-use App\Helpers\JsonRequest;
+use App\Models\PublicPost;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
 
 class QuestionController extends Controller
 {
@@ -40,5 +39,24 @@ class QuestionController extends Controller
     {
         $res = (new Question)->answerQuestion($request);
         return response()->json(['Se ha actualizado el estado de la pregunta a Respondida', $res]);
+    }
+
+    public function sendQuestion($url)
+    {
+        $existPost = (new PublicPost)->getPostDataByUrl($url);
+        if(!$existPost){
+            return view('errors/404');
+        }
+        $userData = (new User)->findById($existPost['user_id'])[0];
+        return view('Index', [
+            'idPublicPost' => $existPost['id'],
+            'idPost' => $existPost['post_id'],
+            'idUser' => $existPost['user_id'],
+            'fullNameUser' => $userData['full_name'],
+            'usernameUser' => $userData['username'],
+            'emailUser' => $userData['email'],
+            'avatarUser' => $userData['avatar'],
+            'url' => $existPost['url'],
+        ]);
     }
 }

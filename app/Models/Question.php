@@ -2,7 +2,6 @@
 namespace App\Models;
 
 use App\Database;
-use App\Middleware\VerifyToken;
 use App\Models\PersonalAccessToken;
 
 class Question extends Database
@@ -30,7 +29,7 @@ class Question extends Database
         }
         $text = $request->text;
         $hint = $request->hint;
-        $this->query("INSERT INTO `{$this->table}` (post_id, text, hint) VALUES ({$publicPostId}, '{$text}', '{$hint}')");
+        $this->query("INSERT INTO `{$this->table}` (public_post_id, text, hint) VALUES ({$publicPostId}, '{$text}', '{$hint}')");
         return [
             'id' => $this->dbConnection->insert_id,
             'text' => $text,

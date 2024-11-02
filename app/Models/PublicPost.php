@@ -2,8 +2,6 @@
 namespace App\Models;
 
 use App\Database;
-use App\Traits\FindTrait;
-use App\Helpers\CreateRandomUrl;
 
 class PublicPost extends Database
 {
@@ -27,6 +25,15 @@ class PublicPost extends Database
     {
         $post = $this->query("SELECT id FROM {$this->table} WHERE url = '{$url}'")->fetch_all(MYSQLI_ASSOC);
         return $post[0]['id'];
+    }
+
+    public function getPostDataByUrl($url)
+    {
+        $post = $this->query("SELECT * FROM {$this->table} WHERE url = '{$url}'")->fetch_all(MYSQLI_ASSOC);
+        if(!$post){
+            return false;
+        }
+        return $post[0];
     }
 
     public function makePublicPost($id)

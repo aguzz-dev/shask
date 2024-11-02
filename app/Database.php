@@ -13,6 +13,7 @@ class Database
         $pass   = env("DB_PASSWORD");
         $db     = env("DB_DATABASE");
         $port   = env("DB_PORT");
+        // dd($host, $user, $pass, $db, $port);
         $this->dbConnection = new \mysqli(
             $host,
             $user,
