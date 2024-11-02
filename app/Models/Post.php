@@ -36,7 +36,7 @@ class Post extends Database
     public function getAllPosts($userId):array
     {
         $posts = [];
-        $allPosts = $this->query("SELECT * FROM " . $this->table. " WHERE user_id = '{$userId}'") ;
+        $allPosts = $this->query("SELECT *, public_posts.url FROM " . $this->table. " LEFT JOIN public_posts ON public_posts.post_id = posts.id WHERE posts.user_id = '{$userId}'") ;
         foreach($allPosts as $post){
             array_push($posts, $post);
         }
