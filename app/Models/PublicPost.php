@@ -44,6 +44,7 @@ class PublicPost extends Database
         }
         $userId = (new Post)->findById($id)[0]['user_id'];
         $url    = $this->generateRandomUrl();
+        $post[0]['url'] = $url;
         $this->query("UPDATE `posts` SET status = 1 WHERE id = {$id}");
         $this->query("INSERT INTO `{$this->table}` (`post_id`,`user_id`,`url`) VALUES ('{$id}', '{$userId}', '{$url}')");
         return $post;

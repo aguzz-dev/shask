@@ -302,6 +302,30 @@
             }
         }
 
+        @media (max-width: 400px) {
+            .input-otter-c {
+                position: relative;
+                scale: 0.9;
+            }
+            .hint-c {
+                position: relative;
+                scale: 0.9;
+            }
+            .download-c {
+                scale: 0.6;
+                position: relative;
+                top: -60px;
+                left: -50px;
+            }
+
+            .logo{
+                position: relative;
+                scale: 0.7;
+                top: -10px;
+                left: -22px;
+            }
+        }
+
     </style>
 
     <header>
