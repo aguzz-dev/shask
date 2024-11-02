@@ -285,31 +285,20 @@
         .shops-c:hover{
             scale: 1.07;
         }
-        @media (max-width: 431px) {
-            body{
-                height: 100vh;
-                overflow: hidden;
-            }
 
-            .logo{
-                position: relative;
-                scale: 0.7;
-            }
-
-            .download-c {
-                scale: 0.8;
-                position: relative;
-                top: -40px;
-                left: -50px;
-            }
-        }
-
-        @media (max-width: 431px) {
+        @media (max-width: 700px) {
             .download-c {
                 scale: 0.6;
                 position: relative;
                 top: -60px;
                 left: -50px;
+            }
+
+            .logo{
+                position: relative;
+                scale: 0.7;
+                top: -10px;
+                left: -22px;
             }
         }
 
