@@ -41,7 +41,7 @@ class PostController extends Controller
     public function destroy(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
-        (new Post)->destroy($request->id);
-        return response()->json('Post eliminado correctamente');
+        $res = (new Post)->destroy($request->id);
+        return $res;
     }
 }

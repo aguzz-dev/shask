@@ -73,10 +73,11 @@ class Post extends Database
     public function destroy($id)
     {
         $post = $this->findById($id);
-        if(!$post){
+        if(count($post) == 0){
             return response()->json('Post no encontrado', 404);
         }
         $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
         $this->query($sql);
+        return response()->json('Post eliminado con éxito', 200);
     }
 }
