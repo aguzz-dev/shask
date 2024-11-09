@@ -104,6 +104,15 @@ class User extends Database
         return $this->findById($request['id']);
     }
 
+    public function updateAvatar($id,$avatarJson)
+    {
+        $User = $this->findById($id);
+        if(!$User){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+        $this->query("UPDATE `users` SET `avatar` = '{$avatarJson}' WHERE id = '{$id}'");
+    }
+
     public function destroy($id)
     {
         $user = $this->findById($id);

@@ -28,11 +28,18 @@ class Asset extends Database
 
     public function getUserAssetsByUserId($id)
     {
-        return $this->query(
+        $userAssets = $this->query(
                 "SELECT a.*
                 FROM assets a
                 INNER JOIN asset_user ua ON a.id = ua.asset_id
                 WHERE ua.user_id = '{$id}'"
                 )->fetch_all(MYSQLI_ASSOC);
+
+        $publicAssets = $this->query("SELECT * FROM public_assets")->fetch_all(MYSQLI_ASSOC);
+        $assetsData = [
+            'public_assets' => $publicAssets,
+            'assets' => $userAssets
+        ];
+        return $assetsData;
     }
 }

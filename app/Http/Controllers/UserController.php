@@ -26,6 +26,13 @@ class UserController extends Controller
         return response()->json(['User actualizado con éxito', $res]);
     }
 
+    public function updateAvatar(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new User)->updateAvatar($request->id, $request->avatar);
+        return response()->json('Avatar actualizado correctamente');
+    }
+
     public function destroy(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
