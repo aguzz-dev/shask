@@ -28,6 +28,7 @@ Route::post('/posts/questions', [PostController::class, 'getPostByIdWithQuestion
 
 Route::post('/user/create', [UserController::class, 'store']);
 Route::put('/user/update', [UserController::class, 'update']);
+Route::put('/user/avatar', [UserController::class, 'updateAvatar']);
 Route::delete('/user/destroy', [UserController::class, 'destroy']);
 
 Route::post('/change-password', [UserController::class, 'changePassword']);
