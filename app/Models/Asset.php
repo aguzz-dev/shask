@@ -17,7 +17,13 @@ class Asset extends Database
 
     public function getAllAssets()
     {
-        return $this->query("SELECT * FROM {$this->table}")->fetch_all(MYSQLI_ASSOC);
+        $publicAssets = $this->query("SELECT * FROM public_assets")->fetch_all(MYSQLI_ASSOC);
+        $privateAssets = $this->query("SELECT * FROM {$this->table}")->fetch_all(MYSQLI_ASSOC);
+        $assetsData = [
+            'public_assets' => $publicAssets,
+            'assets' => $privateAssets
+        ];
+        return $assetsData;
     }
 
     public function getUserAssetsByUserId($id)

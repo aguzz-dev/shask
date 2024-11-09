@@ -16,7 +16,7 @@ class AssetController extends Controller
     public function getAllAssets()
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
-        return response()->json(['Solicitud exitosa, assets existentes:', (new Asset)->getAllAssets()]);
+        return response()->json((new Asset)->getAllAssets());
     }
 
     public function getUserAssetsByUserId(Request $request)
