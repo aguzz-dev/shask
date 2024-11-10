@@ -48,7 +48,7 @@ class Question extends Database
         return [
             'id' => $question['id'],
             'text' => $question['text'],
-            'post_id' => $question['post_id'],
+            'post_id' => $question['public_post_id'],
             'status' => Question::RESPONDIDA
         ];
     }
