@@ -56,6 +56,7 @@ class QuestionController extends Controller
             'usernameUser' => $userData['username'],
             'emailUser' => $userData['email'],
             'avatarUser' => $userData['avatar'],
+            'title' => $existPost['title'],
             'url' => $existPost['url'],
         ]);
     }

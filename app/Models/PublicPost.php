@@ -29,7 +29,9 @@ class PublicPost extends Database
 
     public function getPostDataByUrl($url)
     {
-        $post = $this->query("SELECT * FROM {$this->table} WHERE url = '{$url}'")->fetch_all(MYSQLI_ASSOC);
+        $post = $this->query("SELECT * FROM {$this->table}
+            LEFT JOIN posts ON posts.id = public_posts.post_id
+            WHERE url = '{$url}'")->fetch_all(MYSQLI_ASSOC);
         if(!$post){
             return false;
         }

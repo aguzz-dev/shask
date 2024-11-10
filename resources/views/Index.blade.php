@@ -344,10 +344,10 @@
                     </div>
                     <div class="user-info-c">
                         <p>
-                            {{$fullNameUser}} ({{$usernameUser}})
+                            {{$fullNameUser}} (<span>@</span>{{$usernameUser}})
                         </p>
                         <p>
-                            hazme una pregunta
+                            {{$title}}
                         </p>
                     </div>
                 </div>
