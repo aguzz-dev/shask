@@ -32,7 +32,7 @@ class Post extends Database
     {
         return $this->query("SELECT `id` FROM {$this->table} WHERE id = '{$postId}'")->fetch_all(MYSQLI_ASSOC);
     }
-    
+
     public function getAllPosts($userId): array
     {
         $posts = [];
@@ -41,17 +41,19 @@ class Post extends Database
                                          (SELECT COUNT(*)
                                           FROM questions
                                           WHERE questions.public_post_id = public_posts.post_id
-                                          AND questions.status = 0) AS question_sin_responder
+                                          AND questions.status = 0) AS sin_responder
                                   FROM {$this->table} AS posts
                                   LEFT JOIN public_posts ON public_posts.post_id = posts.id
                                   WHERE posts.user_id = '{$userId}'");
 
-        foreach($allPosts as $post) {
-            $post['sin_responder'] = (int)$post['question_sin_responder'];
-            array_push($posts, $post);
+        foreach ($allPosts as $post) {
+            $post['sin_responder'] = (int) $post['sin_responder'];
+            $posts[] = $post;
         }
+
         return $posts;
     }
+
 
     public function store($request)
     {
