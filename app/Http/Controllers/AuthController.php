@@ -33,7 +33,8 @@ class AuthController extends Controller
         $userData = [
             'id' => $user['id'],
             'username' => $user['username'],
-            'email' => $user['email']
+            'email' => $user['email'],
+            'avatar' => $user['avatar']
         ];
         return response()->json(['Sesión validada con éxito', $userData]);
     }
