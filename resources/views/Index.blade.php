@@ -34,7 +34,7 @@
         }
 
         body {
-            background: linear-gradient(to bottom, #5187ad, #ADD8E6);
+            background: linear-gradient(to bottom, #D2C8FF, #A1A2EA);
 
             font-family: "Roboto", sans-serif;
             display: flex;
@@ -67,7 +67,7 @@
         }
 
         .user-info-section {
-            background-color: #1D1D1D;
+            background-color: #624e95;
             display: flex;
             user-select: none;
         }
@@ -77,7 +77,7 @@
             height: 3em;
             padding: 0.6em;
             margin: 0.7em;
-            background-color: black;
+            background: linear-gradient(to bottom, #FFF1E6, #CDDAFD);
             border-radius: 100%;
             overflow: hidden;
         }
@@ -139,6 +139,7 @@
             align-items: center;
             margin-top: 1em;
             gap: 1em;
+            text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
         }
 
         .hint-c p {
@@ -167,6 +168,108 @@
         .card-otter-c img {
             -webkit-user-drag: none;
             width: 10em;
+        }
+
+        .button {
+            --white: #ffe7ff;
+            --bg: #080808;
+            --radius: 100px;
+            scale: 0.7;
+            outline: none;
+            cursor: pointer;
+            border: 0;
+            position: relative;
+            border-radius: var(--radius);
+            background-color: var(--bg);
+            transition: all 0.2s ease;
+            box-shadow:
+                inset 0 0.3rem 0.9rem rgba(195,189,249, 0.3),
+                inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7),
+                inset 0 -0.4rem 0.9rem rgba(195,189,249, 0.5),
+                0 3rem 3rem rgba(0, 0, 0, 0.3),
+                0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8);
+        }
+        .button .wrap {
+            font-size: 25px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 32px 45px;
+            border-radius: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        .button .wrap p span:nth-child(2) {
+            display: none;
+        }
+        .button:hover .wrap p span:nth-child(1) {
+            display: none;
+        }
+        .button:hover .wrap p span:nth-child(2) {
+            display: inline-block;
+        }
+        .button .wrap p {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            transition: all 0.2s ease;
+            transform: translateY(2%);
+            mask-image: linear-gradient(to bottom, white 40%, transparent);
+        }
+        .button .wrap::before,
+        .button .wrap::after {
+            content: "";
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+        .button .wrap::before {
+            left: -15%;
+            right: -15%;
+            bottom: 25%;
+            top: -100%;
+            border-radius: 50%;
+            background-color: rgba(195,189,249, 0.12);
+        }
+        .button .wrap::after {
+            left: 6%;
+            right: 6%;
+            top: 12%;
+            bottom: 40%;
+            border-radius: 22px 22px 0 0;
+            box-shadow: inset 0 10px 8px -10px rgba(201,193,251, 0.8);
+            background: linear-gradient(
+                180deg,
+                rgba(201,193,251, 0.3) 0%,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(0, 0, 0, 0) 100%
+            );
+        }
+        .button:hover {
+            box-shadow:
+                inset 0 0.3rem 0.5rem rgba(172,152,241, 0.4),
+                inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7),
+                inset 0 -0.4rem 0.9rem rgba(172,152,241, 0.7),
+                0 3rem 3rem rgba(0, 0, 0, 0.3),
+                0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8);
+        }
+        .button:hover .wrap::before {
+            transform: translateY(-5%);
+        }
+        .button:hover .wrap::after {
+            opacity: 0.4;
+            transform: translateY(5%);
+        }
+        .button:hover .wrap p {
+            transform: translateY(-4%);
+        }
+        .button:active {
+            transform: translateY(4px);
+            box-shadow:
+                inset 0 0.3rem 0.5rem rgba(172,152,241, 0.5),
+                inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8),
+                inset 0 -0.4rem 0.9rem rgba(172,152,241, 0.4),
+                0 3rem 3rem rgba(0, 0, 0, 0.3),
+                0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8);
         }
 
         @media (max-width: 600px) {
@@ -249,35 +352,6 @@
             scale: 1.07;
         }
 
-        #boton-fachero {
-            background-color: #1b1b1b;
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: background-color 0.3s, transform 0.3s;
-            z-index: 1000;
-        }
-
-        #boton-fachero:hover {
-            background-color: #000000;
-            transform: scale(1.05);
-        }
-
-        #boton-fachero:active {
-            background-color: #000000;
-            transform: scale(1);
-        }
-
-        #boton-fachero:focus {
-            outline: none;
-        }
         .shops-c{
             cursor: pointer;
             transition: all .3s ease;
@@ -292,13 +366,6 @@
                 position: relative;
                 top: -60px;
                 left: -50px;
-            }
-
-            .logo{
-                position: relative;
-                scale: 0.7;
-                top: -10px;
-                left: -22px;
             }
         }
 
@@ -317,22 +384,12 @@
                 top: -60px;
                 left: -50px;
             }
-
-            .logo{
-                position: relative;
-                scale: 0.7;
-                top: -10px;
-                left: -22px;
-            }
         }
 
     </style>
 
-    <header>
-        <img style="width: 210px; position:absolute;" src="{{ asset('assets/logotipo-sd.png') }}" alt="Logotipo Shhask" class="logo" id="logo-sd"> <img style="width: 210px; position:absolute;">
-    </header>
-
     <main>
+        <img style="width: 210px; position: relative; top: 85px;" src="{{ asset('assets/shhask.png') }}" alt="Logotipo Shhask" class="logo" id="logo-sd">
         <section class="input-otter-c">
             <div class="card-otter-c">
                 <img src="{{ asset('assets/raccoon-1.png') }}" alt="Otter">
@@ -340,13 +397,14 @@
             <article id="card">
                 <div class="user-info-section">
                     <div class="profile-picture-c">
-                        <img src="https://api.dicebear.com/7.x/pixel-art/png" alt="Profile Picture">
+                        <img src='https://avataaars.io/?{{$avatarUser}}'
+                        />
                     </div>
                     <div class="user-info-c">
                         <p>
                             {{$fullNameUser}} (<span>@</span>{{$usernameUser}})
                         </p>
-                        <p>
+                        <p style="font-size: 25px;">
                             {{$title}}
                         </p>
                     </div>
@@ -359,8 +417,16 @@
 
         <div class="hint-c">
             <p>Deja una pista! 💡</p>
-            <textarea type="text" name="hint" id="hint" placeholder="Deja una pista si quieres"></textarea>
-            <button id="boton-fachero" type="submit">Enviar</button>
+            <textarea type="text" name="hint" id="hint" placeholder="Deja una pista"></textarea>
+            <button class="button" id="boton-fachero" type="submit">
+              <div class="wrap">
+                <p>
+                  <span>✧</span>
+                  <span style="color: #ac98f1;">✦</span>
+                  Enviar
+                </p>
+              </div>
+            </button>
         </div>
     </main>
 
@@ -408,7 +474,11 @@
                     $('#hint').val('');
                 },
                 error: function(xhr, status, error) {
-                    Swal.fire("Ups, parece que algo no está bien!😥");
+                    if (xhr.status === 429) {
+                        Swal.fire("Debes esperar un momento para volver a mandar otra mensaje🤗");
+                    } else {
+                        Swal.fire("Ups, parece que algo no está bien!😥");
+                    }
                 }
             });
         });
