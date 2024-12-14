@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="app/views/assets/shhask.ico">
+    <link rel="icon" href="{{ asset('assets/Logo.ico') }}" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- Meta tag de CSRF -->
@@ -13,7 +13,7 @@
 
 <body>
     <style>
-                @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
         * {
             user-select: none;
@@ -456,7 +456,15 @@
             var hint = $('#hint').val();
 
             if (mensaje === null || mensaje === '') {
-                Swal.fire("🖊️Escribe algo para poder enviar el mensaje🤗");
+                Swal.fire({
+                    title: "🖊️Escribe algo para poder enviar el mensaje🤗",
+                    width: 600,
+                    padding: "3em",
+                    color: "#716add",
+                    backdrop: `
+                        rgba(0,0,123,0.4)
+                    `
+                });
                 return;
             }
 
@@ -469,15 +477,39 @@
                     hint: hint
                 },
                 success: function(data) {
-                    Swal.fire("Se envió el mensaje anónimo😁, Shhh🤫!");
+                    Swal.fire({
+                        title: "Se envió el mensaje anónimo😁, Shhh🤫!",
+                        width: 600,
+                        padding: "3em",
+                        color: "#716add",
+                        backdrop: `
+                            rgba(0,0,123,0.4)
+                        `
+                        });
                     $('#mensaje').val('');
                     $('#hint').val('');
                 },
                 error: function(xhr, status, error) {
                     if (xhr.status === 429) {
-                        Swal.fire("Debes esperar un momento para volver a mandar otra mensaje🤗");
+                        Swal.fire({
+                            title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
+                            width: 600,
+                            padding: "3em",
+                            color: "#716add",
+                            backdrop: `
+                                rgba(0,0,123,0.4)
+                            `
+                        });
                     } else {
-                        Swal.fire("Ups, parece que algo no está bien!😥");
+                        Swal.fire({
+                            title: "Ups, parece que algo no está bien!😥",
+                            width: 600,
+                            padding: "3em",
+                            color: "#E63F3C",
+                            backdrop: `
+                                rgba(230,63,60,0.4)
+                            `
+                        });
                     }
                 }
             });

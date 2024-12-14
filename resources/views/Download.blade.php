@@ -5,9 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ asset('assets/Logo.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <title>Descarga Shhask!</title>
 </head>
 <style>
@@ -18,12 +19,7 @@
         justify-content: center;
         height: 100vh;
         overflow: hidden;
-        background: linear-gradient(to bottom, #5187ad, #ADD8E6);
-    }
-    .logo{
-        position: absolute;
-        top: 0;
-        left: 0;
+        background: linear-gradient(to bottom, #D2C8FF, #A1A2EA);
     }
 
     .container{
@@ -34,14 +30,23 @@
         align-items: center;
     }
 
-    .download{
-        position: absolute;
-        font-family: "Poppins", sans-serif;
-        font-size: 2em;
-        margin-right: 20px;
-        padding-bottom: 50px;
+    b{
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 60px;
+        color: white;
+        letter-spacing: 3px;
+        position: relative;
+        top: 180px;
+        left: -15px;
     }
 
+    .logo{
+        position: relative;
+        top: 220px;
+        left: -15px;
+        width: 300px;
+
+    }
     .playstore {
         transition: all 0.3s ease;
         position: relative;
@@ -51,8 +56,7 @@
     }
 </style>
 <body>
-    <img style="width: 300px;" src="{{asset('assets/logotipo-sd.png')}}" alt="" class="logo">
-    <div style="margin-bottom: 30px;"class="download">Descargá <b>Shhask!</b></div>
+    <img src="{{asset('assets/shhask.png')}}" alt="" class="logo">
     <div class="container">
         <img src="{{asset('assets/raccoon-1.png')}}" style="width: 430px;" alt="mascota-shhask" class="raccoon1">
         <img src="{{asset('assets/google-play-badge.png')}}" alt="" class="playstore">
