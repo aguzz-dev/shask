@@ -23,7 +23,7 @@ class Question extends Database
     public function store($request)
     {
         $publicPostId = $request->id_post;
-        $isPublicPostExist = (new Post)->getPostId($publicPostId);
+        $isPublicPostExist = (new PublicPost)->findById($publicPostId);
         if (!$isPublicPostExist) {
             throw new \Exception('Post público no encontrado', 404);
         }
