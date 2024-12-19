@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Database;
-use App\Traits\FindTrait;
 
 class Asset extends Database
 {

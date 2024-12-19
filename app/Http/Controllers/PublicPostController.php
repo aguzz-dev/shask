@@ -1,12 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Models\PublicPost;
-use App\Helpers\JsonRequest;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
-use App\Middleware\VerifyToken;
 use App\Models\PersonalAccessToken;
 
 class PublicPostController extends Controller
