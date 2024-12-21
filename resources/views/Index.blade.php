@@ -96,8 +96,8 @@
         }
 
         .profile-image svg {
-            width: 40px;
-            height: 40px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             object-fit: cover;
             background: linear-gradient(to bottom, #FFF1E6, #CDDAFD);
@@ -304,7 +304,7 @@
                     SkinColor: avatarUserData.SkinColor || 'White',
                     OutfitType: avatarUserData.OutfitType || 'BlazerTShirt',
                     OutfitColor: avatarUserData.OutfitColor || 'Black',
-                    AccessorieType: avatarUserData.AccessorieType || 'Nothing',
+                    Accessory: avatarUserData.Accessory || 'Nothing',
                 };
             };
 
@@ -382,7 +382,8 @@
                 });
 
                 // Use AccessoriesService for the accessories SVG
-                const accessorieType = Accessories[properties.AccessorieType]?.svg || '';
+                const accessorieType = Accessories[properties.Accessory]?.svg || '';
+                console.log(accessorieType);
                 const accessoriesSVG = AccessoriesService.drawSVG({
                     accessorieType: accessorieType
                 });
@@ -470,9 +471,9 @@
                     console.warn(`Invalid noseType: ${properties.NoseType}`);
                     properties.NoseType = 'Default';
                 }
-                if (!Accessories[properties.AccessorieType]) {
-                    console.warn(`Invalid accessoriesType: ${properties.AccessorieType}`);
-                    properties.AccessorieType = 'Nothing';
+                if (!Accessories[properties.Accessory]) {
+                    console.warn(`Invalid accessoriesType: ${properties.Accessory}`);
+                    properties.Accessory = 'Nothing';
                 }
 
                 const avatarElement = document.getElementById('avatar');
