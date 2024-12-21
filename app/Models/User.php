@@ -55,10 +55,14 @@ class User extends Database
                     '" . password_hash($request->password, PASSWORD_DEFAULT) . "'
                 )";
 
-        $this->query($sql);
-        $idUser = $this->dbConnection->insert_id;
-        $userData = $this->query("SELECT id, full_name, username, email FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
-        return $userData;
+        try {
+            $this->query($sql);
+            $idUser = $this->dbConnection->insert_id;
+            $userData = $this->query("SELECT id, full_name, username, email FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
+            return $userData;
+        } catch (\Throwable $th) {
+            throw new Exception($th->getMessage(), 422);
+        }
     }
 
     public function login($request)
