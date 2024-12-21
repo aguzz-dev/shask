@@ -201,32 +201,38 @@
             }
 
             .asset-icon {
+                position: absolute;
+                width: 200px;
+                right: -115px;
+                top: -60px;
+                z-index: 2;
+                transform: rotate(-12deg);
                 scale: 0.5;
                 right: -80px;
                 top: -70px;
             }
         }
 
-        .message-input:focus,
-        .hint-input:focus {
-            outline: none;
-            border-color: var(--color-2);
-            box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
-        }
-
-        .question-card {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+            .message-input:focus,
+            .hint-input:focus {
+                outline: none;
+                border-color: var(--color-2);
+                box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
             }
 
-            to {
-                opacity: 1;
+            .question-card {
+                animation: fadeIn 0.3s ease-in-out;
             }
-        }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
     </style>
 </head>
 
@@ -250,11 +256,11 @@
                 </div>
 
                 <form class="question-form" id="message-form">
-                    <textarea class="message-input" id="mensaje" placeholder="Envíame mensajes anónimos" rows="4"></textarea>
+                    <textarea class="message-input" maxlength="400" id="mensaje" placeholder="Envíame mensajes anónimos" rows="4"></textarea>
 
                     <div class="hint-section">
                         <p class="hint-text">Deja una pista! 💡</p>
-                        <input type="text" id="hint" class="hint-input" placeholder="Deja una pista">
+                        <input type="text" maxlength="255" id="hint" class="hint-input" placeholder="Deja una pista">
                         <button type="submit" id="boton-fachero" class="submit-button">Enviar</button>
                     </div>
                 </form>
