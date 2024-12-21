@@ -6,7 +6,6 @@
     <link rel="icon" href="{{ asset('assets/shhask-icono.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -16,9 +15,9 @@
 
         :root {
             --color-boton-card: #131215;
-            --color-1: rgba({{ implode(',', $colors[0]) }});
-            --color-2: rgba({{ implode(',', $colors[1]) }});
-            --color-3: rgba({{ implode(',', $colors[2]) }});
+            --color-1: rgba({{ isset($colors[0]) ? implode(',', $colors[0]) : '192,192,209,0.5' }});
+            --color-2: rgba({{ isset($colors[1]) ? implode(',', $colors[1]) : '192,192,209,0.9' }});
+            --color-3: rgba({{ isset($colors[2]) ? implode(',', $colors[2]) : '192,192,209,0.9' }});
             --negro: #131215;
         }
 

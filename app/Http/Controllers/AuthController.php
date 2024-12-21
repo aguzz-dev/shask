@@ -16,8 +16,16 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         LoginRequest::validate($request);
-        $data = (new User)->login($request);
-        return response()->json(['Inicio de sesión exitoso', $data]);
+
+        try {
+            $data = (new User)->login($request);
+            return response()->json(['Inicio de sesión exitoso', $data]);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
     }
 
     public function checkSession(Request $request)

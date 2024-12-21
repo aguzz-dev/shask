@@ -27,6 +27,12 @@ class PublicPost extends Database
         return $post[0]['id'];
     }
 
+    public function getPublicPostByPostId($postId)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE id = {$postId}";
+        return $this->query($sql)->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function getPostDataByUrl($url)
     {
         $post = $this->query("SELECT * FROM {$this->table}
@@ -46,8 +52,16 @@ class PublicPost extends Database
         }
         $userId = (new Post)->findById($id)[0]['user_id'];
         $url    = $this->generateRandomUrl();
+
+        $isPostAlreadyPublished = (new PublicPost)->getPublicPostByPostId($id);
+        if ($isPostAlreadyPublished){
+            $post[0]['url'] = $isPostAlreadyPublished[0]['url'];
+            return $post;
+        }
+
         $post[0]['url'] = $url;
         $this->query("UPDATE `posts` SET status = 1 WHERE id = {$id}");
+
         $this->query("INSERT INTO `{$this->table}` (`post_id`,`user_id`,`url`) VALUES ('{$id}', '{$userId}', '{$url}')");
         return $post;
     }
