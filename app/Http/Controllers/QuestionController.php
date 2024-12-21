@@ -55,6 +55,7 @@ class QuestionController extends Controller
             $dataPost = (new PublicAsset)->findById($existPost['asset_id'])[0];
         }
         $userData = (new User)->findById($existPost['user_id'])[0];
+        $avatar = $this->transformJsonToAvatarUrl($userData['avatar']);
         return view('Index', [
             'idPublicPost' => $existPost['id'],
             'idPost' => $existPost['post_id'],
@@ -62,11 +63,34 @@ class QuestionController extends Controller
             'fullNameUser' => $userData['full_name'],
             'usernameUser' => $userData['username'],
             'emailUser' => $userData['email'],
-            'avatarUser' => json_decode($userData['avatar']),
+            'avatarUser' => $avatar,
             'title' => $existPost['title'],
             'url' => $existPost['url'],
             'colors' => json_decode($dataPost['color']),
             'assetIcon' => $dataPost['icon']
         ]);
+    }
+
+    private function transformJsonToAvatarUrl($data)
+    {
+        json_decode($data);
+        $baseUrl = 'https://avataaars.io/';
+
+        $queryParams = http_build_query([
+            'avatarStyle' => 'Circle',
+            'topType' => $data['HairStyle'] ?? 'ShortHairShortWaved',
+            'accessoriesType' => $data['Accessory'] ?? 'Blank',
+            'hairColor' => $data['HairColor'] ?? 'Black',
+            'facialHairType' => $data['FacialHairType'] ?? 'Blank',
+            'facialHairColor' => $data['FacialHairColor'] ?? 'Black',
+            'clotheType' => $data['OutfitType'] ?? 'Hoodie',
+            'clotheColor' => $data['OutfitColor'] ?? 'Gray01',
+            'eyeType' => $data['EyeType'] ?? 'Default',
+            'eyebrowType' => $data['EyebrowType'] ?? 'Default',
+            'mouthType' => $data['MouthType'] ?? 'Default',
+            'skinColor' => $data['SkinColor'] ?? 'Light',
+        ]);
+
+        return $baseUrl . '?' . $queryParams;
     }
 }
