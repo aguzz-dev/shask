@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,11 +72,11 @@
 
         .asset-icon {
             position: absolute;
-            width: 200px;
-            right: -115px;
-            top: -60px;
+            width: 120px;
+            right: -50px;
+            top: -40px;
             z-index: 2;
-            transform: rotate(-12deg);
+            transform: rotate(-7deg);
         }
 
         .question-card {
@@ -94,7 +95,7 @@
             margin-bottom: 20px;
         }
 
-        .profile-image {
+        .profile-image svg {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -188,7 +189,9 @@
         }
 
         @media (max-width: 480px) {
-            html, body {
+
+            html,
+            body {
                 overflow: hidden;
                 height: 100vh;
             }
@@ -197,7 +200,7 @@
                 padding: 10px;
             }
 
-            .asset-icon{
+            .asset-icon {
                 scale: 0.5;
                 right: -80px;
                 top: -70px;
@@ -216,11 +219,17 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body>
     <h1 class="sr-only">shhask</h1>
     <div class="container" style="margin-top: 25px;">
@@ -229,22 +238,19 @@
         </header>
 
         <div class="card-container">
-            <img class="asset-icon" src="{{ asset('images/'.$assetIcon.'.png') }}" alt="Snake">
+            <img class="asset-icon" src="{{ asset('images/' . $assetIcon . '.png') }}" alt="Snake">
             <main class="question-card">
                 <div class="profile-section">
-                    <img src="{{$avatarUser}}" alt="Profile" class="profile-image">
+                    <div id="avatar" class="profile-image">
+                    </div>
                     <div class="profile-info">
-                        <span class="username"><span>@</span>{{$usernameUser}}</span>
-                        <h2 class="question-text">{{$title}}</h2>
+                        <span class="username"><span>@</span>{{ $usernameUser }}</span>
+                        <h2 class="question-text">{{ $title }}</h2>
                     </div>
                 </div>
 
                 <form class="question-form" id="message-form">
-                    <textarea
-                        class="message-input"
-                        id="mensaje"
-                        placeholder="Envíame mensajes anónimos"
-                        rows="4"></textarea>
+                    <textarea class="message-input" id="mensaje" placeholder="Envíame mensajes anónimos" rows="4"></textarea>
 
                     <div class="hint-section">
                         <p class="hint-text">Deja una pista! 💡</p>
@@ -261,76 +267,290 @@
                 <div class="app-promo">
                     <p>Recibe preguntas anónimas!</p>
                     <a href="#" class="play-store-button">
-                        <img src="{{ asset('assets/google-play-badge.png') }}" alt="Get it on Google Play" class="store-badge">
+                        <img src="{{ asset('assets/google-play-badge.png') }}" alt="Get it on Google Play"
+                            class="store-badge">
                     </a>
                 </div>
             </div>
         </footer>
-    </div>
 
-    <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
+        <script src="{{ asset('avatar/hairstyles.js') }}"></script>
+        <script src="{{ asset('avatar/haircolors.js') }}"></script>
+        <script src="{{ asset('avatar/skincolors.js') }}"></script>
+        <script src="{{ asset('avatar/facialhair.js') }}"></script>
+        <script src="{{ asset('avatar/facialhaircolors.js') }}"></script>
+        <script src="{{ asset('avatar/eyes.js') }}"></script>
+        <script src="{{ asset('avatar/eyebrows.js') }}"></script>
+        <script src="{{ asset('avatar/mouth.js') }}"></script>
+        <script src="{{ asset('avatar/outfits.js') }}"></script>
+        <script src="{{ asset('avatar/outfitcolors.js') }}"></script>
+        <script src="{{ asset('avatar/noses.js') }}"></script>
+        <script src="{{ asset('avatar/accessories.js') }}"></script>
 
-        $('#boton-fachero').on('click', function(event) {
-            event.preventDefault();
-            var mensaje = $('#mensaje').val();
-            var hint = $('#hint').val();
+        <script>
+            const avatarUserData = @json($avatarUser);
+            console.log(avatarUserData);
 
-            if (mensaje === null || mensaje === '') {
-                Swal.fire({
-                    title: "🖊️Escribe algo para poder enviar el mensaje🤗",
-                    width: 600,
-                    padding: "3em",
-                    color: "#716add",
-                    backdrop: `rgba(0,0,123,0.4)`
+            const parseURLParams = () => {
+                return {
+                    HairStyle: avatarUserData.HairStyle || 'Bald',
+                    HairColor: avatarUserData.HairColor || 'Black',
+                    FacialHairStyle: avatarUserData.FacialHairStyle || 'Nothing',
+                    FacialHairColor: avatarUserData.FacialHairColor || 'Black',
+                    EyeType: avatarUserData.EyeType || 'Default',
+                    EyeBrowType: avatarUserData.EyeBrowType || 'Default',
+                    NoseType: avatarUserData.NoseType || 'Default',
+                    MouthType: avatarUserData.MouthType || 'Default',
+                    SkinColor: avatarUserData.SkinColor || 'White',
+                    OutfitType: avatarUserData.OutfitType || 'BlazerTShirt',
+                    OutfitColor: avatarUserData.OutfitColor || 'Black',
+                    AccessorieType: avatarUserData.AccessorieType || 'Nothing',
+                };
+            };
+
+
+
+            const drawSVG = (properties) => {
+                // Use SkinService for the skin SVG
+                const skinSVG = SkinService.drawSVG({
+                    skinColor: SkinColors[properties.SkinColor]?.svg || SkinColors.White.svg
                 });
-                return;
-            }
 
-            $.ajax({
-                type: 'POST',
-                url: 'question/create-web',
-                data: {
-                    id_post: {{$idPost}},
-                    text: mensaje,
-                    hint: hint
-                },
-                success: function(data) {
+                // Use HairService for the hair SVG
+                const hairStyle = HairStyles[properties.HairStyle] || HairStyles.Bald;
+                const hairColor = HairColors[properties.HairColor]?.hexCode || HairColors.Black.hexCode;
+                const hairSVG = HairService.drawSVG({
+                    style: {
+                        ...hairStyle,
+                        svg: hairStyle?.svg.replaceAll('$TO_REPLACE_WITH_HAIRS_COLOR', hairColor),
+                    },
+                    color: {
+                        hexCode: hairColor
+                    },
+                });
+
+                // Use FacialHairService for the facial hair SVG
+                const facialHairStyle = FacialHair[properties.FacialHairStyle];
+                const facialHairColor = FacialHairColors[properties.FacialHairColor]?.hexCode || FacialHairColors.Black
+                    .hexCode;
+                const facialHairSVG = FacialHairService.drawSVG({
+                    style: {
+                        ...facialHairStyle,
+                        svg: facialHairStyle?.svg.replaceAll('$TO_REPLACE_WITH_FACIAL_HAIRS_COLOR',
+                            facialHairColor),
+                    },
+                    color: {
+                        hexCode: facialHairColor
+                    },
+                });
+
+                // Use EyesService for the eyes SVG
+                const eyeStyle = Eyes[properties.EyeType]?.svg || '';
+                const eyeSVG = EyesService.drawSVG({
+                    eye: eyeStyle
+                });
+
+                // Use EyebrowService for the eye brow SVG
+                const eyeBrowType = Eyebrows[properties.EyeBrowType]?.svg || '';
+                const eyeBrowSVG = EyesBrowsService.drawSVG({
+                    eyebrowType: eyeBrowType
+                });
+
+                // Use MouthService for the mouth SVG
+                const mouthType = Mouths[properties.MouthType]?.svg || '';
+                const mouthSVG = MouthsService.drawSVG({
+                    mouthType: mouthType
+                });
+
+                // Use OutfitsService for the hair SVG
+                const outfitStyle = Outfits[properties.OutfitType];
+                const outfitColor = OutfitColors[properties.OutfitColor]?.hexCode || OutfitColors.Black.hexCode;
+                const outfitSVG = OutfitsService.drawSVG({
+                    style: {
+                        ...outfitStyle,
+                        svg: outfitStyle?.svg.replaceAll('$TO_REPLACE_WITH_OUTFIT_COLOR', outfitColor),
+                    },
+                    color: {
+                        hexCode: outfitColor
+                    },
+                });
+
+                // Use NoseService for the nose SVG
+                const noseType = Noses[properties.NoseType]?.svg || '';
+                const noseSVG = NosesService.drawSVG({
+                    noseType: noseType
+                });
+
+                // Use AccessoriesService for the accessories SVG
+                const accessorieType = Accessories[properties.AccessorieType]?.svg || '';
+                const accessoriesSVG = AccessoriesService.drawSVG({
+                    accessorieType: accessorieType
+                });
+
+                return `
+                <svg width="264px" height="280px" viewBox="0 0 264 280" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        ${skinSVG}
+                    </g>
+                    <g transform="translate(75, 80)">
+                        ${mouthSVG}
+                    </g>
+                    <g transform="translate(75, 80)">
+                        ${noseSVG}
+                    </g>
+                    <g transform="translate(9.5, 2)">
+                        ${facialHairSVG}
+                    </g>
+                    <g transform="translate(75, 80)">
+                        ${eyeSVG}
+                    </g>
+                    <g transform="translate(75, 80)">
+                        ${eyeBrowSVG}
+                    </g>
+
+                    <g transform="translate(10, 0)">
+                        ${hairSVG}
+                    </g>
+
+                    <g transform="translate(28, 100)">
+                        ${outfitSVG}
+                    </g>
+                    <g transform="translate(75, 80)">
+                        ${accessoriesSVG}
+                    </g>
+                </svg>
+            `;
+            };
+
+            const renderAvatar = () => {
+                const properties = parseURLParams();
+
+                // Validate properties
+                if (!HairStyles[properties.HairStyle]) {
+                    console.warn(`Invalid hairStyle: ${properties.HairStyle}`);
+                    properties.HairStyle = 'Bald';
+                }
+                if (!HairColors[properties.HairColor]) {
+                    console.warn(`Invalid hairColor: ${properties.HairColor}`);
+                    properties.HairColor = 'Black';
+                }
+                if (!SkinColors[properties.SkinColor]) {
+                    console.warn(`Invalid skinColor: ${properties.SkinColor}`);
+                    properties.SkinColor = 'White';
+                }
+                if (!FacialHair[properties.FacialHairStyle]) {
+                    console.warn(`Invalid facialHairStyle: ${properties.FacialHairStyle}`);
+                    properties.FacialHairStyle = 'Nothing';
+                }
+                if (!FacialHairColors[properties.FacialHairColor]) {
+                    console.warn(`Invalid facialHairColor: ${properties.FacialHairColor}`);
+                    properties.FacialHairColor = 'Black';
+                }
+                if (!Eyes[properties.EyeType]) {
+                    console.warn(`Invalid eyeType: ${properties.EyeType}`);
+                    properties.EyeType = 'Default';
+                }
+                if (!Eyebrows[properties.EyeBrowType]) {
+                    console.warn(`Invalid eyeBrowType: ${properties.EyeBrowType}`);
+                    properties.EyeBrowType = 'Default';
+                }
+                if (!Mouths[properties.MouthType]) {
+                    console.warn(`Invalid mouthType: ${properties.MouthType}`);
+                    properties.MouthType = 'Default';
+                }
+                if (!Outfits[properties.OutfitType]) {
+                    console.warn(`Invalid outfitType: ${properties.OutfitType}`);
+                    properties.OutfitType = 'BlazerTShirt';
+                }
+                if (!OutfitColors[properties.OutfitColor]) {
+                    console.warn(`Invalid outfitColor: ${properties.OutfitColor}`);
+                    properties.OutfitColor = 'Black';
+                }
+                if (!Noses[properties.NoseType]) {
+                    console.warn(`Invalid noseType: ${properties.NoseType}`);
+                    properties.NoseType = 'Default';
+                }
+                if (!Accessories[properties.AccessorieType]) {
+                    console.warn(`Invalid accessoriesType: ${properties.AccessorieType}`);
+                    properties.AccessorieType = 'Nothing';
+                }
+
+                const avatarElement = document.getElementById('avatar');
+                avatarElement.innerHTML = drawSVG(properties);
+            };
+
+            // Initialize
+            renderAvatar();
+        </script>
+
+
+
+
+
+        <script>
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $('#boton-fachero').on('click', function(event) {
+                event.preventDefault();
+                var mensaje = $('#mensaje').val();
+                var hint = $('#hint').val();
+
+                if (mensaje === null || mensaje === '') {
                     Swal.fire({
-                        title: "Se envió el mensaje anónimo😁, Shhh🤫!",
+                        title: "🖊️Escribe algo para poder enviar el mensaje🤗",
                         width: 600,
                         padding: "3em",
                         color: "#716add",
                         backdrop: `rgba(0,0,123,0.4)`
                     });
-                    $('#mensaje').val('');
-                    $('#hint').val('');
-                },
-                error: function(xhr, status, error) {
-                    if (xhr.status === 429) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'question/create-web',
+                    data: {
+                        id_post: {{ $idPost }},
+                        text: mensaje,
+                        hint: hint
+                    },
+                    success: function(data) {
                         Swal.fire({
-                            title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
+                            title: "Se envió el mensaje anónimo😁, Shhh🤫!",
                             width: 600,
                             padding: "3em",
                             color: "#716add",
                             backdrop: `rgba(0,0,123,0.4)`
                         });
-                    } else {
-                        Swal.fire({
-                            title: "Ups, parece que algo no está bien!😥",
-                            width: 600,
-                            padding: "3em",
-                            color: "#E63F3C",
-                            backdrop: `rgba(230,63,60,0.4)`
-                        });
+                        $('#mensaje').val('');
+                        $('#hint').val('');
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status === 429) {
+                            Swal.fire({
+                                title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
+                                width: 600,
+                                padding: "3em",
+                                color: "#716add",
+                                backdrop: `rgba(0,0,123,0.4)`
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Ups, parece que algo no está bien!😥",
+                                width: 600,
+                                padding: "3em",
+                                color: "#E63F3C",
+                                backdrop: `rgba(230,63,60,0.4)`
+                            });
+                        }
                     }
-                }
+                });
             });
-        });
-    </script>
+        </script>
 </body>
+
 </html>
