@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -49,7 +50,7 @@ class UserController extends Controller
     public function destroy(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
-        if(!isset($request->id)){
+        if (!isset($request->id)) {
             http_response_code(422);
             echo json_encode(['El campo id es obligatorio']);
             exit;
@@ -71,6 +72,23 @@ class UserController extends Controller
         try {
             (new User)->changePassword($request);
             return response()->json('Password actualizada con éxito');
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
+
+    public function blockUser(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            (new User)->blockUser(
+                $request->user_id,
+                $request->question_id
+            );
+            return response()->json('Usuario bloqueado con éxito');
         } catch (\Throwable $th) {
             return response()->json(
                 ['error' => $th->getMessage()],

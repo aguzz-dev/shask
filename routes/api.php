@@ -26,6 +26,8 @@ Route::put('/posts', [PostController::class, 'update']);
 Route::delete('/posts', [PostController::class, 'destroy']);
 Route::post('/posts/questions', [PostController::class, 'getPostByIdWithQuestions']);
 
+Route::post('/block', [UserController::class, 'blockUser']);
+
 Route::post('/user/create', [UserController::class, 'store']);
 Route::put('/user/update', [UserController::class, 'update']);
 Route::put('/user/avatar', [UserController::class, 'updateAvatar']);

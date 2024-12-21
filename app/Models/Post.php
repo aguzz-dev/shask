@@ -1,10 +1,8 @@
 <?php
 namespace App\Models;
 
-use App\Helpers\JsonResponse;
 use App\Database;
-use App\Helpers\GetHeader;
-use App\Traits\FindTrait;
+use Carbon\Carbon;
 
 class Post extends Database
 {
@@ -38,16 +36,21 @@ class Post extends Database
         $posts = [];
 
         $allPosts = $this->query("SELECT posts.*, public_posts.url,
-                                         (SELECT COUNT(*)
-                                          FROM questions
-                                          WHERE questions.public_post_id = public_posts.post_id
-                                          AND questions.status = 0) AS sin_responder
-                                  FROM {$this->table} AS posts
-                                  LEFT JOIN public_posts ON public_posts.post_id = posts.id
-                                  WHERE posts.user_id = '{$userId}'");
+                                             (SELECT COUNT(*)
+                                              FROM questions
+                                              WHERE questions.public_post_id = public_posts.post_id
+                                              AND questions.status = 0) AS sin_responder
+                                      FROM {$this->table} AS posts
+                                      LEFT JOIN public_posts ON public_posts.post_id = posts.id
+                                      WHERE posts.user_id = '{$userId}'");
 
         foreach ($allPosts as $post) {
             $post['sin_responder'] = (int) $post['sin_responder'];
+
+            $createdAt = Carbon::parse($post['created_at']);
+
+            $post['vencido'] = $createdAt->diffInDays(Carbon::now()) > 3 ? 1 : 0;
+
             $posts[] = $post;
         }
 
@@ -59,10 +62,21 @@ class Post extends Database
     {
         $title  = $request->title;
         $userId = (new PersonalAccessToken)->getIdByToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
-        $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}')");
+        $fechaHoy = Carbon::now()->toDateString();
+        $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}')");
         $idPost = $this->dbConnection->insert_id;
         $postCreated = $this->findById($idPost);
+
+        $this->eliminarPostsVencidos($userId);
+
         return $postCreated;
+    }
+
+    public function eliminarPostsVencidos($userId)
+    {
+        $fechaVencimiento = Carbon::now()->subDays(3)->toDateString();
+
+        $this->query("DELETE FROM {$this->table} WHERE created_at <= '{$fechaVencimiento}' AND user_id = '{$userId}'");
     }
 
     public function update($request)

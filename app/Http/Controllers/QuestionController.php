@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Asset;
 use App\Models\Question;
+use App\Models\Blacklist;
 use App\Models\PublicPost;
 use App\Models\PublicAsset;
 use Illuminate\Http\Request;
@@ -33,6 +34,10 @@ class QuestionController extends Controller
 
     public function storeQuestionFromWeb(Request $request)
     {
+        $isBlacklisted = (new Blacklist)->findByIp($request->ip());
+        if($isBlacklisted){
+            return response()->json('Usuario bloqueado por cargoso', 423);
+        }
         $res = (new Question)->store((object)$request);
         return response()->json(['Pregunta creada con éxito', $res]);
     }

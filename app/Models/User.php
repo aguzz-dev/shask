@@ -148,4 +148,18 @@ class User extends Database
         return $token;
     }
 
+    public function blockUser($userId, $questionId)
+    {
+        $user = $this->findById($userId);
+        if(!$user){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+
+        $question = (new Question)->findById($questionId);
+        if(!$question){
+            throw new Exception('Pregunta no encontrada', 404);
+        }
+
+        $this->query("INSERT INTO `blacklist_user` (`user_id`, `ip`) VALUES ('{$userId}', '{$question[0]['ip']}')");
+    }
 }

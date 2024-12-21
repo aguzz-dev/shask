@@ -80,10 +80,10 @@ class PublicPost extends Database
     }
 
     public static function generateRandomUrl() {
-        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
         $url = '';
         for ($i = 0; $i < 4; $i++) {
-            $url .= $chars[rand(0, 61)];
+            $url .= $chars[rand(0, 32)];
         }
         return $url;
     }

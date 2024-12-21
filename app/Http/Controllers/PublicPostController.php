@@ -10,8 +10,12 @@ class PublicPostController extends Controller
     public function makePublicPost(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
-        $res = (new PublicPost)->makePublicPost($request->id);
-        return response()->json(['Post publicado con éxito', $res]);
+        try {
+            $res = (new PublicPost)->makePublicPost($request->id);
+            return response()->json(['Post publicado con éxito', $res]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode());
+        }
     }
 
     public function makePrivatePost(Request $request)

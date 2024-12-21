@@ -213,26 +213,26 @@
             }
         }
 
-            .message-input:focus,
-            .hint-input:focus {
-                outline: none;
-                border-color: var(--color-2);
-                box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
+        .message-input:focus,
+        .hint-input:focus {
+            outline: none;
+            border-color: var(--color-2);
+            box-shadow: 0 0 0 2px rgba(170, 170, 170, 0.2);
+        }
+
+        .question-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
             }
 
-            .question-card {
-                animation: fadeIn 0.3s ease-in-out;
+            to {
+                opacity: 1;
             }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-
-                to {
-                    opacity: 1;
-                }
-            }
+        }
     </style>
 </head>
 
@@ -260,7 +260,8 @@
 
                     <div class="hint-section">
                         <p class="hint-text">Deja una pista! 💡</p>
-                        <input type="text" maxlength="255" id="hint" class="hint-input" placeholder="Deja una pista">
+                        <input type="text" maxlength="255" id="hint" class="hint-input"
+                            placeholder="Deja una pista">
                         <button type="submit" id="boton-fachero" class="submit-button">Enviar</button>
                     </div>
                 </form>
@@ -295,7 +296,6 @@
 
         <script>
             const avatarUserData = @json($avatarUser);
-            console.log(avatarUserData);
 
             const parseURLParams = () => {
                 return {
@@ -389,7 +389,6 @@
 
                 // Use AccessoriesService for the accessories SVG
                 const accessorieType = Accessories[properties.Accessory]?.svg || '';
-                console.log(accessorieType);
                 const accessoriesSVG = AccessoriesService.drawSVG({
                     accessorieType: accessorieType
                 });
@@ -537,6 +536,7 @@
                         $('#hint').val('');
                     },
                     error: function(xhr, status, error) {
+
                         if (xhr.status === 429) {
                             Swal.fire({
                                 title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
@@ -545,6 +545,17 @@
                                 color: "#716add",
                                 backdrop: `rgba(0,0,123,0.4)`
                             });
+
+                        } else if (xhr.status === 423) { //Usuario bloqueado
+                            Swal.fire({
+                                title: "Se envió el mensaje anónimo😁, Shhh🤫!",
+                                width: 600,
+                                padding: "3em",
+                                color: "#716add",
+                                backdrop: `rgba(0,0,123,0.4)`
+                            });
+                            $('#mensaje').val('');
+                            $('#hint').val('');
                         } else {
                             Swal.fire({
                                 title: "Ups, parece que algo no está bien!😥",
