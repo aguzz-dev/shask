@@ -296,16 +296,16 @@
 
         <script>
             const avatarUserData = @json($avatarUser);
-
+            console.log(avatarUserData);
             const parseURLParams = () => {
                 return {
                     HairStyle: avatarUserData.HairStyle || 'Bald',
                     HairColor: avatarUserData.HairColor || 'Black',
-                    FacialHairStyle: avatarUserData.FacialHairStyle || 'Nothing',
+                    FacialHairType: avatarUserData.FacialHairType || 'Nothing',
                     FacialHairColor: avatarUserData.FacialHairColor || 'Black',
                     EyeType: avatarUserData.EyeType || 'Default',
-                    EyeBrowType: avatarUserData.EyeBrowType || 'Default',
-                    NoseType: avatarUserData.NoseType || 'Default',
+                    EyeBrowType: avatarUserData.EyebrowType || 'Default',
+                    NoseType: avatarUserData.Nose || 'Default',
                     MouthType: avatarUserData.MouthType || 'Default',
                     SkinColor: avatarUserData.SkinColor || 'White',
                     OutfitType: avatarUserData.OutfitType || 'BlazerTShirt',
@@ -336,13 +336,13 @@
                 });
 
                 // Use FacialHairService for the facial hair SVG
-                const facialHairStyle = FacialHair[properties.FacialHairStyle];
+                const facialHairType = FacialHair[properties.FacialHairType];
                 const facialHairColor = FacialHairColors[properties.FacialHairColor]?.hexCode || FacialHairColors.Black
                     .hexCode;
                 const facialHairSVG = FacialHairService.drawSVG({
                     style: {
-                        ...facialHairStyle,
-                        svg: facialHairStyle?.svg.replaceAll('$TO_REPLACE_WITH_FACIAL_HAIRS_COLOR',
+                        ...facialHairType,
+                        svg: facialHairType?.svg.replaceAll('$TO_REPLACE_WITH_FACIAL_HAIRS_COLOR',
                             facialHairColor),
                     },
                     color: {
@@ -444,9 +444,9 @@
                     console.warn(`Invalid skinColor: ${properties.SkinColor}`);
                     properties.SkinColor = 'White';
                 }
-                if (!FacialHair[properties.FacialHairStyle]) {
-                    console.warn(`Invalid facialHairStyle: ${properties.FacialHairStyle}`);
-                    properties.FacialHairStyle = 'Nothing';
+                if (!FacialHair[properties.FacialHairType]) {
+                    console.warn(`Invalid facialHairType: ${properties.FacialHairType}`);
+                    properties.FacialHairType = 'Nothing';
                 }
                 if (!FacialHairColors[properties.FacialHairColor]) {
                     console.warn(`Invalid facialHairColor: ${properties.FacialHairColor}`);

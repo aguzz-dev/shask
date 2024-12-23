@@ -1,6 +1,5 @@
 const AccessoriesService = {
 	drawSVG: ({ accessorieType }) => {
-		console.log(accessorieType);
 		return `
         <svg width="120px" height="120px" viewBox="0 0 120 120">
         ${accessorieType}
