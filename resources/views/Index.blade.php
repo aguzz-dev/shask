@@ -488,24 +488,18 @@
             // Initialize
             renderAvatar();
         </script>
-
-
-
-
-
         <script>
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
+            // Configuración del CSRF Token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            $('#boton-fachero').on('click', function(event) {
+            // Evento de clic para el botón
+            document.getElementById('boton-fachero').addEventListener('click', async function(event) {
                 event.preventDefault();
-                var mensaje = $('#mensaje').val();
-                var hint = $('#hint').val();
 
-                if (mensaje === null || mensaje === '') {
+                const mensaje = document.getElementById('mensaje').value;
+                const hint = document.getElementById('hint').value;
+
+                if (!mensaje) {
                     Swal.fire({
                         title: "🖊️Escribe algo para poder enviar el mensaje🤗",
                         width: 600,
@@ -516,15 +510,24 @@
                     return;
                 }
 
-                $.ajax({
-                    type: 'POST',
-                    url: 'question/create-web',
-                    data: {
-                        id_post: {{ $idPost }},
-                        text: mensaje,
-                        hint: hint
-                    },
-                    success: function(data) {
+                try {
+                    // Enviar la solicitud POST asincrónica
+                    const response = await fetch('question/create-web', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            id_post: {{ $idPost }},
+                            text: mensaje,
+                            hint: hint
+                        })
+                    });
+
+                    // Verificar si la respuesta fue exitosa
+                    if (response.ok) {
+                        const data = await response.json();
                         Swal.fire({
                             title: "Se envió el mensaje anónimo😁, Shhh🤫!",
                             width: 600,
@@ -532,21 +535,20 @@
                             color: "#716add",
                             backdrop: `rgba(0,0,123,0.4)`
                         });
-                        $('#mensaje').val('');
-                        $('#hint').val('');
-                    },
-                    error: function(xhr, status, error) {
-
-                        if (xhr.status === 429) {
+                        // Limpiar los campos
+                        document.getElementById('mensaje').value = '';
+                        document.getElementById('hint').value = '';
+                    } else {
+                        // Manejar el caso en que la respuesta no sea exitosa
+                        if (response.status === 429) {
                             Swal.fire({
-                                title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
+                                title: "Debes esperar un momento para volver a mandar otro mensaje🤗",
                                 width: 600,
                                 padding: "3em",
                                 color: "#716add",
                                 backdrop: `rgba(0,0,123,0.4)`
                             });
-
-                        } else if (xhr.status === 423) { //Usuario bloqueado
+                        } else if (response.status === 423) { // Usuario bloqueado
                             Swal.fire({
                                 title: "Se envió el mensaje anónimo😁, Shhh🤫!",
                                 width: 600,
@@ -554,8 +556,9 @@
                                 color: "#716add",
                                 backdrop: `rgba(0,0,123,0.4)`
                             });
-                            $('#mensaje').val('');
-                            $('#hint').val('');
+                            // Limpiar los campos
+                            document.getElementById('mensaje').value = '';
+                            document.getElementById('hint').value = '';
                         } else {
                             Swal.fire({
                                 title: "Ups, parece que algo no está bien!😥",
@@ -566,9 +569,20 @@
                             });
                         }
                     }
-                });
+                } catch (error) {
+                    // Manejar cualquier error durante la solicitud
+                    Swal.fire({
+                        title: "Ups, algo salió mal!😥",
+                        width: 600,
+                        padding: "3em",
+                        color: "#E63F3C",
+                        backdrop: `rgba(230,63,60,0.4)`
+                    });
+                    console.error("Error en la solicitud:", error);
+                }
             });
         </script>
+
 </body>
 
 </html>

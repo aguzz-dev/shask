@@ -36,17 +36,11 @@ class QuestionController extends Controller
     public function storeQuestionFromWeb(Request $request)
     {
         $isBlacklisted = (new Blacklist)->findByIp($request->ip());
-        if ($isBlacklisted) {
+        if($isBlacklisted){
             return response()->json('Usuario bloqueado por cargoso', 423);
         }
-
-        $publicPostId = $request->id_post;
-        $text = $request->text;
-        $hint = $request->hint;
-
-        StoreQuestionJob::dispatch($publicPostId, $text, $hint);
-
-        return response()->json(['message' => 'Pregunta creada con éxito']);
+        $res = (new Question)->store((object)$request);
+        return response()->json(['Pregunta creada con éxito', $res]);
     }
 
     public function answerQuestion(Request $request)
