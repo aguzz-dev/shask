@@ -514,13 +514,20 @@
                     title: "Enviando mensaje anónimo😁 Shhh🤫!",
                     icon: "success",
                     draggable: true,
-                    timer: 2000,
+                    timer: 1200,
                     timerProgressBar: true,
+                    backdrop: 'rgba(0,0,123,0.4)',
                     didOpen: () => {
                         Swal.showLoading();
                     },
                     willClose: () => {
-                        // Aquí puedes hacer algo cuando el modal se cierre
+                        Swal.fire({
+                            title: "Mensaje enviado!",
+                            width: 600,
+                            padding: "3em",
+                            color: "#716add",
+                            backdrop: 'rgba(0,0,123,0.4)',
+                        });
                     }
                 });
 
@@ -542,13 +549,27 @@
 
                         if (xhr.status === 429) {
                             Swal.fire({
-                                title: "Debes esperar un momento para volver a mandar otra mensaje🤗",
+                                title: "Debes esperar un momento para volver a mandar otro mensaje🤗",
                                 width: 600,
                                 padding: "3em",
                                 color: "#716add",
                                 backdrop: `rgba(0,0,123,0.4)`
                             });
 
+                            var $button = $('#boton-fachero');
+                            var countdown = 30;
+
+                            $button.prop('disabled', true).text('Espera... ' + countdown + 's');
+
+                            var timer = setInterval(function() {
+                                countdown--;
+                                $button.text('Espera... ' + countdown + 's');
+
+                                if (countdown <= 0) {
+                                    clearInterval(timer);
+                                    $button.prop('disabled', false).text('Enviar');
+                                }
+                            }, 1000);
                         } else if (xhr.status === 423) { //Usuario bloqueado
                             Swal.fire({
                                 title: "Se envió el mensaje anónimo😁, Shhh🤫!",
