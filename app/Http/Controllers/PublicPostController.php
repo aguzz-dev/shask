@@ -9,17 +9,16 @@ class PublicPostController extends Controller
 {
     public function makePublicPost(Request $request)
     {
-        $request->validate([
-            'post_id' => 'required|unique:public_posts,post_id',
-        ], [
-            'post_id.unique' => 'El post ya se encuentra publicado.',
-        ]);
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         try {
             $res = (new PublicPost)->makePublicPost($request->id);
             return response()->json(['Post publicado con éxito', $res]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], $e->getCode());
+            if ($e->getCode() == 404) {
+                return response()->json(['error' => $e->getMessage()], 404);
+            }else{
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         }
     }
 
