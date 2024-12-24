@@ -47,18 +47,20 @@ class User extends Database
                 (`full_name`,
                 `username`,
                 `email`,
-                `password`)
+                `password`,
+                `age`)
                 VALUES (
                     '{$request->full_name}',
                     '{$request->username}',
                     '{$request->email}',
-                    '" . password_hash($request->password, PASSWORD_DEFAULT) . "'
+                    '" . password_hash($request->password, PASSWORD_DEFAULT) . "',
+                    '{$request->age}'
                 )";
 
         try {
             $this->query($sql);
             $idUser = $this->dbConnection->insert_id;
-            $userData = $this->query("SELECT id, full_name, username, email FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
+            $userData = $this->query("SELECT id, full_name, username, email, age FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
             return $userData;
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage(), 422);

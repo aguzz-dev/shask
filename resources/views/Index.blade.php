@@ -514,7 +514,7 @@
                     title: "Enviando mensaje anónimo😁 Shhh🤫!",
                     icon: "success",
                     draggable: true,
-                    timer: 1200,
+                    timer: 5000,
                     timerProgressBar: true,
                     backdrop: 'rgba(0,0,123,0.4)',
                     didOpen: () => {
