@@ -50,14 +50,14 @@ class PublicPost extends Database
         if(!$post){
             throw new \Exception('Post no encontrado', 404);
         }
-        $userId = (new Post)->findById($id)[0]['user_id'];
-        $url    = $this->generateRandomUrl();
-
         $isPostAlreadyPublished = (new PublicPost)->getPublicPostByPostId($id);
         if ($isPostAlreadyPublished){
             $post[0]['url'] = $isPostAlreadyPublished[0]['url'];
             return $post;
         }
+
+        $userId = $post[0]['user_id'];
+        $url    = $this->generateRandomUrl();
 
         $post[0]['url'] = $url;
         $this->query("UPDATE `posts` SET status = 1 WHERE id = {$id}");

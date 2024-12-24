@@ -8,6 +8,7 @@ use App\Models\Blacklist;
 use App\Models\PublicPost;
 use App\Models\PublicAsset;
 use Illuminate\Http\Request;
+use App\Jobs\StoreQuestionJob;
 
 class QuestionController extends Controller
 {
@@ -35,11 +36,17 @@ class QuestionController extends Controller
     public function storeQuestionFromWeb(Request $request)
     {
         $isBlacklisted = (new Blacklist)->findByIp($request->ip());
-        if($isBlacklisted){
+        if ($isBlacklisted) {
             return response()->json('Usuario bloqueado por cargoso', 423);
         }
-        $res = (new Question)->store((object)$request);
-        return response()->json(['Pregunta creada con éxito', $res]);
+
+        $publicPostId = $request->id_post;
+        $text = $request->text;
+        $hint = $request->hint;
+
+        StoreQuestionJob::dispatch($publicPostId, $text, $hint);
+
+        return response()->json(['message' => 'Pregunta creada con éxito']);
     }
 
     public function answerQuestion(Request $request)

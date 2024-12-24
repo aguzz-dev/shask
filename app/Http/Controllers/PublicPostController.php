@@ -9,6 +9,11 @@ class PublicPostController extends Controller
 {
     public function makePublicPost(Request $request)
     {
+        $request->validate([
+            'post_id' => 'required|unique:public_posts,post_id',
+        ], [
+            'post_id.unique' => 'El post ya se encuentra publicado.',
+        ]);
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         try {
             $res = (new PublicPost)->makePublicPost($request->id);
