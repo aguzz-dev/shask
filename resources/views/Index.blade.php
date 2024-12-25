@@ -520,15 +520,7 @@
                     didOpen: () => {
                         Swal.showLoading();
                     },
-                    willClose: () => {
-                        Swal.fire({
-                            title: "Mensaje enviado!",
-                            width: 600,
-                            padding: "3em",
-                            color: "#716add",
-                            backdrop: 'rgba(0,0,123,0.4)',
-                        });
-                    }
+                    willClose: () => {}
                 });
 
                 $('#mensaje').val('');
@@ -543,7 +535,13 @@
                         hint: hint
                     },
                     success: function(data) {
-                        return;
+                        Swal.fire({
+                            title: "Mensaje enviado!",
+                            width: 600,
+                            padding: "3em",
+                            color: "#716add",
+                            backdrop: 'rgba(0,0,123,0.4)',
+                        });
                     },
                     error: function(xhr, status, error) {
 
