@@ -511,7 +511,7 @@
                     return;
                 }
                 Swal.fire({
-                    title: "Enviando mensaje anónimo😁 Shhh🤫!",
+                    title: "Enviando mensaje anónimo😁",
                     icon: "success",
                     draggable: true,
                     timer: 5000,
@@ -536,7 +536,7 @@
                     },
                     success: function(data) {
                         Swal.fire({
-                            title: "Mensaje enviado!",
+                            title: "Mensaje enviado😉 Shhh🤫!",
                             width: 600,
                             padding: "3em",
                             color: "#716add",
