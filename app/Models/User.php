@@ -164,4 +164,14 @@ class User extends Database
 
         $this->query("INSERT INTO `blacklist_user` (`user_id`, `ip`) VALUES ('{$userId}', '{$question[0]['ip']}')");
     }
+
+    public function getFcm($id)
+    {
+        return $this->query("SELECT fcm FROM {$this->table} WHERE id = '{$id}'")->fetch_assoc();
+    }
+
+    public function saveFcm($request)
+    {
+        return $this->query("UPDATE `users` SET `fcm_token` = '{$request->fcm}' WHERE id = '{$request->id}'");
+    }
 }

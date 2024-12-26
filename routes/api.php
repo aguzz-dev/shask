@@ -51,6 +51,7 @@ Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 
 Route::get('/login', function(){ return view('Download');});
 
+Route::post('/fcm-token', [UserController::class, 'saveFcm']);
 Route::get('/csrf-token', function () {
     return response()->json([
         'CSRF-TOKEN' => 'cookie csrf recibida',

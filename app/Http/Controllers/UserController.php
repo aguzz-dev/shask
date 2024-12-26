@@ -96,4 +96,18 @@ class UserController extends Controller
             );
         }
     }
+
+    public function saveFcm(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            (new User)->saveFcm($request);
+            return response()->json('FCM guardado correctamente');
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
 }
