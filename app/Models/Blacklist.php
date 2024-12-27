@@ -13,9 +13,9 @@ class Blacklist extends Database
         return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function findByIp($ip)
+    public function findByIp($ip, $userId)
     {
-        return $this->query("SELECT * FROM {$this->table} WHERE ip = '{$ip}'")->fetch_all(MYSQLI_ASSOC);
+        return $this->query("SELECT * FROM {$this->table} WHERE ip = '{$ip}' AND user_id = '{$userId}'")->fetch_all(MYSQLI_ASSOC);
     }
 
 }

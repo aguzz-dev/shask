@@ -67,6 +67,11 @@ class User extends Database
         }
     }
 
+    public function getFcmByUsername($username)
+    {
+        return $this->query("SELECT `fcm_token` FROM {$this->table} WHERE username = '{$username}'")->fetch_assoc();
+    }
+
     public function login($request)
     {
         $email = $request->email;

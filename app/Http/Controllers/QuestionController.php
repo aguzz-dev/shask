@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\User;
 use App\Models\Asset;
 use App\Models\Question;
@@ -35,7 +36,8 @@ class QuestionController extends Controller
 
     public function storeQuestionFromWeb(Request $request)
     {
-        $isBlacklisted = (new Blacklist)->findByIp($request->ip());
+        $userId = (new Post)->getUserIdByPostId($request->id_post)[0]['user_id'];
+        $isBlacklisted = (new Blacklist)->findByIp($request->ip(), $userId);
         if($isBlacklisted){
             return response()->json('Usuario bloqueado por cargoso', 423);
         }

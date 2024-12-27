@@ -499,7 +499,7 @@
                 event.preventDefault();
                 var mensaje = $('#mensaje').val();
                 var hint = $('#hint').val();
-
+                var username = @json($usernameUser);
                 if (mensaje === null || mensaje === '') {
                     Swal.fire({
                         title: "🖊️Escribe algo para poder enviar el mensaje🤗",
@@ -535,6 +535,20 @@
                         hint: hint
                     },
                     success: function(data) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/pushNotification',
+                            data: {
+                                username: username,
+                                text: mensaje
+                            },
+                            success: function(notificationData) {
+                                return;
+                            },
+                            error: function(xhr, status, error) {
+                                return;
+                            }
+                        });
                         Swal.fire({
                             title: "Mensaje enviado😉 Shhh🤫!",
                             width: 600,
@@ -544,7 +558,6 @@
                         });
                     },
                     error: function(xhr, status, error) {
-
                         if (xhr.status === 429) {
                             Swal.fire({
                                 title: "Debes esperar un momento para volver a mandar otro mensaje🤗",

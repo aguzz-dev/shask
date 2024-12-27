@@ -106,4 +106,9 @@ class Post extends Database
         $this->query($sql);
         return response()->json('Post eliminado con éxito', 200);
     }
+
+    public function getUserIdByPostId($postId)
+    {
+        return $this->query("SELECT user_id FROM {$this->table} WHERE id = '{$postId}'")->fetch_all(MYSQLI_ASSOC);
+    }
 }
