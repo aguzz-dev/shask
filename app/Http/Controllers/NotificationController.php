@@ -10,9 +10,9 @@ class NotificationController extends Controller
 {
     public function sendNotification(Request $request)
     {
-        $title = 'Nuevo mensaje!';
+        $title = '¡Nuevo mensaje!';
         $fcm = (new User)->getFcmByUsername($request->username)['fcm_token'];
-        $description = $request->text;
+        $description = 'Toca para leerlo ahora';
 
         $firebaseCredentials = [
             'type' => 'service_account',

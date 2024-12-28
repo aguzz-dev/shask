@@ -27,6 +27,8 @@ Route::delete('/posts', [PostController::class, 'destroy']);
 Route::post('/posts/questions', [PostController::class, 'getPostByIdWithQuestions']);
 
 Route::post('/block', [UserController::class, 'blockUser']);
+Route::post('/unblock', [UserController::class, 'desblockUser']);
+Route::get('/blocked/{id}', [UserController::class, 'getUserBlockedList']);
 
 Route::post('/user/create', [UserController::class, 'store']);
 Route::put('/user/update', [UserController::class, 'update']);

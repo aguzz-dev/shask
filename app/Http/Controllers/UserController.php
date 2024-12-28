@@ -97,6 +97,41 @@ class UserController extends Controller
         }
     }
 
+    public function desblockUser(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            (new User)->desblockUser(
+                $request->id,
+                $request->random_user
+            );
+            return response()->json('Usuario desbloqueado con éxito');
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
+
+    public function getUserBlockedList($userId)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            $res = (new User)->getUserBlockedList($userId);
+            $formatted = [];
+            foreach ($res as $index => $user) {
+                $formatted[$index + 1] = $user[0];
+            }
+            return response()->json($formatted);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
+
     public function saveFcm(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));

@@ -167,7 +167,33 @@ class User extends Database
             throw new Exception('Pregunta no encontrada', 404);
         }
 
-        $this->query("INSERT INTO `blacklist_user` (`user_id`, `ip`) VALUES ('{$userId}', '{$question[0]['ip']}')");
+        $randomUser = '@user' . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 4);
+
+        $this->query("INSERT INTO `blacklist_user` (`user_id`, `ip`, `random_user`) VALUES ('{$userId}', '{$question[0]['ip']}', '{$randomUser}')");
+    }
+
+    public function desblockUser($userId, $randomUser)
+    {
+        $user = $this->findById($userId);
+        if(!$user){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+
+        $isExistRandomUser = $this->query("SELECT * FROM `blacklist_user` WHERE `random_user` = '{$randomUser}'")->fetch_assoc();
+        if (!$isExistRandomUser) {
+            throw new Exception('Usuario random no encontrado en la lista negra', 404);
+        }
+        $this->query("DELETE FROM `blacklist_user` WHERE `user_id` = '{$userId}' AND `random_user` = '{$randomUser}'");
+    }
+
+    public function getUserBlockedList($userId)
+    {
+        $user = $this->findById($userId);
+        if(!$user){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+
+        return $this->query("SELECT random_user FROM `blacklist_user` WHERE `user_id` = '{$userId}'")->fetch_all();
     }
 
     public function getFcm($id)
@@ -177,6 +203,10 @@ class User extends Database
 
     public function saveFcm($request)
     {
+        $isUserExist = $this->findById($request->id);
+        if (!$isUserExist){
+            throw new Exception('Usuario no encontrado', 404);
+        }
         return $this->query("UPDATE `users` SET `fcm_token` = '{$request->fcm}' WHERE id = '{$request->id}'");
     }
 }
