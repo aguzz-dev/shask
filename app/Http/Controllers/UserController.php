@@ -45,6 +45,11 @@ class UserController extends Controller
         return (new User)->checkUsername($username);
     }
 
+    public function checkEmail($email)
+    {
+        return (new User)->checkEmail($email);
+    }
+
     public function updateAvatar(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));

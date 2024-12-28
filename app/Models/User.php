@@ -151,6 +151,15 @@ class User extends Database
         return true;
     }
 
+    public function checkEmail($email)
+    {
+        $user = $this->query("SELECT * FROM `users` WHERE `email` = '{$email}'")->fetch_assoc();
+        if ($user) {
+            return false;
+        }
+        return true;
+    }
+
     public function updateAvatar($id,$avatarJson)
     {
         $User = $this->findById($id);
