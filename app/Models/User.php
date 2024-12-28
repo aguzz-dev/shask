@@ -92,7 +92,8 @@ class User extends Database
             'full_name' => $user['full_name'],
             'username' => $user['username'],
             'email' => $user['email'],
-            'avatar' => $user['avatar']
+            'avatar' => $user['avatar'],
+            'notificaciones_activadas' => empty($user['fcm_token'])? false : true
         ];
         return [
             'token' => $token,
@@ -208,5 +209,14 @@ class User extends Database
             throw new Exception('Usuario no encontrado', 404);
         }
         return $this->query("UPDATE `users` SET `fcm_token` = '{$request->fcm}' WHERE id = '{$request->id}'");
+    }
+
+    public function desactivarFcm($id)
+    {
+        $isUserExist = $this->findById($id);
+        if (!$isUserExist){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+        return $this->query("UPDATE `users` SET `fcm_token` = NULL WHERE id = '{$id}'");
     }
 }

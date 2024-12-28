@@ -145,4 +145,18 @@ class UserController extends Controller
             );
         }
     }
+
+    public function desactivarFcm(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            (new User)->desactivarFcm($request->id);
+            return response()->json('FCM desactivado correctamente');
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
 }
