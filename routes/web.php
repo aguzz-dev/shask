@@ -12,6 +12,10 @@ Route::get('/how-to-delete-user', function(){
     return view('DeleteUserGuide');
 });
 
+Route::get('/privacy-policy', function(){
+    return view('PrivacyPolicy');
+});
+
 Route::post('/pushNotification', [NotificationController::class, 'sendNotification']);
 
 //Vista con formulario para enviar pregunta
