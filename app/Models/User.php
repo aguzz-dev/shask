@@ -107,14 +107,48 @@ class User extends Database
         if(!$User){
             throw new Exception('Usuario no encontrado', 404);
         }
+
+        if (isset($request->username)) {
+            $existUsername = $this->query("SELECT * FROM `users` WHERE `username` = '{$request->username}' AND id != '{$request->id}'")->fetch_assoc();
+            if ($existUsername) {
+                throw new Exception('El nombre de usuario ya está en uso', 422);
+            }
+        }
+
+        if (isset($request->email)) {
+            $existEmail = $this->query("SELECT * FROM `users` WHERE `email` = '{$request->email}' AND id != '{$request->id}'")->fetch_assoc();
+            if ($existEmail) {
+                throw new Exception('El correo electrónico ya está en uso', 422);
+            }
+        }
+
         $fields = [];
         foreach ($request->all() as $key => $value) {
             $fields[] = "{$key} = '{$value}'";
         }
+
         $fields = implode(', ', $fields);
+
         $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request->id}";
         $this->query($sql);
-        return $this->findById($request->id);
+        $userUpdated = $this->findById($request->id)[0];
+        return [
+            'id' => $userUpdated['id'],
+            'full_name' => $userUpdated['full_name'],
+            'username' => $userUpdated['username'],
+            'email' => $userUpdated['email'],
+            'age' => $userUpdated['age'],
+            'notificaciones_activadas' => empty($userUpdated['fcm_token']) ? false : true
+        ];
+    }
+
+    public function checkUsername($username)
+    {
+        $user = $this->query("SELECT * FROM `users` WHERE `username` = '{$username}'")->fetch_assoc();
+        if ($user) {
+            return false;
+        }
+        return true;
     }
 
     public function updateAvatar($id,$avatarJson)

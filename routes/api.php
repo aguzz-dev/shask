@@ -19,6 +19,7 @@ Route::get('/image/{name}', [ImageController::class, 'get']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/check-session', [AuthController::class, 'checkSession']);
 Route::get('/destroy-session', [AuthController::class, 'logout']);
+Route::get('/check-username/{username}', [UserController::class, 'checkUsername']);
 
 Route::post('/posts', [PostController::class, 'index']);
 Route::post('/posts/create', [PostController::class, 'store']);
