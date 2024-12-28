@@ -42,7 +42,8 @@ class AuthController extends Controller
             'id' => $user['id'],
             'username' => $user['username'],
             'email' => $user['email'],
-            'avatar' => $user['avatar']
+            'avatar' => $user['avatar'],
+            'notificaciones_activadas' => empty($user['fcm_token']) ? false : true
         ];
         return response()->json(['Sesión validada con éxito', $userData]);
     }
