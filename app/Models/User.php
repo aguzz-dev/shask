@@ -102,18 +102,18 @@ class User extends Database
 
     public function update($request)
     {
-        $User = $this->findById($request['id']);
+        $User = $this->findById($request->id);
         if(!$User){
             throw new Exception('Usuario no encontrado', 404);
         }
         $fields = [];
-        foreach ($request as $key => $value) {
+        foreach ($request->all() as $key => $value) {
             $fields[] = "{$key} = '{$value}'";
         }
         $fields = implode(', ', $fields);
-        $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request['id']}";
+        $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request->id}";
         $this->query($sql);
-        return $this->findById($request['id']);
+        return $this->findById($request->id);
     }
 
     public function updateAvatar($id,$avatarJson)
