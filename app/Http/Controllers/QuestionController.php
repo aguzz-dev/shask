@@ -9,7 +9,6 @@ use App\Models\Blacklist;
 use App\Models\PublicPost;
 use App\Models\PublicAsset;
 use Illuminate\Http\Request;
-use App\Jobs\StoreQuestionJob;
 
 class QuestionController extends Controller
 {
