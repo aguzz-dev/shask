@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Models\Asset;
 use App\Models\AssetUser;
-use App\Helpers\JsonRequest;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
-use App\Middleware\VerifyToken;
+use Illuminate\Http\JsonResponse;
 use App\Models\PersonalAccessToken;
 
 class AssetController extends Controller
 {
-    public function getAllAssets()
+    public function getAllAssets(): JsonResponse
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         return response()->json((new Asset)->getAllAssets());

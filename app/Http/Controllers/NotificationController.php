@@ -42,6 +42,9 @@ class NotificationController extends Controller
                     "title" => $title,
                     "body" => $description,
                 ],
+                "data" => [
+                    "post_id" => $request->postId,
+                ],
             ]
         ];
 

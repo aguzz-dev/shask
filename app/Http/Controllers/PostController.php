@@ -2,10 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Helpers\JsonRequest;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
-use App\Middleware\VerifyToken;
 use App\Models\PersonalAccessToken;
 
 class PostController extends Controller
