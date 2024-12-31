@@ -539,6 +539,7 @@
                             type: 'POST',
                             url: '/pushNotification',
                             data: {
+                                postId: {{ $idPost }},
                                 username: username,
                                 text: mensaje
                             },
