@@ -4,6 +4,10 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return view('Download');
+});
+
 Route::get('/login', function(){
     return view('Download');
 });
