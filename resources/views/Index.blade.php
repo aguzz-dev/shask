@@ -203,8 +203,6 @@
             .asset-icon {
                 position: absolute;
                 width: 200px;
-                right: -115px;
-                top: -60px;
                 z-index: 2;
                 transform: rotate(-12deg);
                 scale: 0.5;
@@ -296,7 +294,6 @@
 
         <script>
             const avatarUserData = @json($avatarUser);
-            console.log(avatarUserData);
             const parseURLParams = () => {
                 return {
                     HairStyle: avatarUserData.HairStyle || 'Bald',
