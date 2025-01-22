@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shhask - Mensajes Anónimos</title>
+    <meta name="description" content="Shhask - Envía y recibe mensajes anónimos. Descubre una forma divertida de conectarte con otros. Disponible en Google Play.">
+    <meta name="keywords" content="mensajes anónimos, Shhask, enviar mensajes, Google Play, mensajes divertidos, app social">
+    <meta property="og:title" content="Shhask - Envía y Recibe Mensajes Anónimos">
+    <meta property="og:description" content="Explora Shhask, una plataforma para mensajes anónimos, disponible en Google Play. ¡Conéctate de forma divertida y segura!">
+    <meta property="og:image" content="{{asset('assets/logotipo-sd.png')}}">
+    <meta property="og:url" content="www.shhask.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shhask - Envía y Recibe Mensajes Anónimos">
+    <meta name="twitter:description" content="Explora Shhask, disponible en Google Play. ¡Conéctate de forma divertida y segura!">
+    <meta name="twitter:image" content="{{asset('assets/logotipo-sd.png')}}">
+    <title>Shhask - Mensajes Anónimos Divertidos y Seguros</title>
     <style>
         * {
             margin: 0;
