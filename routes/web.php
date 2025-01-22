@@ -8,6 +8,16 @@ Route::get('/', function () {
     return view('Download');
 });
 
+Route::get('/app-ads.txt', function () {
+    $path = public_path('app-ads.txt');
+
+    if(file_exists($path)) {
+        return response()->file($path, [
+            'Content-Type' => 'text/plain']);
+    }
+    return abort(404, 'File Not Found');
+});
+
 Route::get('/login', function(){
     return view('Download');
 });
