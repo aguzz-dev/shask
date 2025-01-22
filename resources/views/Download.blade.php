@@ -255,9 +255,11 @@
 
     <div class="download-section">
         <img src="{{ asset('assets/raccoon-2.png') }}" alt="Mascota" class="mascot">
-        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png"
-             alt="Descargar en Google Play"
-             class="play-store">
+        <a href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2" target="_blank">
+            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png"
+                 alt="Descargar en Google Play"
+                 class="play-store">
+        </a>
     </div>
 </div>
 
