@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajes Anónimos</title>
+    <title>Shhask - Mensajes Anónimos</title>
     <style>
         * {
             margin: 0;
@@ -65,8 +65,7 @@
         }
 
         .cards-container {
-            margin-top: 60px;
-            position: fixed;
+            position: absolute;
             top: 30px;
             left: 50%;
             transform: translateX(-50%);
@@ -126,13 +125,13 @@
             opacity: 0.1;
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%) rotate(-4deg);
+            transform: translate(-50%, -50%) rotate(-6deg);
             transition: all 0.2s ease-out;
         }
 
         .logo-fondo.centered {
             transform: translate(-50%, -50%) rotate(0deg);
-            opacity: 0.05;
+            opacity: 0.07;
         }
 
         .logo {
@@ -152,7 +151,21 @@
             background: linear-gradient(45deg, #fff, #e0e0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
             position: relative;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 1px rgba(255, 255, 255, 0.2),
+                0 0 3px rgba(255, 255, 255, 0.2),
+                0 0 6px rgba(255, 255, 255, 0.2);
+            }
+            to {
+                text-shadow: 0 0 2px rgba(255, 255, 255, 0.2),
+                0 0 6px rgba(255, 255, 255, 0.2),
+                0 0 9px rgba(255, 255, 255, 0.2);
+            }
         }
 
         .download-section {
@@ -185,19 +198,20 @@
         }
 
         @media (max-width: 480px) {
+
             .container {
                 padding: 1rem;
             }
 
             .cards-container {
                 transform: translateX(-50%) scale(0.7);
-                top: 10px;
+                top: -70px;
             }
 
             .logo-container {
+                top: 7px;
                 width: 280px;
                 height: 280px;
-                margin: 8rem auto 2rem;
             }
 
             .logo, .logo-fondo {
@@ -206,8 +220,9 @@
             }
 
             .title {
+                top: -60px;
                 font-size: 1.8rem;
-                margin-bottom: 2rem;
+                margin-bottom: 3rem;
             }
 
             .mascot {
@@ -217,6 +232,11 @@
 
             .play-store {
                 height: 60px;
+            }
+
+            .mascot, .play-store{
+                position: relative;
+                top: -35px;
             }
         }
     </style>
