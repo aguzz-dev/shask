@@ -17,9 +17,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #8b75ce;
+            background: linear-gradient(135deg, #8b75ce 0%, #9d89e0 50%, #7c67b5 100%);
             overflow-x: hidden;
             position: relative;
+        }
+
+        h1{
+            position: absolute;
+            opacity: 0;
         }
 
         .emoji-rain {
@@ -108,7 +113,7 @@
         .logo-container {
             position: relative;
             top: 70px;
-            margin: 6rem auto 2rem;
+            margin: 6rem auto 0.5rem;
             width: 400px;
             height: 400px;
         }
@@ -142,27 +147,12 @@
             font-size: 2.2rem;
             font-weight: bold;
             color: #f1f1f1;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             line-height: 1.4;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            animation: glow 2s ease-in-out infinite alternate;
             background: linear-gradient(45deg, #fff, #e0e0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             position: relative;
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 3px rgba(255, 255, 255, 0.2),
-                0 0 6px rgba(255, 255, 255, 0.2),
-                0 0 9px rgba(255, 255, 255, 0.2);
-            }
-            to {
-                text-shadow: 0 0 6px rgba(255, 255, 255, 0.2),
-                0 0 9px rgba(255, 255, 255, 0.2),
-                0 0 12px rgba(255, 255, 255, 0.2);
-            }
         }
 
         .download-section {
@@ -234,6 +224,7 @@
 <body>
 <div class="emoji-rain"></div>
 <div class="container">
+    <h1>shhask</h1>
     <div class="cards-container">
         <div class="card red">
             <img src="{{ asset('assets/muestra1.png') }}" alt="Tarjeta Roja">
@@ -251,7 +242,7 @@
         <img src="{{ asset('assets/shhask.png') }}" alt="Logo" class="logo" id="logoMain">
     </div>
 
-    <h1 class="title">Envía y recibí mensajes anónimos</h1>
+    <h2 class="title">¡Envia y recibe<br>mensajes anónimos!</h2>
 
     <div class="download-section">
         <img src="{{ asset('assets/raccoon-2.png') }}" alt="Mascota" class="mascot">
