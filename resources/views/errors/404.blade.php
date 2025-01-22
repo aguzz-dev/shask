@@ -76,7 +76,7 @@
         }
 
         .image-container img {
-            width: 100%;
+            width: 87%;
             height: auto;
             object-fit: contain;
         }
