@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Shhask - Envía y recibe mensajes anónimos. Descubre una forma divertida de conectarte con otros. Disponible en Google Play.">
+    <meta name="keywords" content="mensajes anónimos, Shhask, enviar mensajes, Google Play, mensajes divertidos, app social">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ asset('assets/shhask-icono.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">

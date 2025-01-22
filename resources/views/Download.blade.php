@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Shhask - Envía y recibe mensajes anónimos. Descubre una forma divertida de conectarte con otros. Disponible en Google Play.">
+    <meta name="description" content="Descubre Shhask, la mejor plataforma para mensajes anónimos. Disponible ahora en Google Play.">
     <meta name="keywords" content="mensajes anónimos, Shhask, enviar mensajes, Google Play, mensajes divertidos, app social">
     <meta property="og:title" content="Shhask - Envía y Recibe Mensajes Anónimos">
     <meta property="og:description" content="Explora Shhask, una plataforma para mensajes anónimos, disponible en Google Play. ¡Conéctate de forma divertida y segura!">
