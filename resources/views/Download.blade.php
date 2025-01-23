@@ -17,6 +17,8 @@
     <title>Shhask - Mensajes Anónimos Divertidos y Seguros</title>
     <style>
         * {
+            user-select: none;
+            pointer-events: none;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -87,6 +89,7 @@
         }
 
         .card {
+            pointer-events: auto;
             width: 140px;
             transition: all 0.3s ease-out;
             transform-origin: center center;
@@ -146,11 +149,16 @@
         }
 
         .logo {
+            pointer-events: auto;
             width: 400px;
             height: 400px;
             object-fit: contain;
             position: relative;
             z-index: 2;
+        }
+
+        #logoMain:hover {
+            pointer-events: auto;
         }
 
         .title {
@@ -200,6 +208,7 @@
         }
 
         .play-store {
+            pointer-events: auto;
             height: 80px;
             transition: transform 0.3s ease;
         }
@@ -270,7 +279,7 @@
 
     <div class="logo-container">
         <img src="{{ asset('assets/shhask.png') }}" alt="Logo Fondo" class="logo-fondo" id="logoFondo">
-        <img src="{{ asset('assets/shhask.png') }}" alt="Logo" class="logo" id="logoMain">
+        <img src="{{ asset('assets/shhask.png') }}" alt="Logo" class="logo" id="logoMain" draggable="false">
     </div>
 
     <h2 class="title">¡Envia y recibe<br>mensajes anónimos!</h2>
