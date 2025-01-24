@@ -3,14 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\VerificationCodeMail;
 use Exception;
 use App\Database;
-use App\Helpers\GenerateToken;
-use App\Middleware\VerifyToken;
-use App\Models\PersonalAccessToken;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Database
 {
@@ -39,6 +37,11 @@ class User extends Database
     public function findById($id)
     {
         return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function findByMail($mail)
+    {
+        return $this->query("SELECT * FROM {$this->table} WHERE email = '{$mail}'")->fetch_all(MYSQLI_ASSOC);
     }
 
     public function store($request)
@@ -261,5 +264,21 @@ class User extends Database
             throw new Exception('Usuario no encontrado', 404);
         }
         return $this->query("UPDATE `users` SET `fcm_token` = NULL WHERE id = '{$id}'");
+    }
+
+    public function generateCode($request)
+    {
+        $user = $this->findByMail($request->email)[0];
+        if (!$user){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+
+        $code = rand(100, 999);
+
+        $this->query("UPDATE users SET code = {$code} WHERE id = {$user['id']}");
+
+        Mail::to($user['email'])->send(new VerificationCodeMail($code));
+
+        return "Código enviado exitosamente a {$user['email']}.";
     }
 }

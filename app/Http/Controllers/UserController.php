@@ -169,4 +169,9 @@ class UserController extends Controller
             );
         }
     }
+
+    public function getCode(Request $request)
+    {
+        return (new User)->generateCode($request);
+    }
 }
