@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\ResetPasswordCodeMail;
 use App\Mail\VerificationCodeMail;
 use Exception;
 use App\Database;
@@ -278,7 +279,63 @@ class User extends Database
         $this->query("UPDATE users SET code = {$code} WHERE id = {$user['id']}");
 
         Mail::to($user['email'])->send(new VerificationCodeMail($code));
+    }
 
-        return "Código enviado exitosamente a {$user['email']}.";
+    public function verifyCodeAndActivateUser($request)
+    {
+        $user = $this->findByMail($request->email)[0];
+        if ($user['status'] == 1){
+            throw new Exception('El usuario ya se encuentra verificado', 400);
+        }
+        if ($user['code'] != $request->code){
+            throw new Exception('Código inválido', 422);
+        }
+
+        $this->query("UPDATE users SET status = 1 WHERE id = {$user['id']}");
+
+        return $user;
+    }
+
+    public function generateResetPasswordCode($request)
+    {
+        $user = $this->findByMail($request->email)[0];
+        if (!$user){
+            throw new Exception('Usuario no encontrado', 404);
+        }
+
+        $code = rand(100, 999);
+
+        $this->query("UPDATE users SET code = {$code} WHERE id = {$user['id']}");
+
+        Mail::to($user['email'])->send(new ResetPasswordCodeMail($code));
+    }
+
+    public function verifyResetPasswordCode($request)
+    {
+        $user = $this->findByMail($request->email)[0];
+
+        if ($user['code'] != $request->code){
+            throw new Exception('Código inválido', 422);
+        }
+    }
+
+    public function resetPassword($request)
+    {
+        $user = $this->findByMail($request->email)[0];
+
+        if ($user['code'] != $request->code){
+            throw new Exception('Código inválido', 422);
+        }
+
+        $password = password_hash($request->password, PASSWORD_DEFAULT);
+
+        $this->query("UPDATE `users` SET `password` = '{$password}' WHERE id = '{$request->id}'");
+
+        return [
+            'id' => $user['id'],
+            'full_name' => $user['full_name'],
+            'user' => $user['username'],
+            'email' => $user['email'],
+        ];
     }
 }

@@ -53,6 +53,15 @@ Route::post('/assets/buy', [AssetController::class, 'buyAsset']);
 Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 
+//Verificar cuenta de usuario
+Route::post('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
+Route::post('/verify', [UserController::class, 'verifyCode']);
+
+//Recuperar contraseña
+Route::post('/resetPasswordCode', [UserController::class, 'getResetPasswordCode']);
+Route::post('/verifyResetPasswordCode', [UserController::class, 'verifyResetPasswordCode']);
+Route::post('/resetPassword', [UserController::class, 'resetPassword']);
+
 Route::get('/login', function(){ return view('Download');});
 
 Route::post('/fcm-token', [UserController::class, 'saveFcm']); //Activar notificaciones
@@ -63,4 +72,3 @@ Route::get('/csrf-token', function () {
         'CSRF-TOKEN' => 'cookie csrf recibida',
     ])->withCookie(cookie('XSRF-TOKEN', csrf_token(), 60*24))->withoutCookie('X-XSRF-TOKEN');
 });
-

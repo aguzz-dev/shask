@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Request\UpdateUserRequest;
 use App\Models\PersonalAccessToken;
 use App\Request\RegisterUserRequest;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -40,6 +41,9 @@ class UserController extends Controller
         }
     }
 
+    /*
+     * Check disponibilidad Username / email
+     */
     public function checkUsername($username)
     {
         return (new User)->checkUsername($username);
@@ -50,6 +54,9 @@ class UserController extends Controller
         return (new User)->checkEmail($email);
     }
 
+    /*
+     * Actualizar avatar
+     */
     public function updateAvatar(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
@@ -57,6 +64,9 @@ class UserController extends Controller
         return response()->json('Avatar actualizado correctamente');
     }
 
+    /*
+     * Eliminar cuenta
+     */
     public function destroy(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
@@ -76,6 +86,9 @@ class UserController extends Controller
         }
     }
 
+    /*
+     * Cambiar contraseña estando logeado
+     */
     public function changePassword(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
@@ -90,6 +103,9 @@ class UserController extends Controller
         }
     }
 
+    /*
+     * Bloquear / desbloquear usuario
+     */
     public function blockUser(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
@@ -142,6 +158,9 @@ class UserController extends Controller
         }
     }
 
+    /*
+     * Activar / desactivar notificaciones
+     */
     public function saveFcm(Request $request)
     {
         (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
@@ -170,8 +189,80 @@ class UserController extends Controller
         }
     }
 
+    /*
+     * Verificar cuenta
+     */
     public function getCode(Request $request)
     {
-        return (new User)->generateCode($request);
+        try {
+            (new User)->generateCode($request);
+            return response()->json(['success' => 'Código enviado exitosamente a ' . $request->email]);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => 'Ha ocurrido un error al generar el código de verificación de cuenta'], 400
+            );
+        }
+    }
+
+    public function verifyCode(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        try {
+            $user = (new User)->verifyCodeAndActivateUser($request);
+            return response()->json(['success' => 'Usuario ' . $user['username'] . ' verificado correctamente']);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
+
+    /*
+     * Restablecer contraseña
+     */
+    public function getResetPasswordCode(Request $request)
+    {
+        try {
+            (new User)->generateResetPasswordCode($request);
+            return response()->json(['success' =>'Código enviado exitosamente a ' . $request->email]);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => 'Ha ocurrido un error al generar el código de restablecimiento de contraseña'], 400
+            );
+        }
+    }
+
+    public function verifyResetPasswordCode(Request $request)
+    {
+        try {
+            (new User)->verifyResetPasswordCode($request);
+            return response()->json(['success' =>'Codigo de restablecimiento verificado correctamente']);
+        } catch (\Throwable $th) {
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode()
+            );
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = (new User)->resetPassword($request);
+
+        return response()->json(['success' => 'Contraseña restablecida con éxito', 'user' => $user]);
     }
 }
