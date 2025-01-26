@@ -91,6 +91,7 @@ class User extends Database
         $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$userId}')");
 
         $userData = $this->findById($userId)[0];
+        $userData['notificaciones_activadas'] = empty($userData['fcm_token']) ? false : true;
         return [
             'token' => $token,
             'user' => $userData

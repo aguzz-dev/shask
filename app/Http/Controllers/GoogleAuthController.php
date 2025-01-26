@@ -27,11 +27,12 @@ class GoogleAuthController extends Controller
         }
 
         try {
-        $isUserExist = (new User)->findByMail($userInfo['email'])[0];
+            $isUserExist = (new User)->findByMail($userInfo['email'])[0];
 
             $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
             $charsToRemove = ['[','"',']'];
             $token = str_replace($charsToRemove, '', $userToken);
+            $isUserExist['notificaciones_activadas'] = empty($isUserExist['fcm_token']) ? false : true;
             return response()->json([
                 'token' => $token,
                 'user' => $isUserExist
@@ -76,6 +77,7 @@ class GoogleAuthController extends Controller
         $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
         $charsToRemove = ['[','"',']'];
         $token = str_replace($charsToRemove, '', $userToken);
+        $isUserExist['notificaciones_activadas'] = empty($isUserExist['fcm_token']) ? false : true;
         return response()->json([
             'token' => $token,
             'user' => $isUserExist
