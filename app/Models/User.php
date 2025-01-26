@@ -367,4 +367,12 @@ class User extends Database
             'email' => $user['email'],
         ];
     }
+
+    public function regenerateTokenForGoogleLogin($userId)
+    {
+        $token = $this->generateToken();
+        (new PersonalAccessToken)->destroyToken($userId);
+        $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$userId}')");
+        return $token;
+    }
 }
