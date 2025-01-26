@@ -76,11 +76,13 @@ class User extends Database
         $token = $this->generateToken();
         $sql = "INSERT INTO {$this->table}
                 (`full_name`,
+                `password`,
                 `username`,
                 `email`,
                 `age`)
                 VALUES (
                     '{$userData['full_name']}',
+                    'google-register',
                     '{$userData['username']}',
                     '{$userData['email']}',
                     '{$userData['age']}'
