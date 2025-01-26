@@ -8,7 +8,7 @@ class RegisterUserRequest implements Request
     {
         $errors = [];
 
-        if (preg_match('/[_!-+*\/%$\d]/',  $request->full_name) || $request->full_name == ''){
+        if (preg_match('/[_!-+*\/%$\d]/',  $request->full_name)){
             array_push($errors, 'Nombre inválido');
         }
         if(preg_match('/[!+*\/%$]/', $request->username) || $request->username == ''){

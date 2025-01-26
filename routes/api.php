@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -17,6 +18,8 @@ Route::get('/user', function (Request $request) {
 Route::get('/image/{name}', [ImageController::class, 'get']);
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/google-login', [GoogleAuthController::class, 'login']);
+Route::post('/google-register', [GoogleAuthController::class, 'register']);
 Route::post('/check-session', [AuthController::class, 'checkSession']);
 Route::get('/destroy-session', [AuthController::class, 'logout']);
 Route::get('/check-username/{username}', [UserController::class, 'checkUsername']);

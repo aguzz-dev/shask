@@ -71,6 +71,32 @@ class User extends Database
         }
     }
 
+    public function googleRegister($userData)
+    {
+        $token = $this->generateToken();
+        $sql = "INSERT INTO {$this->table}
+                (`full_name`,
+                `username`,
+                `email`,
+                `age`)
+                VALUES (
+                    '{$userData['full_name']}',
+                    '{$userData['username']}',
+                    '{$userData['email']}',
+                    '{$userData['age']}'
+                )";
+        $this->query($sql);
+
+        $userId = $this->dbConnection->insert_id;
+        $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$userId}')");
+
+        $userData = $this->findById($userId)[0];
+        return [
+            'token' => $token,
+            'user' => $userData
+        ];
+    }
+
     public function getFcmByUsername($username)
     {
         return $this->query("SELECT `fcm_token` FROM {$this->table} WHERE username = '{$username}'")->fetch_assoc();
