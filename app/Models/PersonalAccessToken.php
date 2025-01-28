@@ -26,8 +26,14 @@ class PersonalAccessToken extends Database
         return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function validateToken($token, $userId)
+    public function validateToken($token, $userId = null)
     {
+        if ($userId === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Se necesita el id de usuario para validar el token'
+            ], 422);
+        }
         $existToken = $this->query("SELECT * FROM {$this->table} WHERE token = '{$token}' AND user_id = '{$userId}'")->fetch_all(MYSQLI_ASSOC);
 
         if (empty($existToken)) {

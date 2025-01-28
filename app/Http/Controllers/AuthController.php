@@ -28,7 +28,7 @@ class AuthController extends Controller
         $userId =  $request->id;
         if (!$userId) {
             return response()->json([
-               'error' => 'Debe proporcionar el id del usuario'
+               'error' => 'Debe proporcionar el id del usuario para validar la sesión'
             ]);
         }
 
