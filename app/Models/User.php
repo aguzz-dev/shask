@@ -73,7 +73,6 @@ class User extends Database
 
     public function googleRegister($userData)
     {
-        $token = $this->generateToken();
         $sql = "INSERT INTO {$this->table}
                 (`full_name`,
                 `password`,
@@ -94,6 +93,14 @@ class User extends Database
 
         $userData = $this->findById($userId)[0];
         $userData['notificaciones_activadas'] = empty($userData['fcm_token']) ? false : true;
+
+        $userToken = (new PersonalAccessToken)->getTokenById($userData['id']);
+        if (!empty($userToken)) {
+            $charsToRemoveForRegenerateToken = ['[','"',']'];
+            $token = str_replace($charsToRemoveForRegenerateToken, '', $userToken);
+        }else{
+            $token = (new User)->regenerateTokenForGoogleLogin($userData['id']);
+        }
         return [
             'token' => $token,
             'user' => $userData
@@ -128,6 +135,14 @@ class User extends Database
             'avatar' => $user['avatar'],
             'notificaciones_activadas' => empty($user['fcm_token'])? false : true
         ];
+
+        $userToken = (new PersonalAccessToken)->getTokenById($user['id']);
+        if (!empty($userToken)) {
+            $charsToRemove = ['[','"',']'];
+            $token = str_replace($charsToRemove, '', $userToken);
+        }else{
+            $token = (new User)->regenerateTokenForGoogleLogin($user['id']);
+        }
         return [
             'token' => $token,
             'user' => $userData

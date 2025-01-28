@@ -28,11 +28,15 @@ class GoogleAuthController extends Controller
 
         try {
             $isUserExist = (new User)->findByMail($userInfo['email'])[0];
-
-            $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
-            $charsToRemove = ['[','"',']'];
-            $token = str_replace($charsToRemove, '', $userToken);
             $isUserExist['notificaciones_activadas'] = empty($isUserExist['fcm_token']) ? false : true;
+            $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
+            if (!empty($userToken)) {
+                $charsToRemoveForRegenerateToken = ['[','"',']'];
+                $token = str_replace($charsToRemoveForRegenerateToken, '', $userToken);
+            }else{
+                $token = (new User)->regenerateTokenForGoogleLogin($isUserExist['id']);
+            }
+
             return response()->json([
                 'token' => $token,
                 'user' => $isUserExist
