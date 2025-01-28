@@ -26,32 +26,27 @@ class GoogleAuthController extends Controller
             ], 401);
         }
 
-        try {
-            $isUserExist = (new User)->findByMail($userInfo['email'])[0];
-            $isUserExist['notificaciones_activadas'] = empty($isUserExist['fcm_token']) ? false : true;
-            $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
-            if (!empty($userToken)) {
-                $charsToRemoveForRegenerateToken = ['[','"',']'];
-                $token = str_replace($charsToRemoveForRegenerateToken, '', $userToken);
-            }else{
-                $token = (new User)->regenerateTokenForGoogleLogin($isUserExist['id']);
-            }
+        $user = (new User)->findByMail($userInfo['email']);
+        if (!empty($user)) {
+            $user['notificaciones_activadas'] = !empty($user['fcm_token']);
+            $token = (new PersonalAccessToken())->generateToken($user['id']);
 
             return response()->json([
                 'token' => $token,
-                'user' => $isUserExist
+                'user' => $user
             ]);
-        }catch (\Exception $exception){
-            $res = (new User)->googleRegister([
-                'email' => $userInfo['email'],
-                'full_name' => ucwords(strtolower($userInfo['name'])) ?? null,
-                'age' => $request->age,
-                'username' => $request->username,
-                'avatar' => $request->avatar ?? null
-            ]);
-
-            return response()->json($res);
         }
+
+        $res = (new User)->googleRegister([
+            'email' => $userInfo['email'],
+            'full_name' => ucwords(strtolower($userInfo['name'])) ?? null,
+            'age' => $request->age,
+            'username' => $request->username,
+            'avatar' => $request->avatar ?? null
+        ]);
+
+        return response()->json($res);
+
     }
 
     public function login(Request $request)

@@ -1,15 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-use Exception;
 use App\Models\User;
-use App\Helpers\getHeader;
-use App\Helpers\JsonRequest;
 use Illuminate\Http\Request;
-use App\Helpers\JsonResponse;
 use App\Request\LoginRequest;
 use App\Models\PersonalAccessToken;
-use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
@@ -30,22 +25,14 @@ class AuthController extends Controller
 
     public function checkSession(Request $request)
     {
-        $userToken = (new PersonalAccessToken)->getTokenById($request->id);
-        $charsToRemove = ['[','"',']'];
-        $token = str_replace($charsToRemove, '', $userToken);
+        $userId =  $request->id;
+        $token = (string)$request->bearerToken();
 
-        if($token != $this->getToken()){
-            return response()->json('Token inválido', 401);
+        if((new PersonalAccessToken)->validateToken($token, $userId)) {
+            $userData = (new User)->findById($userId)[0];
+            return response()->json(['Sesión validada con éxito', $userData]);
         }
-        $user = (new User)->findById($request->id)[0];
-        $userData = [
-            'id' => $user['id'],
-            'username' => $user['username'],
-            'email' => $user['email'],
-            'avatar' => $user['avatar'],
-            'notificaciones_activadas' => empty($user['fcm_token']) ? false : true
-        ];
-        return response()->json(['Sesión validada con éxito', $userData]);
+        return response()->json('Token inválido', 401);
     }
 
     public function logout()

@@ -64,8 +64,7 @@ class User extends Database
         try {
             $this->query($sql);
             $idUser = $this->dbConnection->insert_id;
-            $userData = $this->query("SELECT id, full_name, username, email, age FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
-            return $userData;
+            return $this->query("SELECT id, full_name, username, email, age FROM {$this->table} WHERE id = {$idUser}")->fetch_all(MYSQLI_ASSOC);
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage(), 422);
         }
@@ -86,21 +85,15 @@ class User extends Database
                     '{$userData['email']}',
                     '{$userData['age']}'
                 )";
+
         $this->query($sql);
 
         $userId = $this->dbConnection->insert_id;
-        $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$userId}')");
+        $token = (new PersonalAccessToken())->generateToken($userId);
 
         $userData = $this->findById($userId)[0];
         $userData['notificaciones_activadas'] = empty($userData['fcm_token']) ? false : true;
 
-        $userToken = (new PersonalAccessToken)->getTokenById($userData['id']);
-        if (!empty($userToken)) {
-            $charsToRemoveForRegenerateToken = ['[','"',']'];
-            $token = str_replace($charsToRemoveForRegenerateToken, '', $userToken);
-        }else{
-            $token = (new User)->regenerateTokenForGoogleLogin($userData['id']);
-        }
         return [
             'token' => $token,
             'user' => $userData
@@ -124,9 +117,8 @@ class User extends Database
         if (!password_verify($password, $user['password'])) {
             throw new Exception('Credenciales incorrectas', 422);
         }
-        $token = $this->generateToken();
-        (new PersonalAccessToken)->destroyToken($user['id']);
-        $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$user['id']}')");
+        $token = (new PersonalAccessToken)->generateToken($user['id']);
+
         $userData = [
             'id' => $user['id'],
             'full_name' => $user['full_name'],
@@ -136,13 +128,6 @@ class User extends Database
             'notificaciones_activadas' => empty($user['fcm_token'])? false : true
         ];
 
-        $userToken = (new PersonalAccessToken)->getTokenById($user['id']);
-        if (!empty($userToken)) {
-            $charsToRemove = ['[','"',']'];
-            $token = str_replace($charsToRemove, '', $userToken);
-        }else{
-            $token = (new User)->regenerateTokenForGoogleLogin($user['id']);
-        }
         return [
             'token' => $token,
             'user' => $userData
@@ -201,8 +186,12 @@ class User extends Database
 
     public function checkEmail($email)
     {
-        $user = $this->query("SELECT * FROM `users` WHERE `email` = '{$email}'")->fetch_assoc();
-        if ($user) {
+        $stmt = $this->connection->prepare("SELECT * FROM `users` WHERE `email` = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
             return false;
         }
         return true;
