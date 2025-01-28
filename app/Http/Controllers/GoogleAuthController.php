@@ -46,7 +46,6 @@ class GoogleAuthController extends Controller
         ]);
 
         return response()->json($res);
-
     }
 
     public function login(Request $request)
@@ -72,15 +71,9 @@ class GoogleAuthController extends Controller
                 'error' => 'Usuario no registrado en el sistema'
             ], 400);
         }
+        $token = (new PersonalAccessToken())->generateToken($isUserExist['id']);
 
-        $userToken = (new PersonalAccessToken)->getTokenById($isUserExist['id']);
-        if (!empty($userToken)) {
-            $charsToRemove = ['[','"',']'];
-            $token = str_replace($charsToRemove, '', $userToken);
-        }else{
-            $token = (new User)->regenerateTokenForGoogleLogin($isUserExist['id']);
-        }
-        $isUserExist['notificaciones_activadas'] = empty($isUserExist['fcm_token']) ? false : true;
+        $isUserExist['notificaciones_activadas'] = !empty($isUserExist['fcm_token']);
         return response()->json([
             'token' => $token,
             'user' => $isUserExist

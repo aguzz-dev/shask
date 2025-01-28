@@ -26,6 +26,12 @@ class AuthController extends Controller
     public function checkSession(Request $request)
     {
         $userId =  $request->id;
+        if (!$userId) {
+            return response()->json([
+               'error' => 'Debe proporcionar el id del usuario'
+            ]);
+        }
+
         $token = (string)$request->bearerToken();
 
         if((new PersonalAccessToken)->validateToken($token, $userId)) {

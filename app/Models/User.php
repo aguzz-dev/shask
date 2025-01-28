@@ -92,7 +92,7 @@ class User extends Database
         $token = (new PersonalAccessToken())->generateToken($userId);
 
         $userData = $this->findById($userId)[0];
-        $userData['notificaciones_activadas'] = empty($userData['fcm_token']) ? false : true;
+        $userData['notificaciones_activadas'] = !empty($userData['fcm_token']);
 
         return [
             'token' => $token,
@@ -225,15 +225,6 @@ class User extends Database
             throw new Exception('Usuario no encontrado', 404);
         }
         $this->query("UPDATE `users` SET `password` = '{$password}' WHERE id = '{$request->id}'");
-    }
-
-    public static function generateToken() {
-        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $token = '';
-        for ($i = 0; $i < 250; $i++) {
-            $token .= $chars[rand(0, 61)];
-        }
-        return $token;
     }
 
     public function blockUser($userId, $questionId)
@@ -370,13 +361,5 @@ class User extends Database
             'user' => $user['username'],
             'email' => $user['email'],
         ];
-    }
-
-    public function regenerateTokenForGoogleLogin($userId)
-    {
-        $token = $this->generateToken();
-        (new PersonalAccessToken)->destroyToken($userId);
-        $this->query("INSERT INTO `personal_access_tokens` (`token`, `user_id`) VALUES ('{$token}', '{$userId}')");
-        return $token;
     }
 }
