@@ -28,7 +28,7 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         UpdateUserRequest::validate($request);
         try {
             $res = (new User)->update($request);
@@ -59,7 +59,7 @@ class UserController extends Controller
      */
     public function updateAvatar(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         (new User)->updateAvatar($request->id, $request->avatar);
         return response()->json('Avatar actualizado correctamente');
     }
@@ -69,7 +69,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         if (!isset($request->id)) {
             http_response_code(422);
             echo json_encode(['El campo id es obligatorio']);
@@ -91,7 +91,7 @@ class UserController extends Controller
      */
     public function changePassword(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             (new User)->changePassword($request);
             return response()->json('Password actualizada con éxito');
@@ -108,7 +108,7 @@ class UserController extends Controller
      */
     public function blockUser(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             (new User)->blockUser(
                 $request->user_id,
@@ -125,7 +125,7 @@ class UserController extends Controller
 
     public function desblockUser(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             (new User)->desblockUser(
                 $request->id,
@@ -142,7 +142,7 @@ class UserController extends Controller
 
     public function getUserBlockedList($userId)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             $res = (new User)->getUserBlockedList($userId);
             $formatted = [];
@@ -163,7 +163,7 @@ class UserController extends Controller
      */
     public function saveFcm(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             (new User)->saveFcm($request);
             return response()->json('FCM guardado correctamente');
@@ -177,7 +177,7 @@ class UserController extends Controller
 
     public function desactivarFcm(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             (new User)->desactivarFcm($request->id);
             return response()->json('FCM desactivado correctamente');
@@ -206,7 +206,7 @@ class UserController extends Controller
 
     public function verifyCode(Request $request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         try {
             $user = (new User)->verifyCodeAndActivateUser($request);
             return response()->json(['success' => 'Usuario ' . $user['username'] . ' verificado correctamente']);

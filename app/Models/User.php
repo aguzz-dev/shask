@@ -218,7 +218,7 @@ class User extends Database
 
     public function changePassword($request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         $password = password_hash($request->password, PASSWORD_DEFAULT);
         $isUserExist = $this->findById($request->id);
         if (!$isUserExist){

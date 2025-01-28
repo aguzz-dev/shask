@@ -39,7 +39,7 @@ class Question extends Database
 
     public function answerQuestion($request)
     {
-        (new PersonalAccessToken)->validateToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         $question = $this->findById($request->id)[0];
         if(!$question){
             throw new \Exception('Pregunta no encontrada', 404);
