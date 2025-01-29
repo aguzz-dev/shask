@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\PreguntasRandomController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -69,6 +70,8 @@ Route::get('/login', function(){ return view('Download');});
 
 Route::post('/fcm-token', [UserController::class, 'saveFcm']); //Activar notificaciones
 Route::post('/fcm-token/desactivar', [UserController::class, 'desactivarFcm']); //Desactivar notificaciones
+
+Route::get('/randomQuestion', [PreguntasRandomController::class, 'getRandomQuestion']);
 
 Route::get('/csrf-token', function () {
     return response()->json([
