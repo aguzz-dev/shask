@@ -58,7 +58,7 @@ Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 
 //Verificar cuenta de usuario
-Route::post('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
+Route::get('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
 Route::post('/verify', [UserController::class, 'verifyCode']);
 
 //Recuperar contraseña
