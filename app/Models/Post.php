@@ -68,7 +68,7 @@ class Post extends Database
         $postCreated = $this->findById($idPost);
 
         $this->eliminarPostsVencidos($userId);
-
+        (new PublicPost)->makePublicPost($idPost);
         return $postCreated;
     }
 
