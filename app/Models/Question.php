@@ -20,7 +20,7 @@ class Question extends Database
         return $this->query("SELECT * FROM {$this->table} WHERE public_post_id = $postId")->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function store($request)
+    public function store($request, $userId)
     {
         $publicPostId = $request->id_post;
         $isPublicPostExist = (new PublicPost)->findById($publicPostId);
@@ -29,6 +29,9 @@ class Question extends Database
         }
         $text = $request->text;
         $hint = $request->hint;
+        $hype = (new User)->getHypeById($userId)['hype'];
+        $hype++;
+        $this->query("UPDATE users SET hype = {$hype} WHERE id = {$userId}");
         $this->query("INSERT INTO `{$this->table}` (public_post_id, text, hint, ip) VALUES ({$publicPostId}, '{$text}', '{$hint}', '{$request->ip()}')");
         return [
             'id' => $this->dbConnection->insert_id,

@@ -38,9 +38,9 @@ class QuestionController extends Controller
         $userId = (new Post)->getUserIdByPostId($request->id_post)[0]['user_id'];
         $isBlacklisted = (new Blacklist)->findByIp($request->ip(), $userId);
         if($isBlacklisted){
-            return response()->json('Usuario bloqueado por cargoso', 423);
+            return response()->json('Usuario bloqueado por molesto', 423);
         }
-        $res = (new Question)->store((object)$request);
+        $res = (new Question)->store((object)$request, $userId);
         return response()->json(['Pregunta creada con éxito', $res]);
     }
 

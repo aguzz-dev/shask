@@ -125,6 +125,7 @@ class User extends Database
             'username' => $user['username'],
             'email' => $user['email'],
             'avatar' => $user['avatar'],
+            'hype' => $user['hype'],
             'notificaciones_activadas' => empty($user['fcm_token'])? false : true
         ];
 
@@ -361,5 +362,10 @@ class User extends Database
             'user' => $user['username'],
             'email' => $user['email'],
         ];
+    }
+
+    public function getHypeById($id)
+    {
+        return $this->query("SELECT hype FROM `users` WHERE `id` = '{$id}'")->fetch_assoc();
     }
 }
