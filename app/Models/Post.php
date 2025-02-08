@@ -60,12 +60,12 @@ class Post extends Database
 
     public function store($request)
     {
+        $userId = $request->id;
         $title  = $request->title;
-        $userId = (new PersonalAccessToken)->getIdByToken(str_replace('Bearer ', '', (string)$_SERVER['HTTP_AUTHORIZATION']));
         $fechaHoy = Carbon::now()->toDateString();
         $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}')");
         $idPost = $this->dbConnection->insert_id;
-        $postCreated = $this->findById($idPost);
+        $postCreated = $this->findById($idPost)[0];
 
         $this->eliminarPostsVencidos($userId);
         (new PublicPost)->makePublicPost($idPost);
