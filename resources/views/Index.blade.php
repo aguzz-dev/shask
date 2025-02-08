@@ -256,7 +256,7 @@
                 </div>
 
                 <form class="question-form" id="message-form">
-                    <textarea class="message-input" maxlength="400" id="mensaje" placeholder="Envíame mensajes anónimos" rows="4"></textarea>
+                    <textarea class="message-input" maxlength="500" id="mensaje" placeholder="Envíame mensajes anónimos" rows="4"></textarea>
 
                     <div class="hint-section">
                         <p class="hint-text">Deja una pista! 💡</p>
