@@ -69,7 +69,7 @@ class Post extends Database
 
         $this->eliminarPostsVencidos($userId);
         (new PublicPost)->makePublicPost($idPost);
-        $postCreated['status'] = 1;
+        $postCreated['status'] = "1";
         return $postCreated;
     }
 
