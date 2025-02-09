@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use App\Database;
-use App\Models\PersonalAccessToken;
+use Illuminate\Support\Facades\DB;
 
 class Question extends Database
 {
@@ -23,7 +23,9 @@ class Question extends Database
     public function store($request, $userId)
     {
         $publicPostId = $request->id_post;
+
         $isPublicPostExist = (new PublicPost)->findById($publicPostId);
+
         if (!$isPublicPostExist) {
             throw new \Exception('Post público no encontrado', 404);
         }
@@ -32,9 +34,16 @@ class Question extends Database
         $hype = (new User)->getHypeById($userId)['hype'];
         $hype++;
         $this->query("UPDATE users SET hype = {$hype} WHERE id = {$userId}");
-        $this->query("INSERT INTO `{$this->table}` (public_post_id, text, hint, ip) VALUES ({$publicPostId}, '{$text}', '{$hint}', '{$request->ip()}')");
+
+        $id = DB::table($this->table)->insertGetId([
+            'public_post_id' => $isPublicPostExist[0]['id'],
+            'text' => $text,
+            'hint' => $hint,
+            'ip' => $request->ip(),
+        ]);
+
         return [
-            'id' => $this->dbConnection->insert_id,
+            'id' => $id,
             'text' => $text,
             'id_post' => $publicPostId
         ];
