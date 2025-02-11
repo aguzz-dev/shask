@@ -45,6 +45,7 @@ class Question extends Database
         return [
             'id' => $id,
             'text' => $text,
+            'hint' => $hint,
             'id_post' => $publicPostId
         ];
     }
