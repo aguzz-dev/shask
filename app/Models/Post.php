@@ -65,12 +65,9 @@ class Post extends Database
         $fechaHoy = Carbon::now()->toDateString();
         $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}')");
         $idPost = $this->dbConnection->insert_id;
-        $postCreated = $this->findById($idPost)[0];
 
         $this->eliminarPostsVencidos($userId);
-        (new PublicPost)->makePublicPost($idPost);
-        $postCreated['status'] = "1";
-        return $postCreated;
+        return (new PublicPost)->makePublicPost($idPost);
     }
 
     public function eliminarPostsVencidos($userId)
