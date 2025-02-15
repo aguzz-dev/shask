@@ -63,6 +63,7 @@ class PublicPost extends Database
         $this->query("UPDATE `posts` SET status = 1 WHERE id = {$id}");
 
         $this->query("INSERT INTO `{$this->table}` (`post_id`,`user_id`,`url`) VALUES ('{$id}', '{$userId}', '{$url}')");
+        $post[0]['status'] = 1;
         return $post;
     }
 
