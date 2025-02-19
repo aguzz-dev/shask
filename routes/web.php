@@ -41,3 +41,7 @@ Route::get('/{id}', [QuestionController::class, 'sendQuestion']);
 
 //Endpoint para almacenar pregunta desde web
 Route::post('question/create-web', [QuestionController::class, 'storeQuestionFromWeb'])->middleware('throttle:2,0.5');
+
+Route::get('/descarga', function () {
+    return redirect()->away('https://play.google.com/store/apps/details?id=com.mateine.quest_app_2');
+});
