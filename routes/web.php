@@ -4,6 +4,10 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/descarga', function () {
+    return redirect('https://play.google.com/store/apps/details?id=com.mateine.quest_app_2');
+});
+
 Route::get('/', function () {
     return view('Download');
 });
@@ -41,7 +45,3 @@ Route::get('/{id}', [QuestionController::class, 'sendQuestion']);
 
 //Endpoint para almacenar pregunta desde web
 Route::post('question/create-web', [QuestionController::class, 'storeQuestionFromWeb'])->middleware('throttle:2,0.5');
-
-Route::get('/descarga', function () {
-    return redirect()->away('https://play.google.com/store/apps/details?id=com.mateine.quest_app_2');
-});
