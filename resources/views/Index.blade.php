@@ -273,7 +273,7 @@
                 <img src="{{ asset('assets/raccoon-2.png') }}" alt="Mascot" class="mascot-image">
                 <div class="app-promo">
                     <p>Recibe preguntas anónimas!</p>
-                    <a href="#" class="play-store-button">
+                    <a href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2" target="_blank" class="play-store-button">
                         <img src="{{ asset('assets/google-play-badge.png') }}" alt="Get it on Google Play"
                             class="store-badge">
                     </a>
