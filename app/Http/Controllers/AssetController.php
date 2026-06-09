@@ -37,4 +37,57 @@ class AssetController extends Controller
                             : response()->json(['Se eliminaron los siguientes assets expirados del usuario con ID '.$request->id, $res]);
     }
 
+    /**
+     * Crea un asset público (plantilla v3 con canvas de capas).
+     * Requiere token válido.
+     *
+     * Body esperado:
+     *   user_id    int
+     *   title      string
+     *   colors     array  — [[r,g,b,a], ...]
+     *   icon       string — clave de imagen del sticker principal
+     *   background string — clave de imagen de fondo (puede ser '')
+     *   canvas     object — CanvasDesign JSON (share card 1:1)
+     */
+    public function createPublicAsset(Request $request): JsonResponse
+    {
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->user_id);
+
+        $id = (new Asset)->createPublicAsset(
+            $request->title,
+            $request->colors,
+            $request->icon ?? '',
+            $request->background ?? '',
+            $request->canvas
+        );
+
+        return response()->json([
+            'message' => 'Asset creado con éxito',
+            'id'      => (int) $id,
+        ], 201);
+    }
+
+    /**
+     * Actualiza un asset público existente (editar diseño).
+     * Body: user_id, asset_id, title, colors, icon, background, canvas
+     */
+    public function updatePublicAsset(Request $request): JsonResponse
+    {
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->user_id);
+
+        $id = (new Asset)->updatePublicAsset(
+            $request->asset_id,
+            $request->title,
+            $request->colors,
+            $request->icon ?? '',
+            $request->background ?? '',
+            $request->canvas
+        );
+
+        return response()->json([
+            'message' => 'Asset actualizado con éxito',
+            'id'      => (int) $id,
+        ]);
+    }
+
 }

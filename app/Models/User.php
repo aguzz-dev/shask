@@ -47,6 +47,8 @@ class User extends Database
 
     public function store($request)
     {
+        $age = ($request->age !== null && $request->age !== '') ? (int)$request->age : 'NULL';
+
         $sql = "INSERT INTO {$this->table}
                 (`full_name`,
                 `username`,
@@ -58,7 +60,7 @@ class User extends Database
                     '{$request->username}',
                     '{$request->email}',
                     '" . password_hash($request->password, PASSWORD_DEFAULT) . "',
-                    '{$request->age}'
+                    {$age}
                 )";
 
         try {
@@ -72,6 +74,8 @@ class User extends Database
 
     public function googleRegister($userData)
     {
+        $age = ($userData['age'] !== null && $userData['age'] !== '') ? (int)$userData['age'] : 'NULL';
+
         $sql = "INSERT INTO {$this->table}
                 (`full_name`,
                 `password`,
@@ -83,7 +87,7 @@ class User extends Database
                     'google-register',
                     '{$userData['username']}',
                     '{$userData['email']}',
-                    '{$userData['age']}'
+                    {$age}
                 )";
 
         $this->query($sql);

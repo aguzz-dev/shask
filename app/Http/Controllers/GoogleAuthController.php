@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PersonalAccessToken;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use Google\Client as GoogleClient;
@@ -37,10 +38,19 @@ class GoogleAuthController extends Controller
             ]);
         }
 
+        $age = null;
+        if ($request->age) {
+            try {
+                $age = Carbon::parse($request->age)->age;
+            } catch (\Exception $e) {
+                $age = is_numeric($request->age) ? (int)$request->age : null;
+            }
+        }
+
         $res = (new User)->googleRegister([
             'email' => $userInfo['email'],
             'full_name' => ucwords(strtolower($userInfo['name'])) ?? null,
-            'age' => $request->age,
+            'age' => $age,
             'username' => $request->username,
             'avatar' => $request->avatar ?? null
         ]);

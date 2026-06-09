@@ -17,6 +17,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/image/{name}', [ImageController::class, 'get']);
+Route::get('/images/catalog', [ImageController::class, 'catalog']);
+Route::get('/images/manifest', [ImageController::class, 'manifest']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/google-login', [GoogleAuthController::class, 'login']);
@@ -56,6 +58,8 @@ Route::get('/assets', [AssetController::class, 'getAllAssets']);
 Route::post('/assets/buy', [AssetController::class, 'buyAsset']);
 Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
+Route::post('/assets/create', [AssetController::class, 'createPublicAsset']);
+Route::post('/assets/update', [AssetController::class, 'updatePublicAsset']);
 
 //Verificar cuenta de usuario
 Route::get('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
