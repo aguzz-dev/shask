@@ -21,7 +21,9 @@ class Database
             $db,
             $port
         );
-        mysqli_set_charset($this->dbConnection, 'utf8');
+        // utf8mb4: los emoji (4 bytes) del catálogo de logros y de las
+        // preguntas se pierden con utf8 de 3 bytes.
+        mysqli_set_charset($this->dbConnection, 'utf8mb4');
     }
     public function query($sql)
     {
