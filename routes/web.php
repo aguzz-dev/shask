@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,10 @@ Route::get('/terms-of-service', function(){
 });
 
 Route::post('/pushNotification', [NotificationController::class, 'sendNotification']);
+
+// Perfil público de usuario (perfil v3). Debe declararse antes del
+// catch-all /{id} de los buzones.
+Route::get('/@{username}', [PublicProfileController::class, 'show']);
 
 //Vista con formulario para enviar pregunta
 Route::get('/{id}', [QuestionController::class, 'sendQuestion']);
