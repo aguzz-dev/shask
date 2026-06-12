@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserStats;
+use App\Models\Achievement;
 use Illuminate\Http\Request;
 use App\Request\UpdateUserRequest;
 use App\Models\PersonalAccessToken;
@@ -264,5 +266,27 @@ class UserController extends Controller
         $user = (new User)->resetPassword($request);
 
         return response()->json(['success' => 'Contraseña restablecida con éxito', 'user' => $user]);
+    }
+
+    public function stats(Request $request)
+    {
+        (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
+        $userId = (int) $request->id;
+        $lang = $request->lang === 'en' ? 'en' : 'es';
+
+        $stats = (new UserStats)->forUser($userId);
+
+        $achievements = new Achievement;
+        $achievements->evaluate($userId, $stats);
+
+        return response()->json([
+            'stats' => [
+                'questions_received' => $stats['questions_received'],
+                'questions_answered' => $stats['questions_answered'],
+                'mailboxes_created'  => $stats['mailboxes_created'],
+                'member_since'       => $stats['member_since'],
+            ],
+            'achievements' => $achievements->listFor($userId, $lang),
+        ]);
     }
 }

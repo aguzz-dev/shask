@@ -41,6 +41,7 @@ Route::get('/blocked/{id}', [UserController::class, 'getUserBlockedList']);
 Route::post('/user/create', [UserController::class, 'store']);
 Route::put('/user/update', [UserController::class, 'update']);
 Route::put('/user/avatar', [UserController::class, 'updateAvatar']);
+Route::post('/user/stats', [UserController::class, 'stats']);
 Route::delete('/user/destroy', [UserController::class, 'destroy']);
 
 Route::post('/change-password', [UserController::class, 'changePassword']);
