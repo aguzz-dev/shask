@@ -32,7 +32,7 @@ class UserStats extends Database
         )->fetch_assoc()['c'];
 
         $user = $this->query(
-            "SELECT hype, avatar, created_at FROM users WHERE id = {$userId}"
+            "SELECT hype, avatar, created_at, streak_days FROM users WHERE id = {$userId}"
         )->fetch_assoc();
 
         $maxUnread = $this->query(
@@ -48,6 +48,7 @@ class UserStats extends Database
             'questions_received' => (int) $received,
             'questions_answered' => (int) $answered,
             'mailboxes_created'  => (int) $mailboxes,
+            'streak_days'        => (int) $user['streak_days'],
             'member_since'       => $user['created_at'] ? substr($user['created_at'], 0, 10) : null,
             'hype'               => (int) $user['hype'],
             'has_custom_avatar'  => !empty($user['avatar']),

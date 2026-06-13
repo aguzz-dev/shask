@@ -284,6 +284,7 @@ class UserController extends Controller
                 'questions_received' => $stats['questions_received'],
                 'questions_answered' => $stats['questions_answered'],
                 'mailboxes_created'  => $stats['mailboxes_created'],
+                'streak_days'        => $stats['streak_days'],
                 'member_since'       => $stats['member_since'],
             ],
             'achievements' => $achievements->listFor($userId, $lang),
