@@ -33,24 +33,26 @@ class Post extends Database
 
     public function getAllPosts($userId): array
     {
+        $userId = (int) $userId;
         $posts = [];
 
         $allPosts = $this->query("SELECT posts.*, public_posts.url,
-                                             (SELECT COUNT(*)
-                                              FROM questions
-                                              WHERE questions.public_post_id = public_posts.post_id
-                                              AND questions.status = 0) AS sin_responder
-                                      FROM {$this->table} AS posts
-                                      LEFT JOIN public_posts ON public_posts.post_id = posts.id
-                                      WHERE posts.user_id = '{$userId}'");
+                (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.status = 0) AS sin_responder,
+                (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id) AS total_questions,
+                (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.hint IS NOT NULL AND questions.hint != '') AS with_hint,
+                (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.status = 1) AS answered
+            FROM {$this->table} AS posts
+            LEFT JOIN public_posts ON public_posts.post_id = posts.id
+            WHERE posts.user_id = '{$userId}'");
 
         foreach ($allPosts as $post) {
-            $post['sin_responder'] = (int) $post['sin_responder'];
-
-            $createdAt = Carbon::parse($post['created_at']);
-
-            $post['vencido'] = $createdAt->diffInDays(Carbon::now()) > 3 ? 1 : 0;
-
+            $post['sin_responder']   = (int) $post['sin_responder'];
+            $post['total_questions'] = (int) $post['total_questions'];
+            $post['with_hint']       = (int) $post['with_hint'];
+            $post['answered']        = (int) $post['answered'];
+            $post['closed']          = (strtotime($post['expires_at']) <= time()) ? 1 : 0;
+            // Compat con versiones viejas de la app: vencido oculta el post
+            $post['vencido'] = $post['closed'];
             $posts[] = $post;
         }
 
@@ -60,21 +62,15 @@ class Post extends Database
 
     public function store($request)
     {
-        $userId = $request->id;
+        $userId = (int) $request->id;
         $title  = $request->title;
         $fechaHoy = Carbon::now()->toDateString();
-        $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`) VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}')");
+        $expiresAt = Carbon::now()->addHours(72)->toDateTimeString();
+        $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`, `expires_at`)
+            VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}', '{$expiresAt}')");
         $idPost = $this->dbConnection->insert_id;
 
-        $this->eliminarPostsVencidos($userId);
         return (new PublicPost)->makePublicPost($idPost);
-    }
-
-    public function eliminarPostsVencidos($userId)
-    {
-        $fechaVencimiento = Carbon::now()->subDays(3)->toDateString();
-
-        $this->query("DELETE FROM {$this->table} WHERE created_at <= '{$fechaVencimiento}' AND user_id = '{$userId}'");
     }
 
     public function update($request)

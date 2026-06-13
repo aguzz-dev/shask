@@ -18,12 +18,13 @@ beforeEach(function () {
     $this->db->query("INSERT INTO public_posts (post_id, user_id, url)
         VALUES ({$this->postId}, {$this->userId}, 'ts{$this->userId}')");
     $this->publicPostId = $this->db->dbConnection->insert_id;
+    // Las preguntas se anclan a posts.id (convención corregida)
     $this->db->query("INSERT INTO questions (public_post_id, text, status) VALUES
-        ({$this->publicPostId}, 'q1', 0), ({$this->publicPostId}, 'q2', 0), ({$this->publicPostId}, 'q3', 1)");
+        ({$this->postId}, 'q1', 0), ({$this->postId}, 'q2', 0), ({$this->postId}, 'q3', 1)");
 });
 
 afterEach(function () {
-    $this->db->query("DELETE FROM questions WHERE public_post_id = {$this->publicPostId}");
+    $this->db->query("DELETE FROM questions WHERE public_post_id = {$this->postId}");
     $this->db->query("DELETE FROM public_posts WHERE id = {$this->publicPostId}");
     $this->db->query("DELETE FROM posts WHERE id = {$this->postId}");
     $this->db->query("DELETE FROM achievement_user WHERE user_id = {$this->userId}");
