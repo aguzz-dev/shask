@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 // Ciclo de vida de buzones. Requiere el cron del hosting:
 //   * * * * * php artisan schedule:run
 Schedule::command('posts:notify-lifecycle')->everyFifteenMinutes();
+Schedule::command('streak:tick')->dailyAt('23:50');
+Schedule::command('streak:warn')->dailyAt('19:00');
