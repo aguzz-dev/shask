@@ -36,7 +36,7 @@ class Question extends Database
         $this->query("UPDATE users SET hype = {$hype} WHERE id = {$userId}");
 
         $id = DB::table($this->table)->insertGetId([
-            'public_post_id' => $isPublicPostExist[0]['id'],
+            'public_post_id' => (int) $publicPostId, // posts.id — ver migración realign
             'text' => $text,
             'hint' => $hint,
             'ip' => $request->ip(),

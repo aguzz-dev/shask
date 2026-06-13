@@ -14,13 +14,13 @@ class UserStats extends Database
     {
         $received = $this->query(
             "SELECT COUNT(*) AS c FROM questions q
-             JOIN public_posts pp ON pp.id = q.public_post_id
+             JOIN public_posts pp ON pp.post_id = q.public_post_id
              WHERE pp.user_id = {$userId}"
         )->fetch_assoc()['c'];
 
         $answered = $this->query(
             "SELECT COUNT(*) AS c FROM questions q
-             JOIN public_posts pp ON pp.id = q.public_post_id
+             JOIN public_posts pp ON pp.post_id = q.public_post_id
              WHERE pp.user_id = {$userId} AND q.status = 1"
         )->fetch_assoc()['c'];
 
@@ -38,7 +38,7 @@ class UserStats extends Database
         $maxUnread = $this->query(
             "SELECT COALESCE(MAX(t.unread), 0) AS m FROM (
                 SELECT COUNT(*) AS unread FROM questions q
-                JOIN public_posts pp ON pp.id = q.public_post_id
+                JOIN public_posts pp ON pp.post_id = q.public_post_id
                 WHERE pp.user_id = {$userId} AND q.status = 0
                 GROUP BY pp.id
             ) t"
