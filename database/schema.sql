@@ -160,3 +160,31 @@ INSERT INTO `achievements` (`code`,`weight`,`emoji`,`name_es`,`name_en`) VALUES
 ('first_mailbox',    20, '📬', 'Primer buzón',         'First mailbox'),
 ('custom_avatar',    10, '🎨', 'Avatar personalizado', 'Custom avatar')
 ON DUPLICATE KEY UPDATE `weight` = VALUES(`weight`);
+
+-- ============================================================
+-- Back office admin
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `admin_users` (
+    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`          VARCHAR(255) NOT NULL,
+    `email`         VARCHAR(255) NOT NULL,
+    `password`      VARCHAR(255) NOT NULL,
+    `active`        TINYINT      NOT NULL DEFAULT 1,
+    `last_login_at` DATETIME     NULL,
+    `created_at`    TIMESTAMP    NULL,
+    `updated_at`    TIMESTAMP    NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `admin_users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `admin_audit_log` (
+    `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `admin_id`   BIGINT UNSIGNED NOT NULL,
+    `action`     VARCHAR(50)     NOT NULL,
+    `detail`     JSON            NULL,
+    `ip`         VARCHAR(45)     NULL,
+    `created_at` TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `admin_audit_log_admin_id_index` (`admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
