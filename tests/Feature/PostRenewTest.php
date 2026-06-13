@@ -24,6 +24,7 @@ afterEach(function () {
 });
 
 it('renovar resetea ciclo, flags y alimenta la racha', function () {
+    config(['app.mailbox_lifetime_minutes' => 4320]); // independiente del .env local
     $response = $this->postJson('/api/posts/renew',
         ['id' => $this->postId, 'user_id' => $this->userId],
         ['Authorization' => "Bearer {$this->token}"]);

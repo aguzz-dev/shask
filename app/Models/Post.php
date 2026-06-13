@@ -31,32 +31,46 @@ class Post extends Database
         return $this->query("SELECT `id` FROM {$this->table} WHERE id = '{$postId}'")->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getAllPosts($userId): array
+    // SELECT compartido por getAllPosts y findEnriched: trae url y recap.
+    private function enrichedSelect(string $where): string
     {
-        $userId = (int) $userId;
-        $posts = [];
-
-        $allPosts = $this->query("SELECT posts.*, public_posts.url,
+        return "SELECT posts.*, public_posts.url,
                 (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.status = 0) AS sin_responder,
                 (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id) AS total_questions,
                 (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.hint IS NOT NULL AND questions.hint != '') AS with_hint,
                 (SELECT COUNT(*) FROM questions WHERE questions.public_post_id = posts.id AND questions.status = 1) AS answered
             FROM {$this->table} AS posts
             LEFT JOIN public_posts ON public_posts.post_id = posts.id
-            WHERE posts.user_id = '{$userId}'");
+            WHERE {$where}";
+    }
 
-        foreach ($allPosts as $post) {
-            $post['sin_responder']   = (int) $post['sin_responder'];
-            $post['total_questions'] = (int) $post['total_questions'];
-            $post['with_hint']       = (int) $post['with_hint'];
-            $post['answered']        = (int) $post['answered'];
-            $post['closed']          = (strtotime($post['expires_at']) <= time()) ? 1 : 0;
-            // Compat con versiones viejas de la app: vencido oculta el post
-            $post['vencido'] = $post['closed'];
-            $posts[] = $post;
-        }
+    // Normaliza tipos y deriva closed/vencido de expires_at.
+    private function decoratePost(array $post): array
+    {
+        $post['sin_responder']   = (int) $post['sin_responder'];
+        $post['total_questions'] = (int) $post['total_questions'];
+        $post['with_hint']       = (int) $post['with_hint'];
+        $post['answered']        = (int) $post['answered'];
+        $post['closed']          = (strtotime($post['expires_at']) <= time()) ? 1 : 0;
+        // Compat con versiones viejas de la app: vencido oculta el post
+        $post['vencido'] = $post['closed'];
+        return $post;
+    }
 
-        return $posts;
+    public function getAllPosts($userId): array
+    {
+        $userId = (int) $userId;
+        $allPosts = $this->query($this->enrichedSelect("posts.user_id = '{$userId}'"));
+        return array_map([$this, 'decoratePost'], $allPosts->fetch_all(MYSQLI_ASSOC));
+    }
+
+    /// Un solo post con la misma forma enriquecida que getAllPosts (url + recap
+    /// + closed). Lo devuelven las acciones del ciclo de vida.
+    public function findEnriched(int $id): ?array
+    {
+        $rows = $this->query($this->enrichedSelect("posts.id = {$id}"))
+            ->fetch_all(MYSQLI_ASSOC);
+        return $rows ? $this->decoratePost($rows[0]) : null;
     }
 
 

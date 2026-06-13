@@ -21,7 +21,23 @@ class PostLifecycleController extends Controller
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");
         (new Streak)->touch((int) $post['user_id']);
-        return response()->json(['Buzón renovado', (new Post)->findById($id)[0]]);
+        return response()->json(['Buzón renovado', (new Post)->findEnriched($id)]);
+    }
+
+    /**
+     * Cierra el buzón manualmente: lo vence ya. Pasa a la sección de cerrados
+     * (legible con desbloqueo, revivible). notified_closed = 1 porque el cierre
+     * fue intencional: no hace falta el push de "tu buzón cerró".
+     */
+    public function close(Request $request)
+    {
+        $post = $this->authorizePost($request);
+        if ($this->isClosed($post)) {
+            return response()->json('El buzón ya estaba cerrado', 409);
+        }
+        $id = (int) $post['id'];
+        (new Post)->query("UPDATE posts SET expires_at = NOW(), notified_closed = 1 WHERE id = {$id}");
+        return response()->json(['Buzón cerrado', (new Post)->findEnriched($id)]);
     }
 
     public function extend(Request $request)
@@ -36,7 +52,7 @@ class PostLifecycleController extends Controller
         $this->charge($request, (int) config('app.hype_extend'));
         $id = (int) $post['id'];
         (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(expires_at, INTERVAL 24 HOUR), extended = 1 WHERE id = {$id}");
-        return response()->json(['Buzón extendido', (new Post)->findById($id)[0]]);
+        return response()->json(['Buzón extendido', (new Post)->findEnriched($id)]);
     }
 
     public function unlock(Request $request)
@@ -48,7 +64,7 @@ class PostLifecycleController extends Controller
         $this->charge($request, (int) config('app.hype_unlock'));
         $id = (int) $post['id'];
         (new Post)->query("UPDATE posts SET unlocked = 1 WHERE id = {$id}");
-        return response()->json(['Buzón desbloqueado', (new Post)->findById($id)[0]]);
+        return response()->json(['Buzón desbloqueado', (new Post)->findEnriched($id)]);
     }
 
     public function revive(Request $request)
@@ -65,7 +81,7 @@ class PostLifecycleController extends Controller
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");
         (new Streak)->touch((int) $post['user_id']);
-        return response()->json(['Buzón revivido', (new Post)->findById($id)[0]]);
+        return response()->json(['Buzón revivido', (new Post)->findEnriched($id)]);
     }
 
     /** Token válido + post existente + ownership. Aborta con 401/404/403. */

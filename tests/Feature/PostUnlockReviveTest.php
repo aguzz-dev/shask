@@ -43,6 +43,7 @@ it('rechaza desbloquear un buzon activo con 409', function () {
 });
 
 it('revivir arranca ciclo nuevo, desbloquea y resetea flags', function () {
+    config(['app.mailbox_lifetime_minutes' => 4320]); // independiente del .env local
     $this->postJson('/api/posts/revive',
         ['id' => $this->postId, 'user_id' => $this->userId, 'source' => 'hype'],
         ['Authorization' => "Bearer {$this->token}"])->assertOk();

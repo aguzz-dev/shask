@@ -57,6 +57,7 @@ it('la lista de posts trae estado del ciclo y bloque recap', function () {
 });
 
 it('crear un post setea expires_at a 72h', function () {
+    config(['app.mailbox_lifetime_minutes' => 4320]); // independiente del .env local
     $response = $this->postJson('/api/posts/create',
         ['id' => $this->userId, 'asset_id' => 1, 'title' => 'Nuevo'],
         ['Authorization' => "Bearer {$this->token}"]);

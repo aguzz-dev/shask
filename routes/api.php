@@ -31,6 +31,7 @@ Route::get('/check-email/{email}', [UserController::class, 'checkEmail']);
 Route::post('/posts', [PostController::class, 'index']);
 Route::post('/posts/create', [PostController::class, 'store']);
 Route::post('/posts/renew', [\App\Http\Controllers\PostLifecycleController::class, 'renew']);
+Route::post('/posts/close', [\App\Http\Controllers\PostLifecycleController::class, 'close']);
 Route::post('/posts/extend', [\App\Http\Controllers\PostLifecycleController::class, 'extend']);
 Route::post('/posts/unlock', [\App\Http\Controllers\PostLifecycleController::class, 'unlock']);
 Route::post('/posts/revive', [\App\Http\Controllers\PostLifecycleController::class, 'revive']);
