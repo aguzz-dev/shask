@@ -56,7 +56,18 @@ return [
             'throw' => false,
         ],
 
+        // Catálogo de media del back office. Cambiar MEDIA_DISK a un disk
+        // s3 en el futuro migra el storage sin tocar código.
+        'media' => [
+            'driver' => 'local',
+            'root' => public_path('images'),
+            'throw' => true,
+        ],
+
     ],
+
+    // Disk usado por App\Services\MediaStorage (preparación para S3).
+    'media_disk' => env('MEDIA_DISK', 'media'),
 
     /*
     |--------------------------------------------------------------------------
