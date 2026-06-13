@@ -17,5 +17,7 @@ Route::prefix($adminPath)->middleware(['web', 'admin.headers'])->group(function 
     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
         Route::get('/', [\App\Http\Controllers\Admin\AdminImageController::class, 'index'])->name('admin.home');
+        Route::get('/images/upload', [\App\Http\Controllers\Admin\AdminImageController::class, 'showUpload']);
+        Route::post('/images/upload', [\App\Http\Controllers\Admin\AdminImageController::class, 'upload']);
     });
 });
