@@ -24,6 +24,7 @@ class PostController extends Controller
     {
         (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         $res = (new Post)->store($request);
+        (new \App\Models\Streak)->touch((int) $request->id);
         return response()->json(['Post creado con éxito', $res]);
     }
 

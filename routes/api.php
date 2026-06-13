@@ -30,6 +30,7 @@ Route::get('/check-email/{email}', [UserController::class, 'checkEmail']);
 
 Route::post('/posts', [PostController::class, 'index']);
 Route::post('/posts/create', [PostController::class, 'store']);
+Route::post('/posts/renew', [\App\Http\Controllers\PostLifecycleController::class, 'renew']);
 Route::put('/posts', [PostController::class, 'update']);
 Route::delete('/posts', [PostController::class, 'destroy']);
 Route::post('/posts/questions', [PostController::class, 'getPostByIdWithQuestions']);

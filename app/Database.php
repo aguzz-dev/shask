@@ -24,6 +24,10 @@ class Database
         // utf8mb4: los emoji (4 bytes) del catálogo de logros y de las
         // preguntas se pierden con utf8 de 3 bytes.
         mysqli_set_charset($this->dbConnection, 'utf8mb4');
+        // El servidor MySQL corre en hora local pero PHP/Laravel en UTC. El
+        // ciclo de vida de buzones mezcla NOW() de MySQL con time()/Carbon de
+        // PHP, así que la conexión debe usar el mismo reloj que la app (UTC).
+        mysqli_query($this->dbConnection, "SET time_zone = '+00:00'");
     }
     public function query($sql)
     {
