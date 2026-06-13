@@ -23,6 +23,21 @@ class PostLifecycleController extends Controller
         return response()->json(['Buzón renovado', (new Post)->findById($id)[0]]);
     }
 
+    public function extend(Request $request)
+    {
+        $post = $this->authorizePost($request);
+        if ($this->isClosed($post)) {
+            return response()->json('El buzón ya venció: usá revivir', 409);
+        }
+        if ((int) $post['extended'] >= 1) {
+            return response()->json('Ya usaste la extensión de este ciclo', 409);
+        }
+        $this->charge($request, (int) config('app.hype_extend'));
+        $id = (int) $post['id'];
+        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(expires_at, INTERVAL 24 HOUR), extended = 1 WHERE id = {$id}");
+        return response()->json(['Buzón extendido', (new Post)->findById($id)[0]]);
+    }
+
     /** Token válido + post existente + ownership. Aborta con 401/404/403. */
     private function authorizePost(Request $request): array
     {
