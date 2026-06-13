@@ -35,6 +35,13 @@ class QuestionController extends Controller
 
     public function storeQuestionFromWeb(Request $request)
     {
+        $postRow = (new Post)->findById((int) $request->id_post)[0] ?? null;
+        if (!$postRow) {
+            return response()->json('Post no encontrado', 404);
+        }
+        if (strtotime($postRow['expires_at']) <= time()) {
+            return response()->json('El buzón ya cerró', 410);
+        }
         $userId = (new Post)->getUserIdByPostId($request->id_post)[0]['user_id'];
         $isBlacklisted = (new Blacklist)->findByIp($request->ip(), $userId);
         if($isBlacklisted){
@@ -55,6 +62,13 @@ class QuestionController extends Controller
         $existPost = (new PublicPost)->getPostDataByUrl($url);
         if(!$existPost){
             return view('errors/404');
+        }
+        if (!empty($existPost['expires_at']) && strtotime($existPost['expires_at']) <= time()) {
+            $userData = (new User)->findById($existPost['user_id'])[0];
+            return view('MailboxClosed', [
+                'usernameUser' => $userData['username'],
+                'title' => $existPost['title'],
+            ]);
         }
         if ($existPost['asset_id'] > 10000){
             $dataPost = (new Asset)->findById($existPost['asset_id'])[0];
