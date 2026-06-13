@@ -38,6 +38,34 @@ class PostLifecycleController extends Controller
         return response()->json(['Buzón extendido', (new Post)->findById($id)[0]]);
     }
 
+    public function unlock(Request $request)
+    {
+        $post = $this->authorizePost($request);
+        if (!$this->isClosed($post)) {
+            return response()->json('El buzón sigue activo: no hace falta desbloquear', 409);
+        }
+        $this->charge($request, (int) config('app.hype_unlock'));
+        $id = (int) $post['id'];
+        (new Post)->query("UPDATE posts SET unlocked = 1 WHERE id = {$id}");
+        return response()->json(['Buzón desbloqueado', (new Post)->findById($id)[0]]);
+    }
+
+    public function revive(Request $request)
+    {
+        $post = $this->authorizePost($request);
+        if (!$this->isClosed($post)) {
+            return response()->json('El buzón sigue activo: usá renovar', 409);
+        }
+        $this->charge($request, (int) config('app.hype_revive'));
+        $id = (int) $post['id'];
+        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL 72 HOUR),
+            unlocked = 1, extended = 0,
+            notified_24h = 0, notified_2h = 0, notified_closed = 0
+            WHERE id = {$id}");
+        (new Streak)->touch((int) $post['user_id']);
+        return response()->json(['Buzón revivido', (new Post)->findById($id)[0]]);
+    }
+
     /** Token válido + post existente + ownership. Aborta con 401/404/403. */
     private function authorizePost(Request $request): array
     {
