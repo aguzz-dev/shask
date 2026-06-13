@@ -14,6 +14,8 @@ ALTER TABLE `users`
     ADD COLUMN `fcm_token`  TEXT          NULL AFTER `hype`,
     ADD COLUMN `status`     TINYINT       NOT NULL DEFAULT 0 AFTER `fcm_token`,
     ADD COLUMN `code`       INT           NULL AFTER `status`,
+    ADD COLUMN `streak_days` INT          NOT NULL DEFAULT 0 AFTER `code`,
+    ADD COLUMN `streak_date` DATE         NULL AFTER `streak_days`,
     ADD UNIQUE KEY `users_username_unique` (`username`);
 
 -- 2. Reemplazar personal_access_tokens por la estructura propia del proyecto
@@ -38,6 +40,14 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `status`     TINYINT         NOT NULL DEFAULT 0,
     `created_at` DATE            NULL,
     `updated_at` TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- Ciclo de vida del buzón (estado derivado de expires_at)
+    `expires_at`      DATETIME   NULL,
+    `extended`        TINYINT    NOT NULL DEFAULT 0,
+    `unlocked`        TINYINT    NOT NULL DEFAULT 0,
+    `renewed_count`   INT        NOT NULL DEFAULT 0,
+    `notified_24h`    TINYINT    NOT NULL DEFAULT 0,
+    `notified_2h`     TINYINT    NOT NULL DEFAULT 0,
+    `notified_closed` TINYINT    NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     KEY `posts_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
