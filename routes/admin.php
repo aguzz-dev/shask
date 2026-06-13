@@ -22,5 +22,12 @@ Route::prefix($adminPath)->middleware(['web', 'admin.headers'])->group(function 
         Route::get('/images/{id}/edit', [\App\Http\Controllers\Admin\AdminImageController::class, 'edit'])->whereNumber('id');
         Route::post('/images/{id}/edit', [\App\Http\Controllers\Admin\AdminImageController::class, 'update'])->whereNumber('id');
         Route::post('/images/{id}/delete', [\App\Http\Controllers\Admin\AdminImageController::class, 'delete'])->whereNumber('id');
+
+        Route::get('/packs', [\App\Http\Controllers\Admin\AdminPackController::class, 'index']);
+        Route::get('/packs/create', [\App\Http\Controllers\Admin\AdminPackController::class, 'createForm']);
+        Route::post('/packs/create', [\App\Http\Controllers\Admin\AdminPackController::class, 'create']);
+        Route::get('/packs/{id}/edit', [\App\Http\Controllers\Admin\AdminPackController::class, 'editForm'])->whereNumber('id');
+        Route::post('/packs/{id}/edit', [\App\Http\Controllers\Admin\AdminPackController::class, 'edit'])->whereNumber('id');
+        Route::post('/packs/{id}/delete', [\App\Http\Controllers\Admin\AdminPackController::class, 'delete'])->whereNumber('id');
     });
 });
