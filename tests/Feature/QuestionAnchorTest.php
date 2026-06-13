@@ -9,8 +9,8 @@ beforeEach(function () {
         VALUES ('Anchor Test', 'anchor_{$suffix}', 'anchor_{$suffix}@test.com', 'x', 0)");
     $this->userId = $this->db->dbConnection->insert_id;
 
-    $this->db->query("INSERT INTO posts (title, asset_id, user_id, status, created_at)
-        VALUES ('Anchor post', 1, {$this->userId}, 1, CURDATE())");
+    $this->db->query("INSERT INTO posts (title, asset_id, user_id, status, created_at, expires_at)
+        VALUES ('Anchor post', 1, {$this->userId}, 1, CURDATE(), DATE_ADD(NOW(), INTERVAL 48 HOUR))");
     $this->postId = $this->db->dbConnection->insert_id;
 
     // public_post con id deliberadamente distinto a post_id (autoincrement propio)
