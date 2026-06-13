@@ -15,7 +15,8 @@ class PostLifecycleController extends Controller
             return response()->json('El buzón ya venció: usá revivir', 409);
         }
         $id = (int) $post['id'];
-        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL 72 HOUR),
+        $minutes = (int) config('app.mailbox_lifetime_minutes');
+        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL {$minutes} MINUTE),
             extended = 0, renewed_count = renewed_count + 1,
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");
@@ -58,7 +59,8 @@ class PostLifecycleController extends Controller
         }
         $this->charge($request, (int) config('app.hype_revive'));
         $id = (int) $post['id'];
-        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL 72 HOUR),
+        $minutes = (int) config('app.mailbox_lifetime_minutes');
+        (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL {$minutes} MINUTE),
             unlocked = 1, extended = 0,
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");

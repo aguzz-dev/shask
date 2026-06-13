@@ -41,6 +41,10 @@ return [
     'hype_unlock' => (int) env('HYPE_UNLOCK', 15),
     'hype_revive' => (int) env('HYPE_REVIVE', 30),
 
+    // Duración del ciclo de un buzón en minutos. Default 4320 = 72h.
+    // Bajalo (ej. 5) para testear las transiciones del ciclo rápido.
+    'mailbox_lifetime_minutes' => (int) env('MAILBOX_LIFETIME_MINUTES', 4320),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

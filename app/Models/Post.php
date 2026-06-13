@@ -65,7 +65,9 @@ class Post extends Database
         $userId = (int) $request->id;
         $title  = $request->title;
         $fechaHoy = Carbon::now()->toDateString();
-        $expiresAt = Carbon::now()->addHours(72)->toDateTimeString();
+        $expiresAt = Carbon::now()
+            ->addMinutes((int) config('app.mailbox_lifetime_minutes'))
+            ->toDateTimeString();
         $this->query("INSERT INTO {$this->table} (`title`, `asset_id`, `user_id`, `created_at`, `expires_at`)
             VALUES ('{$title}', '{$request->asset_id}', '{$userId}', '{$fechaHoy}', '{$expiresAt}')");
         $idPost = $this->dbConnection->insert_id;
