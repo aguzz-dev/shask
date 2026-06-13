@@ -29,6 +29,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Precios de hype del ciclo de vida de buzones
+    |--------------------------------------------------------------------------
+    |
+    | Costo en hype de las acciones pagas. Ajustables sin release. El rewarded
+    | ad es la alternativa gratuita en todas.
+    |
+    */
+
+    'hype_extend' => (int) env('HYPE_EXTEND', 20),
+    'hype_unlock' => (int) env('HYPE_UNLOCK', 15),
+    'hype_revive' => (int) env('HYPE_REVIVE', 30),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
