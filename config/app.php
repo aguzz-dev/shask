@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Path (back office)
+    |--------------------------------------------------------------------------
+    |
+    | Prefijo secreto del back office. Sin valor, las rutas admin no se
+    | registran (el panel no existe en ese deploy).
+    |
+    */
+
+    'admin_path' => env('ADMIN_PATH'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

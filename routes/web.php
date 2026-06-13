@@ -45,6 +45,10 @@ Route::post('/pushNotification', [NotificationController::class, 'sendNotificati
 // catch-all /{id} de los buzones.
 Route::get('/@{username}', [PublicProfileController::class, 'show']);
 
+// Back office admin: también ANTES del catch-all /{id}, que se tragaría
+// el prefijo del panel.
+require __DIR__ . '/admin.php';
+
 //Vista con formulario para enviar pregunta
 Route::get('/{id}', [QuestionController::class, 'sendQuestion']);
 
