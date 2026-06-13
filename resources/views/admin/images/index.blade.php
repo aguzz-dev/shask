@@ -30,6 +30,10 @@
             </td>
             <td style="white-space: nowrap;">
                 <a href="{{ $base }}/images/{{ $image['id'] }}/edit" style="color:#111; font-weight:700;">Editar</a>
+                · <form method="POST" action="{{ $base }}/images/{{ $image['id'] }}/delete" style="display:inline;"
+                        onsubmit="return confirm('¿Borrar {{ $image['name'] }}?');">
+                    @csrf<button style="background:none;border:none;color:#D62828;font-weight:700;cursor:pointer;font:inherit;">Borrar</button>
+                  </form>
             </td>
         </tr>
     @empty

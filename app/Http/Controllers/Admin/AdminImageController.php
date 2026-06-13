@@ -82,4 +82,66 @@ class AdminImageController extends Controller
         return redirect('/' . config('app.admin_path'))
             ->with('ok', count($batch) . ' imagen(es) subidas al catálogo');
     }
+
+    public function edit(int $id)
+    {
+        $image = (new MediaCatalog)->findImageById($id);
+        abort_if($image === null, 404);
+        return view('admin.images.edit', [
+            'image' => $image,
+            'packs' => (new MediaCatalog)->allPacks(),
+        ]);
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $catalog = new MediaCatalog;
+        abort_if($catalog->findImageById($id) === null, 404);
+
+        $request->validate([
+            'type' => 'required|in:sticker,background',
+            'category' => 'nullable|string|max:50',
+            'tags' => 'nullable|string|max:255',
+            'pack_id' => 'nullable|integer',
+            'sort' => 'nullable|integer',
+        ]);
+
+        $packId = $request->filled('pack_id') ? (int) $request->input('pack_id') : null;
+        if ($packId !== null && !$catalog->findPackById($packId)) {
+            return back()->withErrors(['pack_id' => 'El pack no existe']);
+        }
+        $tags = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) $request->input('tags', ''))
+        )));
+
+        $catalog->updateImage($id, $request->input('type'), $request->input('category'), $tags, $packId, (int) $request->input('sort', 0));
+        AdminAuditLog::log(
+            (int) $request->session()->get('admin_id'),
+            'image.edit',
+            ['id' => $id],
+            $request->ip()
+        );
+
+        return redirect('/' . config('app.admin_path'))->with('ok', 'Imagen actualizada');
+    }
+
+    public function delete(Request $request, int $id)
+    {
+        $catalog = new MediaCatalog;
+        $image = $catalog->findImageById($id);
+        abort_if($image === null, 404);
+
+        $catalog->deleteImage($id);
+        $catalog->clearCoverReferences($image['name']);
+        (new MediaStorage)->delete($image['name']);
+        AdminAuditLog::log(
+            (int) $request->session()->get('admin_id'),
+            'image.delete',
+            ['id' => $id, 'name' => $image['name']],
+            $request->ip()
+        );
+
+        return redirect('/' . config('app.admin_path'))->with('ok', "'{$image['name']}' eliminada del catálogo");
+    }
 }

@@ -19,5 +19,8 @@ Route::prefix($adminPath)->middleware(['web', 'admin.headers'])->group(function 
         Route::get('/', [\App\Http\Controllers\Admin\AdminImageController::class, 'index'])->name('admin.home');
         Route::get('/images/upload', [\App\Http\Controllers\Admin\AdminImageController::class, 'showUpload']);
         Route::post('/images/upload', [\App\Http\Controllers\Admin\AdminImageController::class, 'upload']);
+        Route::get('/images/{id}/edit', [\App\Http\Controllers\Admin\AdminImageController::class, 'edit'])->whereNumber('id');
+        Route::post('/images/{id}/edit', [\App\Http\Controllers\Admin\AdminImageController::class, 'update'])->whereNumber('id');
+        Route::post('/images/{id}/delete', [\App\Http\Controllers\Admin\AdminImageController::class, 'delete'])->whereNumber('id');
     });
 });
