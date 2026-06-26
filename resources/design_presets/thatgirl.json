@@ -1,0 +1,515 @@
+{
+  "title": "Clean Girl",
+  "colors": [
+    [
+      74,
+      59,
+      48,
+      1
+    ],
+    [
+      234,
+      223,
+      209,
+      1
+    ],
+    [
+      255,
+      255,
+      255,
+      1
+    ]
+  ],
+  "icon": "",
+  "background": "",
+  "canvas": {
+    "shareCard": {
+      "id": "thatgirl_share",
+      "designWidth": 360.0,
+      "designHeight": 640.0,
+      "layers": [
+        {
+          "id": "thatgirl_share_bg",
+          "type": "background",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "fill": {
+            "type": "gradient",
+            "colors": [
+              "#EADFD1",
+              "#DBCBB6"
+            ],
+            "angle": 165.0
+          }
+        },
+        {
+          "id": "thatgirl_share_pat",
+          "type": "pattern",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 0.5,
+          "visible": true,
+          "locked": true,
+          "kind": "dots",
+          "patternColor": "#BFA88E",
+          "scale": 18.0,
+          "strokeWidth": 3.0,
+          "patternAngle": 0.0
+        },
+        {
+          "id": "req_card",
+          "type": "group",
+          "x": 36.0,
+          "y": 150.0,
+          "width": 288.0,
+          "height": 150.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": false,
+          "border": {
+            "color": "#C9B79C",
+            "style": "solid",
+            "widthTop": 1.5,
+            "widthRight": 1.5,
+            "widthBottom": 1.5,
+            "widthLeft": 1.5,
+            "radius": 18.0
+          },
+          "baseWidth": 288.0,
+          "baseHeight": 150.0,
+          "fill": {
+            "type": "color",
+            "value": "#F7F2EA"
+          },
+          "cornerRadius": 18.0,
+          "children": [
+            {
+              "id": "req_title",
+              "type": "text",
+              "x": 16.0,
+              "y": 26.0,
+              "width": 256.0,
+              "height": 70.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "{{title}}",
+              "style": {
+                "fontFamily": "HankenGrotesk",
+                "fontSize": 28.0,
+                "color": "#4A3B30",
+                "fontWeight": "semibold",
+                "textAlign": "center",
+                "letterSpacing": 0.5
+              }
+            },
+            {
+              "id": "req_user",
+              "type": "text",
+              "x": 16.0,
+              "y": 104.0,
+              "width": 256.0,
+              "height": 24.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "@{{username}}",
+              "style": {
+                "fontFamily": "HankenGrotesk",
+                "fontSize": 15.0,
+                "color": "#8A7B6C",
+                "fontWeight": "semibold",
+                "textAlign": "center"
+              }
+            }
+          ]
+        },
+        {
+          "id": "req_answer",
+          "type": "group",
+          "x": 36.0,
+          "y": 324.0,
+          "width": 288.0,
+          "height": 60.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": false,
+          "border": {
+            "color": "#4A3B30",
+            "style": "solid",
+            "widthTop": 1.5,
+            "widthRight": 4.0,
+            "widthBottom": 4.0,
+            "widthLeft": 1.5,
+            "radius": 14.0
+          },
+          "baseWidth": 288.0,
+          "baseHeight": 60.0,
+          "fill": {
+            "type": "color",
+            "value": "#FFFFFF"
+          },
+          "cornerRadius": 14.0,
+          "children": [
+            {
+              "id": "req_answertext",
+              "type": "text",
+              "x": 16.0,
+              "y": 18.0,
+              "width": 240.0,
+              "height": 24.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "{{answer}}",
+              "style": {
+                "fontFamily": "HankenGrotesk",
+                "fontSize": 15.0,
+                "color": "#4A3B30",
+                "fontWeight": "semibold",
+                "textAlign": "start"
+              }
+            }
+          ]
+        },
+        {
+          "id": "req_brand",
+          "type": "image",
+          "x": 125.0,
+          "y": 580.0,
+          "width": 110.0,
+          "height": 36.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "src": "assets/new_design/shhask_black_logo.png",
+          "fit": "contain",
+          "local": true
+        }
+      ],
+      "canvasBorder": {
+        "color": "#F6F1E9",
+        "style": "solid",
+        "widthTop": 2.0,
+        "widthRight": 2.0,
+        "widthBottom": 2.0,
+        "widthLeft": 2.0,
+        "radius": 18.0,
+        "inset": 16.0
+      }
+    },
+    "storyCard": {
+      "id": "thatgirl_story",
+      "designWidth": 360.0,
+      "designHeight": 640.0,
+      "layers": [
+        {
+          "id": "thatgirl_story_bg",
+          "type": "background",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "fill": {
+            "type": "gradient",
+            "colors": [
+              "#EADFD1",
+              "#DBCBB6"
+            ],
+            "angle": 165.0
+          }
+        },
+        {
+          "id": "thatgirl_story_pat",
+          "type": "pattern",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 0.5,
+          "visible": true,
+          "locked": true,
+          "kind": "dots",
+          "patternColor": "#BFA88E",
+          "scale": 18.0,
+          "strokeWidth": 3.0,
+          "patternAngle": 0.0
+        },
+        {
+          "id": "req_storycard",
+          "type": "group",
+          "x": 36.0,
+          "y": 150.0,
+          "width": 288.0,
+          "height": 150.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": false,
+          "border": {
+            "color": "#C9B79C",
+            "style": "solid",
+            "widthTop": 1.5,
+            "widthRight": 1.5,
+            "widthBottom": 1.5,
+            "widthLeft": 1.5,
+            "radius": 18.0
+          },
+          "baseWidth": 288.0,
+          "baseHeight": 150.0,
+          "fill": {
+            "type": "color",
+            "value": "#F7F2EA"
+          },
+          "cornerRadius": 18.0,
+          "children": [
+            {
+              "id": "req_title",
+              "type": "text",
+              "x": 16.0,
+              "y": 28.0,
+              "width": 256.0,
+              "height": 70.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "{{title}}",
+              "style": {
+                "fontFamily": "HankenGrotesk",
+                "fontSize": 30.0,
+                "color": "#4A3B30",
+                "fontWeight": "semibold",
+                "textAlign": "center",
+                "letterSpacing": 0.5
+              }
+            },
+            {
+              "id": "req_user",
+              "type": "text",
+              "x": 16.0,
+              "y": 106.0,
+              "width": 256.0,
+              "height": 24.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "@{{username}}",
+              "style": {
+                "fontFamily": "HankenGrotesk",
+                "fontSize": 15.0,
+                "color": "#8A7B6C",
+                "fontWeight": "semibold",
+                "textAlign": "center"
+              }
+            }
+          ]
+        },
+        {
+          "id": "req_linkbox",
+          "type": "shape",
+          "x": 110.0,
+          "y": 350.0,
+          "width": 140.0,
+          "height": 44.0,
+          "rotation": 0.0,
+          "opacity": 0.0,
+          "visible": true,
+          "locked": true,
+          "border": {
+            "color": "#4A3B30",
+            "style": "dashed",
+            "widthTop": 2.0,
+            "widthRight": 2.0,
+            "widthBottom": 2.0,
+            "widthLeft": 2.0,
+            "radius": 22.0
+          },
+          "kind": "rectangle",
+          "fill": {
+            "type": "color",
+            "value": "#000000"
+          },
+          "cornerRadius": 22.0
+        },
+        {
+          "id": "req_linkhint",
+          "type": "text",
+          "x": 110.0,
+          "y": 361.0,
+          "width": 140.0,
+          "height": 22.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "content": "pegá tu link",
+          "style": {
+            "fontFamily": "HankenGrotesk",
+            "fontSize": 14.0,
+            "color": "#4A3B30",
+            "fontWeight": "semibold",
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "req_brand",
+          "type": "image",
+          "x": 125.0,
+          "y": 580.0,
+          "width": 110.0,
+          "height": 36.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "src": "assets/new_design/shhask_black_logo.png",
+          "fit": "contain",
+          "local": true
+        }
+      ],
+      "canvasBorder": {
+        "color": "#F6F1E9",
+        "style": "solid",
+        "widthTop": 2.0,
+        "widthRight": 2.0,
+        "widthBottom": 2.0,
+        "widthLeft": 2.0,
+        "radius": 18.0,
+        "inset": 16.0
+      }
+    },
+    "pillCard": {
+      "id": "thatgirl_pill",
+      "designWidth": 360.0,
+      "designHeight": 96.0,
+      "layers": [
+        {
+          "id": "thatgirl_pill_bg",
+          "type": "background",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": true,
+          "fill": {
+            "type": "color",
+            "value": "#E8DDCF"
+          }
+        },
+        {
+          "id": "thatgirl_pill_pat",
+          "type": "pattern",
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.0,
+          "height": 0.0,
+          "rotation": 0.0,
+          "opacity": 0.5,
+          "visible": true,
+          "locked": true,
+          "kind": "dots",
+          "patternColor": "#BFA88E",
+          "scale": 18.0,
+          "strokeWidth": 3.0,
+          "patternAngle": 0.0
+        },
+        {
+          "id": "req_title",
+          "type": "text",
+          "x": 20.0,
+          "y": 30.0,
+          "width": 270.0,
+          "height": 40.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": false,
+          "content": "{{title}}",
+          "style": {
+            "fontFamily": "HankenGrotesk",
+            "fontSize": 22.0,
+            "color": "#4A3B30",
+            "fontWeight": "semibold",
+            "textAlign": "start",
+            "letterSpacing": 0.5
+          }
+        },
+        {
+          "id": "req_badge",
+          "type": "group",
+          "x": 296.0,
+          "y": 25.0,
+          "width": 46.0,
+          "height": 46.0,
+          "rotation": 0.0,
+          "opacity": 1.0,
+          "visible": true,
+          "locked": false,
+          "baseWidth": 46.0,
+          "baseHeight": 46.0,
+          "fill": {
+            "type": "color",
+            "value": "#4A3B30"
+          },
+          "cornerRadius": 12.0,
+          "children": [
+            {
+              "id": "req_count",
+              "type": "text",
+              "x": 0.0,
+              "y": 11.0,
+              "width": 46.0,
+              "height": 26.0,
+              "rotation": 0.0,
+              "opacity": 1.0,
+              "visible": true,
+              "locked": false,
+              "content": "{{count}}",
+              "style": {
+                "fontFamily": "LondrinaSolid",
+                "fontSize": 18.0,
+                "color": "#F7F2EA",
+                "fontWeight": "black",
+                "textAlign": "center"
+              }
+            }
+          ]
+        }
+      ],
+      "canvasBorder": {
+        "color": "#000000",
+        "style": "solid",
+        "widthTop": 1.5,
+        "widthRight": 4.0,
+        "widthBottom": 4.0,
+        "widthLeft": 1.5,
+        "radius": 18.0
+      }
+    }
+  }
+}

@@ -43,6 +43,7 @@
     <div class="topbar">
         <a class="logo" href="{{ $adminPath }}">SHHASK <span class="naranja">ADMIN</span></a>
         <a class="nav {{ request()->is(trim($adminPath, '/')) ? 'active' : '' }}" href="{{ $adminPath }}">Catálogo</a>
+        <a class="nav {{ request()->is('*designs*') ? 'active' : '' }}" href="{{ $adminPath }}/designs">Diseños</a>
         <a class="nav {{ request()->is('*packs*') ? 'active' : '' }}" href="{{ $adminPath }}/packs">Packs</a>
         <a class="nav {{ request()->is('*upload*') ? 'active' : '' }}" href="{{ $adminPath }}/images/upload">Subir</a>
         <span class="who">
