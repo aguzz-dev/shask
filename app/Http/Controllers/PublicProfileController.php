@@ -13,7 +13,7 @@ class PublicProfileController extends Controller
     {
         $username = preg_replace('/[^a-zA-Z0-9_.\-]/', '', $username);
         $rows = (new User)->query(
-            "SELECT id, username, avatar FROM users WHERE username = '{$username}'"
+            "SELECT id, username, avatar, bio FROM users WHERE username = '{$username}'"
         )->fetch_all(MYSQLI_ASSOC);
 
         if (!$rows) {
@@ -51,6 +51,7 @@ class PublicProfileController extends Controller
         return view('PublicProfile', [
             'username'     => $user['username'],
             'avatar'       => json_decode($user['avatar']),
+            'bio'          => $user['bio'] ?? null,
             'achievements' => $unlocked,
             'mailboxes'    => $mailboxes,
         ]);

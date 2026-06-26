@@ -32,6 +32,20 @@ class UserController extends Controller
     {
         (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->id);
         UpdateUserRequest::validate($request);
+
+        // La bio se maneja con prepared statement (no pasa por el SET dinámico).
+        if ($request->has('bio')) {
+            $bio = (string) $request->input('bio', '');
+            if (mb_strlen($bio) > 200) {
+                return response()->json(['error' => 'Bio demasiado larga (máximo 200 caracteres)'], 422);
+            }
+            try {
+                (new User)->updateBio((int) $request->id, $bio);
+            } catch (\Throwable $th) {
+                return response()->json(['error' => $th->getMessage()], $th->getCode() ?: 422);
+            }
+        }
+
         try {
             $res = (new User)->update($request);
             return response()->json(['User actualizado con éxito', $res]);

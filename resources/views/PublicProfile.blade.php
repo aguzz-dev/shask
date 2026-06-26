@@ -19,6 +19,8 @@
         .profile-image svg { width: 100%; height: 100%; }
         h1 { font-size: 38px; margin-top: 12px; letter-spacing: .5px; }
         .lema { color: #777; font-size: 14px; margin-top: 2px; }
+        .bio { color: #555; font-size: 14px; margin-top: 8px; font-style: italic;
+               max-width: 320px; word-break: break-word; }
         .medals { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
         .medal { padding: 6px 12px; font-size: 13px; font-weight: 700; transform: rotate(-1.2deg); }
         .medal:nth-child(even) { transform: rotate(1.2deg); }
@@ -48,6 +50,9 @@
             </div>
             <h1 class="display">{{ '@' . strtoupper($username) }}</h1>
             <p class="lema">preguntame lo que sea 👀</p>
+            @if (!empty($bio))
+                <p class="bio">{{ $bio }}</p>
+            @endif
             @if (count($achievements))
                 <div class="medals">
                     @foreach ($achievements as $a)

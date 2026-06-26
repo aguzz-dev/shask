@@ -124,19 +124,36 @@ class User extends Database
         $token = (new PersonalAccessToken)->generateToken($user['id']);
 
         $userData = [
-            'id' => $user['id'],
-            'full_name' => $user['full_name'],
-            'username' => $user['username'],
-            'email' => $user['email'],
-            'avatar' => $user['avatar'],
-            'hype' => $user['hype'],
-            'notificaciones_activadas' => empty($user['fcm_token'])? false : true
+            'id'                      => $user['id'],
+            'full_name'               => $user['full_name'],
+            'username'                => $user['username'],
+            'email'                   => $user['email'],
+            'avatar'                  => $user['avatar'],
+            'hype'                    => $user['hype'],
+            'bio'                     => $user['bio'] ?? null,
+            'notificaciones_activadas' => empty($user['fcm_token']) ? false : true,
         ];
 
         return [
             'token' => $token,
             'user' => $userData
         ];
+    }
+
+    /**
+     * Actualiza la bio del usuario usando prepared statement.
+     * Lanza Exception(422) si la bio supera los 200 caracteres.
+     * Nunca usa el SET dinámico de update() para evitar SQL injection.
+     */
+    public function updateBio(int $userId, string $bio): void
+    {
+        if (mb_strlen($bio) > 200) {
+            throw new Exception('Bio demasiado larga (máximo 200 caracteres)', 422);
+        }
+        $stmt = $this->dbConnection->prepare('UPDATE users SET bio = ? WHERE id = ?');
+        $stmt->bind_param('si', $bio, $userId);
+        $stmt->execute();
+        $stmt->close();
     }
 
     public function update($request)
@@ -160,8 +177,13 @@ class User extends Database
             }
         }
 
+        // 'bio' se excluye del SET dinámico (se actualiza solo via updateBio()).
+        $excluded = ['bio'];
         $fields = [];
         foreach ($request->all() as $key => $value) {
+            if (in_array($key, $excluded)) {
+                continue;
+            }
             $fields[] = "{$key} = '{$value}'";
         }
 
@@ -171,12 +193,13 @@ class User extends Database
         $this->query($sql);
         $userUpdated = $this->findById($request->id)[0];
         return [
-            'id' => $userUpdated['id'],
-            'full_name' => $userUpdated['full_name'],
-            'username' => $userUpdated['username'],
-            'email' => $userUpdated['email'],
-            'age' => $userUpdated['age'],
-            'notificaciones_activadas' => empty($userUpdated['fcm_token']) ? false : true
+            'id'                      => $userUpdated['id'],
+            'full_name'               => $userUpdated['full_name'],
+            'username'                => $userUpdated['username'],
+            'email'                   => $userUpdated['email'],
+            'age'                     => $userUpdated['age'],
+            'bio'                     => $userUpdated['bio'] ?? null,
+            'notificaciones_activadas' => empty($userUpdated['fcm_token']) ? false : true,
         ];
     }
 
