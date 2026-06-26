@@ -54,4 +54,15 @@ class AdminUser extends Database
     {
         $this->query("UPDATE {$this->table} SET last_login_at = NOW() WHERE id = {$id}");
     }
+
+    /** Reemplaza el password (hasheado) de un admin existente. */
+    public function setPassword(int $id, string $plainPassword): void
+    {
+        $hash = $this->dbConnection->real_escape_string(
+            password_hash($plainPassword, PASSWORD_DEFAULT)
+        );
+        $this->query(
+            "UPDATE {$this->table} SET password = '{$hash}', updated_at = NOW() WHERE id = {$id}"
+        );
+    }
 }
