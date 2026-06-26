@@ -14,6 +14,11 @@ class NotifyPostLifecycle extends Command
     {
         $db = new Database;
 
+        // Purga de dedup de visitas: elimina filas con más de 2 días (ya no útiles)
+        $db->query(
+            "DELETE FROM post_view_dedup WHERE day < DATE_SUB(CURDATE(), INTERVAL 2 DAY)"
+        );
+
         // T-24h: activo, vence dentro de las próximas 24h
         $rows = $db->query("SELECT id, user_id FROM posts
             WHERE notified_24h = 0 AND expires_at > NOW()

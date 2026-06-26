@@ -31,7 +31,7 @@ class Post extends Database
         return $this->query("SELECT `id` FROM {$this->table} WHERE id = '{$postId}'")->fetch_all(MYSQLI_ASSOC);
     }
 
-    // SELECT compartido por getAllPosts y findEnriched: trae url y recap.
+    // SELECT compartido por getAllPosts y findEnriched: trae url, recap y KPIs de visitas.
     private function enrichedSelect(string $where): string
     {
         return "SELECT posts.*, public_posts.url,
@@ -51,10 +51,53 @@ class Post extends Database
         $post['total_questions'] = (int) $post['total_questions'];
         $post['with_hint']       = (int) $post['with_hint'];
         $post['answered']        = (int) $post['answered'];
+        $post['views']           = (int) ($post['views'] ?? 0);
+        $post['unique_views']    = (int) ($post['unique_views'] ?? 0);
         $post['closed']          = (strtotime($post['expires_at']) <= time()) ? 1 : 0;
         // Compat con versiones viejas de la app: vencido oculta el post
         $post['vencido'] = $post['closed'];
         return $post;
+    }
+
+    /**
+     * Registra una visita humana al post. Debe llamarse ANTES de renderizar
+     * la vista para que el conteo ocurra incluso si el template falla.
+     *
+     * Orden de operaciones (obligatorio según spec):
+     *   1. INSERT IGNORE en post_view_dedup → si inserta, unique_views++
+     *   2. views++ siempre
+     *
+     * Usa prepare()+bind_param() directamente; NO usar query() con interpolación.
+     */
+    public function incrementViews(int $postId, string $visitorHash): void
+    {
+        // Intento de dedup: INSERT IGNORE falla silenciosamente si la fila ya existe
+        $stmt = $this->dbConnection->prepare(
+            "INSERT IGNORE INTO post_view_dedup (post_id, day, visitor_hash)
+             VALUES (?, CURDATE(), ?)"
+        );
+        $stmt->bind_param("is", $postId, $visitorHash);
+        $stmt->execute();
+        $inserted = $this->dbConnection->affected_rows;
+        $stmt->close();
+
+        // unique_views++ solo si es la primera visita del visitante en el día
+        if ($inserted === 1) {
+            $stmt = $this->dbConnection->prepare(
+                "UPDATE posts SET unique_views = unique_views + 1 WHERE id = ?"
+            );
+            $stmt->bind_param("i", $postId);
+            $stmt->execute();
+            $stmt->close();
+        }
+
+        // views++ siempre para todas las visitas humanas
+        $stmt = $this->dbConnection->prepare(
+            "UPDATE posts SET views = views + 1 WHERE id = ?"
+        );
+        $stmt->bind_param("i", $postId);
+        $stmt->execute();
+        $stmt->close();
     }
 
     public function getAllPosts($userId): array

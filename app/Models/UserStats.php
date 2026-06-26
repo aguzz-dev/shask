@@ -44,15 +44,26 @@ class UserStats extends Database
             ) t"
         )->fetch_assoc()['m'];
 
+        // KPIs de alcance: totales de visitas de todos los posts del usuario
+        $viewTotals = $this->query(
+            "SELECT COALESCE(SUM(p.views), 0) AS total_views,
+                    COALESCE(SUM(p.unique_views), 0) AS total_unique_views
+             FROM posts p
+             JOIN public_posts pp ON pp.post_id = p.id
+             WHERE pp.user_id = {$userId}"
+        )->fetch_assoc();
+
         return [
-            'questions_received' => (int) $received,
-            'questions_answered' => (int) $answered,
-            'mailboxes_created'  => (int) $mailboxes,
-            'streak_days'        => (int) $user['streak_days'],
-            'member_since'       => $user['created_at'] ? substr($user['created_at'], 0, 10) : null,
-            'hype'               => (int) $user['hype'],
-            'has_custom_avatar'  => !empty($user['avatar']),
-            'max_unread_in_a_mailbox' => (int) $maxUnread,
+            'questions_received'     => (int) $received,
+            'questions_answered'     => (int) $answered,
+            'mailboxes_created'      => (int) $mailboxes,
+            'streak_days'            => (int) $user['streak_days'],
+            'member_since'           => $user['created_at'] ? substr($user['created_at'], 0, 10) : null,
+            'hype'                   => (int) $user['hype'],
+            'has_custom_avatar'      => !empty($user['avatar']),
+            'max_unread_in_a_mailbox'=> (int) $maxUnread,
+            'total_views'            => (int) $viewTotals['total_views'],
+            'total_unique_views'     => (int) $viewTotals['total_unique_views'],
         ];
     }
 }

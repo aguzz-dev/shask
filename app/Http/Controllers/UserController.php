@@ -295,11 +295,13 @@ class UserController extends Controller
 
         return response()->json([
             'stats' => [
-                'questions_received' => $stats['questions_received'],
-                'questions_answered' => $stats['questions_answered'],
-                'mailboxes_created'  => $stats['mailboxes_created'],
-                'streak_days'        => $stats['streak_days'],
-                'member_since'       => $stats['member_since'],
+                'questions_received'  => $stats['questions_received'],
+                'questions_answered'  => $stats['questions_answered'],
+                'mailboxes_created'   => $stats['mailboxes_created'],
+                'streak_days'         => $stats['streak_days'],
+                'member_since'        => $stats['member_since'],
+                'total_views'         => $stats['total_views'],
+                'total_unique_views'  => $stats['total_unique_views'],
             ],
             'achievements' => $achievements->listFor($userId, $lang),
         ]);

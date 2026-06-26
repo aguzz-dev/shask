@@ -57,12 +57,32 @@ class QuestionController extends Controller
         return response()->json(['Se ha actualizado el estado de la pregunta a Respondida', $res]);
     }
 
-    public function sendQuestion($url)
+    public function sendQuestion(Request $request, $url)
     {
         $existPost = (new PublicPost)->getPostDataByUrl($url);
-        if(!$existPost){
+        if (!$existPost) {
             return view('errors/404');
         }
+
+        // --- Conteo de visitas (ANTES del render, para ambos estados del buzón) ---
+        // 1. Filtro anti-bot: si el UA coincide con la lista de config → no contar
+        $ua    = $request->userAgent() ?? '';
+        $isBot = false;
+        foreach (config('visit_tracking.bot_user_agents', []) as $bot) {
+            if (stripos($ua, $bot) !== false) {
+                $isBot = true;
+                break;
+            }
+        }
+
+        if (!$isBot) {
+            $ip   = $request->ip();
+            $salt = config('visit_tracking.daily_salt', date('Y-m-d'));
+            $hash = hash('sha256', $ip . $ua . $salt);
+            (new Post)->incrementViews((int) $existPost['post_id'], $hash);
+        }
+        // --- Fin conteo ---
+
         if (!empty($existPost['expires_at']) && strtotime($existPost['expires_at']) <= time()) {
             $userData = (new User)->findById($existPost['user_id'])[0];
             return view('MailboxClosed', [
