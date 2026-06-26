@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Achievement;
 use App\Models\PersonalAccessToken;
 use App\Models\Post;
 use App\Models\Streak;
+use App\Models\UserStats;
 use Illuminate\Http\Request;
 
 class PostLifecycleController extends Controller
@@ -14,14 +16,25 @@ class PostLifecycleController extends Controller
         if ($this->isClosed($post)) {
             return response()->json('El buzón ya venció: usá revivir', 409);
         }
-        $id = (int) $post['id'];
+        $id     = (int) $post['id'];
+        $userId = (int) $post['user_id'];
         $minutes = (int) config('app.mailbox_lifetime_minutes');
         (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL {$minutes} MINUTE),
             extended = 0, renewed_count = renewed_count + 1,
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");
-        (new Streak)->touch((int) $post['user_id']);
-        return response()->json(['Buzón renovado', (new Post)->findEnriched($id)]);
+        (new Streak)->touch($userId);
+
+        // Evaluar logros tras la renovación e incluir el delta en la respuesta.
+        $lang   = $request->lang === 'en' ? 'en' : 'es';
+        $stats  = (new UserStats)->forUser($userId);
+        $model  = new Achievement;
+        $delta  = $model->evaluate($userId, $stats);
+
+        $postData                  = (new Post)->findEnriched($id);
+        $postData['newly_unlocked'] = $model->formatNewlyUnlocked($delta, $lang);
+
+        return response()->json(['Buzón renovado', $postData]);
     }
 
     /**
@@ -74,14 +87,26 @@ class PostLifecycleController extends Controller
             return response()->json('El buzón sigue activo: usá renovar', 409);
         }
         $this->charge($request, (int) config('app.hype_revive'));
-        $id = (int) $post['id'];
+        $id     = (int) $post['id'];
+        $userId = (int) $post['user_id'];
         $minutes = (int) config('app.mailbox_lifetime_minutes');
         (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(NOW(), INTERVAL {$minutes} MINUTE),
             unlocked = 1, extended = 0,
             notified_24h = 0, notified_2h = 0, notified_closed = 0
             WHERE id = {$id}");
-        (new Streak)->touch((int) $post['user_id']);
-        return response()->json(['Buzón revivido', (new Post)->findEnriched($id)]);
+        (new Streak)->touch($userId);
+
+        // Evaluar logros: first_revive se activa en esta acción específica.
+        $lang   = $request->lang === 'en' ? 'en' : 'es';
+        $stats  = (new UserStats)->forUser($userId);
+        $stats['first_revive'] = true;
+        $model  = new Achievement;
+        $delta  = $model->evaluate($userId, $stats);
+
+        $postData                   = (new Post)->findEnriched($id);
+        $postData['newly_unlocked'] = $model->formatNewlyUnlocked($delta, $lang);
+
+        return response()->json(['Buzón revivido', $postData]);
     }
 
     /** Token válido + post existente + ownership. Aborta con 401/404/403. */

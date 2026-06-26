@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Achievement;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Asset;
@@ -8,6 +9,7 @@ use App\Models\Question;
 use App\Models\Blacklist;
 use App\Models\PublicPost;
 use App\Models\PublicAsset;
+use App\Models\UserStats;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -44,11 +46,19 @@ class QuestionController extends Controller
         }
         $userId = (new Post)->getUserIdByPostId($request->id_post)[0]['user_id'];
         $isBlacklisted = (new Blacklist)->findByIp($request->ip(), $userId);
-        if($isBlacklisted){
+        if ($isBlacklisted) {
             return response()->json('Usuario bloqueado por molesto', 423);
         }
-        $res = (new Question)->store((object)$request, $userId);
-        return response()->json(['Pregunta creada con éxito', $res]);
+        $res = (new Question)->store((object) $request, $userId);
+
+        // Evaluar logros del dueño del buzón tras recibir la pregunta.
+        $lang          = ($request->lang === 'en') ? 'en' : 'es';
+        $stats         = (new UserStats)->forUser((int) $userId);
+        $achievement   = new Achievement;
+        $delta         = $achievement->evaluate((int) $userId, $stats);
+        $newlyUnlocked = $achievement->formatNewlyUnlocked($delta, $lang);
+
+        return response()->json(['Pregunta creada con éxito', $res, ['newly_unlocked' => $newlyUnlocked]]);
     }
 
     public function answerQuestion(Request $request)

@@ -32,34 +32,78 @@ class Achievement extends Database
     }
 
     /**
-     * Evalúa las condiciones y persiste los desbloqueos nuevos. Idempotente:
-     * un logro desbloqueado queda para siempre aunque su condición sea
-     * transitoria (ej. mailbox_exploded).
+     * Evalúa las condiciones, persiste los nuevos desbloqueos y devuelve
+     * únicamente los codes recién desbloqueados en esta llamada (delta).
+     *
+     * Idempotente: si el usuario ya tenía todos los logros alcanzables, el
+     * delta es un array vacío. Los logros ya desbloqueados no se modifican.
+     *
+     * @param  int   $userId
+     * @param  array $stats  Resultado de UserStats::forUser() con las claves:
+     *   questions_received, questions_answered, mailboxes_created, hype,
+     *   has_custom_avatar, max_unread_in_a_mailbox, total_views,
+     *   total_unique_views, max_unique_views_in_a_mailbox, best_conversion,
+     *   first_revive (bool), streak_days.
+     * @return array Codes recién desbloqueados, ej. ['reach_100', 'streak_3'].
      */
-    public function evaluate(int $userId, array $stats): void
+    public function evaluate(int $userId, array $stats): array
     {
         $conditions = [
-            'hype_10k'         => $stats['hype'] >= 10000,
-            'mailbox_exploded' => $stats['max_unread_in_a_mailbox'] > 5,
-            'received_100'     => $stats['questions_received'] >= 100,
-            'answered_50'      => $stats['questions_answered'] >= 50,
-            'hype_1k'          => $stats['hype'] >= 1000,
-            'answered_10'      => $stats['questions_answered'] >= 10,
-            'first_question'   => $stats['questions_received'] >= 1,
-            'first_mailbox'    => $stats['mailboxes_created'] >= 1,
-            'custom_avatar'    => $stats['has_custom_avatar'],
+            // ── Logros originales ─────────────────────────────────────────────
+            'hype_10k'         => ($stats['hype'] ?? 0) >= 10000,
+            'mailbox_exploded' => ($stats['max_unread_in_a_mailbox'] ?? 0) > 5,
+            'received_100'     => ($stats['questions_received'] ?? 0) >= 100,
+            'answered_50'      => ($stats['questions_answered'] ?? 0) >= 50,
+            'hype_1k'          => ($stats['hype'] ?? 0) >= 1000,
+            'answered_10'      => ($stats['questions_answered'] ?? 0) >= 10,
+            'first_question'   => ($stats['questions_received'] ?? 0) >= 1,
+            'first_mailbox'    => ($stats['mailboxes_created'] ?? 0) >= 1,
+            'custom_avatar'    => (bool) ($stats['has_custom_avatar'] ?? false),
+
+            // ── Alcance de vistas (Slice C) ───────────────────────────────────
+            'reach_100'  => ($stats['total_views'] ?? 0) >= config('achievements.reach_100_views', 100),
+            'reach_1k'   => ($stats['total_views'] ?? 0) >= config('achievements.reach_1k_views', 1000),
+            'reach_10k'  => ($stats['total_views'] ?? 0) >= config('achievements.reach_10k_views', 10000),
+
+            // ── Visitas únicas totales (Slice C) ──────────────────────────────
+            'unique_50'  => ($stats['total_unique_views'] ?? 0) >= config('achievements.unique_50_views', 50),
+            'unique_500' => ($stats['total_unique_views'] ?? 0) >= config('achievements.unique_500_views', 500),
+
+            // ── Post viral: pico de únicos en un buzón (Slice C) ─────────────
+            'viral_post' => ($stats['max_unique_views_in_a_mailbox'] ?? 0) >= config('achievements.viral_post_views', 100),
+
+            // ── Conversión: mejor ratio con piso de visitas (Slice C) ─────────
+            'conversion_ace' => ($stats['max_unique_views_in_a_mailbox'] ?? 0) >= config('achievements.conversion_ace_min_views', 50)
+                             && ($stats['best_conversion'] ?? 0.0) >= config('achievements.conversion_ace_ratio', 0.10),
+
+            // ── Racha de días (Slice C) ───────────────────────────────────────
+            'streak_3'  => ($stats['streak_days'] ?? 0) >= config('achievements.streak_3_days', 3),
+            'streak_7'  => ($stats['streak_days'] ?? 0) >= config('achievements.streak_7_days', 7),
+            'streak_30' => ($stats['streak_days'] ?? 0) >= config('achievements.streak_30_days', 30),
+
+            // ── Primer revive (Slice C) — condición transitoria ───────────────
+            // Solo se activa cuando el caller pasa first_revive=true (p.ej. revive()).
+            'first_revive' => (bool) ($stats['first_revive'] ?? false),
         ];
 
-        $already = $this->unlockedFor($userId);
+        // Captura el estado ANTES de insertar para calcular el diff.
+        $before = $this->unlockedFor($userId);
+
         foreach ($this->catalog() as $achievement) {
             $code = $achievement['code'];
-            if (($conditions[$code] ?? false) && !isset($already[$code])) {
+            if (($conditions[$code] ?? false) && !isset($before[$code])) {
                 $this->query(
                     "INSERT IGNORE INTO achievement_user (user_id, achievement_id)
                      VALUES ({$userId}, {$achievement['id']})"
                 );
             }
         }
+
+        // Delta: codes presentes después pero no antes.
+        $after  = $this->unlockedFor($userId);
+        $newCodes = array_values(array_diff(array_keys($after), array_keys($before)));
+
+        return $newCodes;
     }
 
     /** Catálogo completo con estado de desbloqueo, para el endpoint. */
@@ -73,6 +117,7 @@ class Achievement extends Database
                 'weight'   => (int) $a['weight'],
                 'emoji'    => $a['emoji'],
                 'name'     => $lang === 'en' ? $a['name_en'] : $a['name_es'],
+                'reward'   => $a['reward'] ?? null,
                 'unlocked' => isset($unlocked[$a['code']]),
             ];
             if (isset($unlocked[$a['code']])) {
@@ -81,5 +126,41 @@ class Achievement extends Database
             $out[] = $entry;
         }
         return $out;
+    }
+
+    /**
+     * Construye el array newly_unlocked para adjuntar a respuestas de API.
+     * Mapea los codes devueltos por evaluate() al formato {code, emoji, name, reward}.
+     *
+     * @param  array  $newCodes  Resultado de evaluate().
+     * @param  string $lang      'es' | 'en'
+     * @return array
+     */
+    public function formatNewlyUnlocked(array $newCodes, string $lang): array
+    {
+        if (empty($newCodes)) {
+            return [];
+        }
+
+        $catalog = $this->catalog();
+        $byCode  = [];
+        foreach ($catalog as $a) {
+            $byCode[$a['code']] = $a;
+        }
+
+        $result = [];
+        foreach ($newCodes as $code) {
+            if (!isset($byCode[$code])) {
+                continue;
+            }
+            $a        = $byCode[$code];
+            $result[] = [
+                'code'   => $code,
+                'emoji'  => $a['emoji'],
+                'name'   => $lang === 'en' ? $a['name_en'] : $a['name_es'],
+                'reward' => $a['reward'] ?? null,
+            ];
+        }
+        return $result;
     }
 }

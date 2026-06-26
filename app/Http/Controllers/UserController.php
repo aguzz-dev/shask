@@ -290,8 +290,9 @@ class UserController extends Controller
 
         $stats = (new UserStats)->forUser($userId);
 
-        $achievements = new Achievement;
-        $achievements->evaluate($userId, $stats);
+        $achievements   = new Achievement;
+        $delta          = $achievements->evaluate($userId, $stats);
+        $newlyUnlocked  = $achievements->formatNewlyUnlocked($delta, $lang);
 
         return response()->json([
             'stats' => [
@@ -303,7 +304,8 @@ class UserController extends Controller
                 'total_views'         => $stats['total_views'],
                 'total_unique_views'  => $stats['total_unique_views'],
             ],
-            'achievements' => $achievements->listFor($userId, $lang),
+            'achievements'   => $achievements->listFor($userId, $lang),
+            'newly_unlocked' => $newlyUnlocked,
         ]);
     }
 }

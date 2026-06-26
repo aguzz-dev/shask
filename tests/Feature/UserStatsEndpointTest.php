@@ -29,8 +29,11 @@ it('devuelve stats y logros, y persiste los desbloqueos', function () {
         ->assertJsonPath('stats.questions_answered', 0)
         ->assertJsonPath('stats.mailboxes_created', 0)
         ->assertJsonPath('stats.streak_days', 0)
-        ->assertJsonCount(9, 'achievements')
-        ->assertJsonPath('achievements.0.code', 'hype_10k');
+        // El catálogo ahora incluye los logros de Slice C (20 en total).
+        ->assertJsonCount(20, 'achievements')
+        ->assertJsonPath('achievements.0.code', 'hype_10k')
+        // El endpoint ahora incluye el delta de desbloqueos.
+        ->assertJsonStructure(['newly_unlocked']);
 
     // hype 1500 => hype_1k desbloqueado y persistido
     $hype1k = collect($response->json('achievements'))->firstWhere('code', 'hype_1k');
