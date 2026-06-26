@@ -23,6 +23,16 @@ Route::prefix($adminPath)->middleware(['web', 'admin.headers'])->group(function 
         Route::post('/images/{id}/edit', [\App\Http\Controllers\Admin\AdminImageController::class, 'update'])->whereNumber('id');
         Route::post('/images/{id}/delete', [\App\Http\Controllers\Admin\AdminImageController::class, 'delete'])->whereNumber('id');
 
+        Route::get('/designs', [\App\Http\Controllers\Admin\AdminDesignController::class, 'index']);
+        Route::post('/designs/{key}/publish', [\App\Http\Controllers\Admin\AdminDesignController::class, 'publish'])
+            ->where('key', '[a-z0-9_]+');
+        Route::post('/designs/{id}/unpublish', [\App\Http\Controllers\Admin\AdminDesignController::class, 'unpublish'])
+            ->whereNumber('id');
+        Route::post('/designs/{id}/takedown', [\App\Http\Controllers\Admin\AdminModerationController::class, 'takedown'])
+            ->whereNumber('id');
+        Route::post('/designs/{id}/approve', [\App\Http\Controllers\Admin\AdminModerationController::class, 'approveReported'])
+            ->whereNumber('id');
+
         Route::get('/packs', [\App\Http\Controllers\Admin\AdminPackController::class, 'index']);
         Route::get('/packs/create', [\App\Http\Controllers\Admin\AdminPackController::class, 'createForm']);
         Route::post('/packs/create', [\App\Http\Controllers\Admin\AdminPackController::class, 'create']);

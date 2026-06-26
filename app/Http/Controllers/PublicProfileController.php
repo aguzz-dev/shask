@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -19,7 +20,7 @@ class PublicProfileController extends Controller
         if (!$rows) {
             return response()->view('errors.404', [], 404);
         }
-        $user = $rows[0];
+        $user   = $rows[0];
         $userId = (int) $user['id'];
 
         // Evalúa y persiste logros también desde la web (spec 1.2).
@@ -48,12 +49,17 @@ class PublicProfileController extends Controller
             $mailbox['icon']   = $asset['icon'] ?? null;
         }
 
+        // Diseños UGC del creador (solo aprobados, ordenados por id DESC).
+        $assetModel    = new Asset;
+        $creatorDesigns = $assetModel->getApprovedBySubmitter($userId);
+
         return view('PublicProfile', [
-            'username'     => $user['username'],
-            'avatar'       => json_decode($user['avatar']),
-            'bio'          => $user['bio'] ?? null,
-            'achievements' => $unlocked,
-            'mailboxes'    => $mailboxes,
+            'username'       => $user['username'],
+            'avatar'         => json_decode($user['avatar']),
+            'bio'            => $user['bio'] ?? null,
+            'achievements'   => $unlocked,
+            'mailboxes'      => $mailboxes,
+            'creator_designs' => $creatorDesigns,
         ]);
     }
 }

@@ -66,6 +66,7 @@ Route::post('/assets/check', [AssetController::class, 'checkAssetExpired']);
 Route::post('/assets/id', [AssetController::class, 'getUserAssetsByUserId']);
 Route::post('/assets/create', [AssetController::class, 'createPublicAsset']);
 Route::post('/assets/update', [AssetController::class, 'updatePublicAsset']);
+Route::post('/assets/report', [AssetController::class, 'reportPublicAsset']);
 
 //Verificar cuenta de usuario
 Route::get('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
