@@ -53,6 +53,10 @@ class AssetUser extends Database
     /**
      * Adquisición de asset UGC (de public_assets).
      * Débito al comprador + mint al creador.
+     *
+     * All mutations run inside a single transaction. If the ledger INSERT into
+     * asset_acquisitions fails, the entire transaction is rolled back so the
+     * buyer's hype is never debited without a matching acquisition record.
      */
     private function _buyUgcAsset(int $assetId, int $userId, ?int $creatorId, string $source): void
     {
@@ -60,37 +64,60 @@ class AssetUser extends Database
         $mint = (int) config('marketplace.creator_hype_mint', 15);
 
         if ($source === 'hype') {
-            // Verificar saldo del comprador
-            $buyerRow = $this->query("SELECT hype FROM users WHERE id = {$userId}")->fetch_assoc();
+            // Verify buyer balance before opening the transaction
+            $buyerRow  = $this->query("SELECT hype FROM users WHERE id = {$userId}")->fetch_assoc();
             $buyerHype = (int) ($buyerRow['hype'] ?? 0);
             if ($buyerHype < $cost) {
                 throw new \Exception('No tenés suficiente hype para adquirir este diseño', 402);
             }
-
-            // Debitar hype del comprador
-            $stmtDebit = $this->dbConnection->prepare(
-                "UPDATE users SET hype = hype - ? WHERE id = ?"
-            );
-            $stmtDebit->bind_param('ii', $cost, $userId);
-            $stmtDebit->execute();
-            $stmtDebit->close();
         }
 
-        // Mintear hype al creador (generado por la plataforma, no P2P)
-        if ($creatorId !== null) {
-            $stmtMint = $this->dbConnection->prepare(
-                "UPDATE users SET hype = hype + ? WHERE id = ?"
+        $this->dbConnection->begin_transaction();
+
+        try {
+            if ($source === 'hype') {
+                // Debit buyer hype
+                $stmtDebit = $this->dbConnection->prepare(
+                    "UPDATE users SET hype = hype - ? WHERE id = ?"
+                );
+                $stmtDebit->bind_param('ii', $cost, $userId);
+                $stmtDebit->execute();
+                $stmtDebit->close();
+            }
+
+            // Mint hype to creator (platform-generated, not P2P)
+            if ($creatorId !== null) {
+                $stmtMint = $this->dbConnection->prepare(
+                    "UPDATE users SET hype = hype + ? WHERE id = ?"
+                );
+                $stmtMint->bind_param('ii', $mint, $creatorId);
+                $stmtMint->execute();
+                $stmtMint->close();
+            }
+
+            // Increment download counter
+            $this->query(
+                "UPDATE public_assets SET downloads_count = downloads_count + 1 WHERE id = {$assetId}"
             );
-            $stmtMint->bind_param('ii', $mint, $creatorId);
-            $stmtMint->execute();
-            $stmtMint->close();
+
+            // Register acquisition in asset_user
+            $this->_insertAssetUser($assetId, $userId);
+
+            // Insert ledger record — additive only, never touches existing mint logic
+            $stmtLedger = $this->dbConnection->prepare(
+                "INSERT INTO asset_acquisitions (asset_id, buyer_user_id, source, hype_minted)
+                 VALUES (?, ?, ?, ?)"
+            );
+            // Creator always receives hype_minted regardless of source (hype or ad)
+            $stmtLedger->bind_param('iisi', $assetId, $userId, $source, $mint);
+            $stmtLedger->execute();
+            $stmtLedger->close();
+
+            $this->dbConnection->commit();
+        } catch (\Throwable $e) {
+            $this->dbConnection->rollback();
+            throw $e;
         }
-
-        // Incrementar contador de descargas
-        $this->query("UPDATE public_assets SET downloads_count = downloads_count + 1 WHERE id = {$assetId}");
-
-        // Registrar adquisición
-        $this->_insertAssetUser($assetId, $userId);
     }
 
     /**
