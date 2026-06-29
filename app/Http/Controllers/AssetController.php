@@ -10,9 +10,66 @@ use App\Models\PersonalAccessToken;
 
 class AssetController extends Controller
 {
-    public function getAllAssets(): JsonResponse
+    public function getAllAssets(Request $request): JsonResponse
     {
-        return response()->json((new Asset)->getAllAssets());
+        $q            = $request->query('q');
+        $categorySlug = $request->query('category');
+        $sort         = $request->query('sort');
+        $featured     = (bool) $request->query('featured', false);
+
+        // When no filters are requested, use the existing method for backward
+        // compatibility (same response shape and ordering as before).
+        if ($q === null && $categorySlug === null && $sort === null && !$featured) {
+            return response()->json((new Asset)->getAllAssets());
+        }
+
+        $assets = (new Asset)->getPublicCatalog(
+            $q ?? null,
+            $categorySlug ?? null,
+            $sort ?? null,
+            $featured
+        );
+
+        return response()->json([
+            'success' => true,
+            'assets'  => $assets,
+        ]);
+    }
+
+    public function getCategories(): JsonResponse
+    {
+        $categories = (new Asset)->getCategories();
+        return response()->json([
+            'success'    => true,
+            'categories' => $categories,
+        ]);
+    }
+
+    public function getCreatorStats(Request $request): JsonResponse
+    {
+        $token = $request->bearerToken();
+
+        if (!$token) {
+            return response()->json(['message' => 'Token requerido'], 401);
+        }
+
+        // Resolve the authenticated user from token (self-scoped endpoint)
+        $pat    = new \App\Models\PersonalAccessToken;
+        $result = $pat->getIdByToken($token);
+
+        // getIdByToken returns a JsonResponse when token is not found
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return response()->json(['message' => 'Token invalido'], 401);
+        }
+
+        $userId = (int) $result;
+
+        $stats = (new Asset)->getCreatorStats($userId);
+
+        return response()->json([
+            'success' => true,
+            'stats'   => $stats,
+        ]);
     }
 
     public function getUserAssetsByUserId(Request $request): JsonResponse

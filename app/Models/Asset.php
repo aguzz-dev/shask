@@ -246,6 +246,137 @@ class Asset extends Database
     }
 
     /**
+     * All categories ordered by position then id.
+     */
+    public function getCategories(): array
+    {
+        $stmt = $this->dbConnection->prepare(
+            "SELECT id, slug, name FROM categories ORDER BY position ASC, id ASC"
+        );
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
+    }
+
+    /**
+     * Public catalog with optional filters.
+     * All filter values are bound — SQL injection is impossible.
+     *
+     * @param string|null $q           Title LIKE search (case-insensitive).
+     * @param string|null $categorySlug Category slug to filter by (JOIN on categories).
+     * @param string|null $sort         'trending' → ORDER BY downloads_count DESC.
+     * @param bool        $featured     true → only is_featured = 1.
+     */
+    public function getPublicCatalog(
+        ?string $q = null,
+        ?string $categorySlug = null,
+        ?string $sort = null,
+        bool    $featured = false
+    ): array {
+        if ($categorySlug !== null) {
+            // Use INNER JOIN to filter by category slug
+            $sql    = "SELECT pa.*
+                       FROM public_assets pa
+                       INNER JOIN categories c ON c.id = pa.category_id
+                       WHERE pa.status IN ('pending','approved')
+                         AND c.slug = ?";
+            $types  = 's';
+            $params = [$categorySlug];
+        } else {
+            $sql    = "SELECT * FROM public_assets WHERE status IN ('pending','approved')";
+            $types  = '';
+            $params = [];
+        }
+
+        if ($featured) {
+            $sql    .= ' AND ' . ($categorySlug !== null ? 'pa.' : '') . 'is_featured = 1';
+        }
+
+        if ($q !== null && $q !== '') {
+            $col     = $categorySlug !== null ? 'pa.title' : 'title';
+            $sql    .= " AND {$col} LIKE ?";
+            $types  .= 's';
+            $params[] = '%' . $q . '%';
+        }
+
+        // ORDER BY — whitelisted, never interpolated from user input
+        $orderCol = $categorySlug !== null ? 'pa.downloads_count' : 'downloads_count';
+        $idCol    = $categorySlug !== null ? 'pa.id' : 'id';
+        if ($sort === 'trending') {
+            $sql .= " ORDER BY {$orderCol} DESC, {$idCol} DESC";
+        } else {
+            $sql .= " ORDER BY {$idCol} DESC";
+        }
+
+        $stmt = $this->dbConnection->prepare($sql);
+        if ($types !== '') {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
+    }
+
+    /**
+     * Creator stats aggregated from public_assets and the acquisitions ledger.
+     *
+     * Returns downloads, hype earned per design, and the creator's current
+     * hype balance from the users table.
+     */
+    public function getCreatorStats(int $userId): array
+    {
+        // Per-design breakdown: downloads and hype earned from ledger
+        $stmt = $this->dbConnection->prepare(
+            "SELECT pa.id,
+                    pa.title,
+                    pa.status,
+                    pa.downloads_count,
+                    COALESCE(SUM(acq.hype_minted), 0) AS hype_earned
+             FROM public_assets pa
+             LEFT JOIN asset_acquisitions acq ON acq.asset_id = pa.id
+             WHERE pa.submitter_user_id = ?
+             GROUP BY pa.id, pa.title, pa.status, pa.downloads_count
+             ORDER BY pa.id DESC"
+        );
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $designs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        // Current hype balance
+        $hypeStmt = $this->dbConnection->prepare(
+            "SELECT hype FROM users WHERE id = ?"
+        );
+        $hypeStmt->bind_param('i', $userId);
+        $hypeStmt->execute();
+        $hypeRow = $hypeStmt->get_result()->fetch_assoc();
+        $hypeStmt->close();
+
+        $totalDownloads = (int) array_sum(array_column($designs, 'downloads_count'));
+        $totalHype      = $hypeRow ? (int) $hypeRow['hype'] : 0;
+
+        // Normalize types
+        $designs = array_map(static function (array $d): array {
+            return [
+                'id'             => (int) $d['id'],
+                'title'          => $d['title'],
+                'status'         => $d['status'],
+                'downloads_count' => (int) $d['downloads_count'],
+                'hype_earned'    => (int) $d['hype_earned'],
+            ];
+        }, $designs);
+
+        return [
+            'total_downloads' => $totalDownloads,
+            'total_hype'      => $totalHype,
+            'designs_count'   => count($designs),
+            'designs'         => $designs,
+        ];
+    }
+
+    /**
      * Designs aprobados de un creador específico (para el perfil público).
      */
     public function getApprovedBySubmitter(int $userId): array

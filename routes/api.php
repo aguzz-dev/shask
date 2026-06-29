@@ -68,6 +68,12 @@ Route::post('/assets/create', [AssetController::class, 'createPublicAsset']);
 Route::post('/assets/update', [AssetController::class, 'updatePublicAsset']);
 Route::post('/assets/report', [AssetController::class, 'reportPublicAsset']);
 
+// Discovery: public category list
+Route::get('/categories', [AssetController::class, 'getCategories']);
+
+// Creator stats (auth-gated, self-scoped)
+Route::get('/creator/stats', [AssetController::class, 'getCreatorStats']);
+
 //Verificar cuenta de usuario
 Route::get('/code', [UserController::class, 'getCode'])->middleware('throttle:1,10');
 Route::post('/verify', [UserController::class, 'verifyCode']);
