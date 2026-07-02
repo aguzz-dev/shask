@@ -275,16 +275,19 @@ class Asset extends Database
         bool    $featured = false
     ): array {
         if ($categorySlug !== null) {
-            // Use INNER JOIN to filter by category slug
+            // Use INNER JOIN to filter by category slug.
+            // Only user-submitted designs (submitter_user_id IS NOT NULL); system presets are excluded.
             $sql    = "SELECT pa.*
                        FROM public_assets pa
                        INNER JOIN categories c ON c.id = pa.category_id
                        WHERE pa.status IN ('pending','approved')
+                         AND pa.submitter_user_id IS NOT NULL
                          AND c.slug = ?";
             $types  = 's';
             $params = [$categorySlug];
         } else {
-            $sql    = "SELECT * FROM public_assets WHERE status IN ('pending','approved')";
+            // System presets (submitter_user_id IS NULL) are editor ingredients, not catalog items.
+            $sql    = "SELECT * FROM public_assets WHERE status IN ('pending','approved') AND submitter_user_id IS NOT NULL";
             $types  = '';
             $params = [];
         }

@@ -16,13 +16,17 @@ class AssetController extends Controller
         $categorySlug = $request->query('category');
         $sort         = $request->query('sort');
         $featured     = (bool) $request->query('featured', false);
+        // `catalog=1` explicitly requests the UGC-only catalog (excludes system presets).
+        $catalog      = (bool) $request->query('catalog', false);
 
-        // When no filters are requested, use the existing method for backward
-        // compatibility (same response shape and ordering as before).
-        if ($q === null && $categorySlug === null && $sort === null && !$featured) {
+        // Editor path: no catalog flag, no discovery filters → backward-compatible
+        // shape {public_assets, assets} for the asset-editor picker.
+        if (!$catalog && $q === null && $categorySlug === null && $sort === null && !$featured) {
             return response()->json((new Asset)->getAllAssets());
         }
 
+        // Catalog path: returns only user-submitted designs under the `public_assets`
+        // key so the Flutter marketplace can read data['public_assets'] uniformly.
         $assets = (new Asset)->getPublicCatalog(
             $q ?? null,
             $categorySlug ?? null,
@@ -31,8 +35,8 @@ class AssetController extends Controller
         );
 
         return response()->json([
-            'success' => true,
-            'assets'  => $assets,
+            'success'       => true,
+            'public_assets' => $assets,
         ]);
     }
 
