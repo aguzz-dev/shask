@@ -52,7 +52,7 @@ class CreatorAcquisitionNotifier
             return;
         }
 
-        if ($this->isQuietHours()) {
+        if (QuietHours::isNow()) {
             $deferStmt = $db->dbConnection->prepare(
                 "UPDATE creator_push_log SET deferred_pending = 1
                  WHERE creator_user_id = ? AND day = CURDATE()"
@@ -70,8 +70,8 @@ class CreatorAcquisitionNotifier
 
         $sent = $this->push->sendToUser(
             $creatorId,
-            'push_asset_acquired_single_title',
-            'push_asset_acquired_single_body',
+            CreatorPushCopy::SINGLE_TITLE,
+            CreatorPushCopy::SINGLE_BODY,
             $data,
         );
 
@@ -90,23 +90,5 @@ class CreatorAcquisitionNotifier
         $sentStmt->bind_param('i', $creatorId);
         $sentStmt->execute();
         $sentStmt->close();
-    }
-
-    /**
-     * Quiet-hours window (`marketplace.push_quiet_start`/`push_quiet_end`,
-     * HH:MM, app timezone). Handles windows that wrap past midnight
-     * (default 22:00–08:00).
-     */
-    private function isQuietHours(): bool
-    {
-        $start = (string) config('marketplace.push_quiet_start', '22:00');
-        $end   = (string) config('marketplace.push_quiet_end', '08:00');
-        $now   = date('H:i');
-
-        if ($start <= $end) {
-            return $now >= $start && $now < $end;
-        }
-
-        return $now >= $start || $now < $end;
     }
 }

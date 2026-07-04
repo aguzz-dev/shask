@@ -13,3 +13,7 @@ Artisan::command('inspire', function () {
 Schedule::command('posts:notify-lifecycle')->everyFifteenMinutes();
 Schedule::command('streak:tick')->dailyAt('23:50');
 Schedule::command('streak:warn')->dailyAt('19:00');
+
+// Push al creador por adquisición de su diseño (creator-acquisition-push).
+Schedule::command('push:flush-quiet-hours')->everyFifteenMinutes();
+Schedule::command('push:creator-digest')->dailyAt('20:30');
