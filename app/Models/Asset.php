@@ -319,6 +319,17 @@ class Asset extends Database
         $stmt->execute();
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
+
+        // Server-driven price (marketplace-surface / Price Is Always
+        // Server-Driven): public_assets has no `price` column, so stamp it
+        // from config on every row instead of exposing a client-side
+        // fallback constant.
+        $price = (int) config('marketplace.acquisition_hype_cost', 20);
+        foreach ($result as &$row) {
+            $row['price'] = $price;
+        }
+        unset($row);
+
         return $result;
     }
 
