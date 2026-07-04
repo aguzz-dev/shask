@@ -14,4 +14,20 @@ return [
 
     // Hype que la plataforma mintea al creador por cada adquisición
     'creator_hype_mint' => 15,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Push al creador por adquisición (creator-acquisition-push)
+    |--------------------------------------------------------------------------
+    | Ventana de quiet-hours (HH:MM, reloj de 24h, huso horario de la app —
+    | UTC por defecto). Los push individuales dentro de esta ventana se
+    | difieren (nunca se descartan), y se envían al cerrar la ventana vía
+    | el comando `push:flush-quiet-hours`.
+    */
+    'push_quiet_start' => '22:00',
+    'push_quiet_end'   => '08:00',
+
+    // Umbral de adquisiciones/día para disparar el digest diario
+    // (`push:creator-digest`, corre a las 20:30).
+    'push_digest_threshold' => 3,
 ];

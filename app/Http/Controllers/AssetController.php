@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\AssetUser;
+use App\Services\CreatorAcquisitionNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\PersonalAccessToken;
@@ -83,24 +84,33 @@ class AssetController extends Controller
         return response()->json(['Assets pertenecientes al usuario con ID ' . $request->id, $res]);
     }
 
-    public function buyAsset(Request $request): JsonResponse
+    public function buyAsset(Request $request, CreatorAcquisitionNotifier $notifier): JsonResponse
     {
         (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->user_id);
 
-        $source = in_array($request->source, ['hype', 'ad'], true) ? $request->source : 'hype';
+        $source  = in_array($request->source, ['hype', 'ad'], true) ? $request->source : 'hype';
+        $assetId = (int) $request->asset_id;
+        $userId  = (int) $request->user_id;
 
         try {
-            (new AssetUser)->buyAsset(
-                (int) $request->asset_id,
-                (int) $request->user_id,
-                $source
-            );
+            $creatorId = (new AssetUser)->buyAsset($assetId, $userId, $source);
         } catch (\Exception $e) {
             $code = $e->getCode();
             if ($code === 402) {
                 return response()->json(['message' => $e->getMessage()], 402);
             }
             return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        // Creator notification (D4.1): runs after the purchase commits and
+        // outside its transaction. A notifier failure must never fail the
+        // purchase response — wrapped in its own try/catch.
+        if ($creatorId !== null && $creatorId !== $userId) {
+            try {
+                $notifier->notify($creatorId, $assetId);
+            } catch (\Throwable $e) {
+                // Intentionally swallowed — see comment above.
+            }
         }
 
         return response()->json(['message' => 'Asset adquirido con éxito']);
