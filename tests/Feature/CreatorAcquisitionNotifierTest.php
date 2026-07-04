@@ -75,6 +75,27 @@ it('defers the push (never discards it) during quiet hours', function () {
         ->and((int) $row['deferred_pending'])->toBe(1);
 });
 
+it('individual push payload includes type=asset_acquired and asset_id', function () {
+    // T4.4.3: the FCM payload data must be verifiable for deep-linking
+    // (FirebaseApi.handleMessage routes on data['type']).
+    config([
+        'marketplace.push_quiet_start' => Carbon::now()->addHours(3)->format('H:i'),
+        'marketplace.push_quiet_end'   => Carbon::now()->addHours(4)->format('H:i'),
+    ]);
+
+    $push = $this->mock(PushNotifier::class);
+    $push->shouldReceive('sendToUser')
+        ->once()
+        ->withArgs(fn (int $userId, string $title, string $body, array $data) =>
+            $userId === (int) $this->creatorId
+            && ($data['type'] ?? null) === 'asset_acquired'
+            && ($data['asset_id'] ?? null) === 99)
+        ->andReturn(true);
+
+    $notifier = app(CreatorAcquisitionNotifier::class);
+    $notifier->notify((int) $this->creatorId, 99);
+});
+
 it('does not send a second individual push the same day (cap respected)', function () {
     config([
         'marketplace.push_quiet_start' => Carbon::now()->addHours(3)->format('H:i'),
