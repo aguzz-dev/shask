@@ -21,8 +21,11 @@ class AssetUser extends Database
      *
      * @throws \Exception Si el asset ya es propiedad del usuario.
      * @throws \Exception Si el comprador no tiene hype suficiente (ruta hype).
+     *
+     * @return int|null El id del creador a notificar (D4.1), o null para
+     *                   assets del sistema o cuando `submitter_user_id` es null.
      */
-    public function buyAsset(int $assetId, int $userId, string $source = 'hype'): void
+    public function buyAsset(int $assetId, int $userId, string $source = 'hype'): ?int
     {
         $assetIdInt = (int) $assetId;
         $userIdInt  = (int) $userId;
@@ -43,11 +46,16 @@ class AssetUser extends Database
 
         if ($publicAsset !== false && $publicAsset !== null) {
             // Ruta UGC: usar users.hype
-            $this->_buyUgcAsset($assetIdInt, $userIdInt, $publicAsset['submitter_user_id'], $source);
-        } else {
-            // Ruta sistema/privado: usar users.hype (corregido desde users.coins)
-            $this->_buySystemAsset($assetIdInt, $userIdInt, $source);
+            $creatorId = $publicAsset['submitter_user_id'] !== null
+                ? (int) $publicAsset['submitter_user_id']
+                : null;
+            $this->_buyUgcAsset($assetIdInt, $userIdInt, $creatorId, $source);
+            return $creatorId;
         }
+
+        // Ruta sistema/privado: usar users.hype (corregido desde users.coins)
+        $this->_buySystemAsset($assetIdInt, $userIdInt, $source);
+        return null;
     }
 
     /**
