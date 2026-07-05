@@ -267,12 +267,16 @@ class Asset extends Database
      * @param string|null $categorySlug Category slug to filter by (JOIN on categories).
      * @param string|null $sort         'trending' → ORDER BY downloads_count DESC.
      * @param bool        $featured     true → only is_featured = 1.
+     * @param int|null    $limit        Bound int, applied after ORDER BY. Null → no LIMIT (current behavior).
+     * @param int|null    $offset       Bound int, applied after LIMIT. Ignored if $limit is null.
      */
     public function getPublicCatalog(
         ?string $q = null,
         ?string $categorySlug = null,
         ?string $sort = null,
-        bool    $featured = false
+        bool    $featured = false,
+        ?int    $limit = null,
+        ?int    $offset = null
     ): array {
         if ($categorySlug !== null) {
             // Use INNER JOIN to filter by category slug.
@@ -310,6 +314,21 @@ class Asset extends Database
             $sql .= " ORDER BY {$orderCol} DESC, {$idCol} DESC";
         } else {
             $sql .= " ORDER BY {$idCol} DESC";
+        }
+
+        // Pagination — always bound int, never interpolated. Appended after
+        // ORDER BY so the offset is computed against the final, deterministic
+        // ordering. $limit === null preserves the current (unbounded) behavior.
+        if ($limit !== null) {
+            $sql      .= ' LIMIT ?';
+            $types    .= 'i';
+            $params[] = (int) $limit;
+
+            if ($offset !== null) {
+                $sql      .= ' OFFSET ?';
+                $types    .= 'i';
+                $params[] = (int) $offset;
+            }
         }
 
         $stmt = $this->dbConnection->prepare($sql);

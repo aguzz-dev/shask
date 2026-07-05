@@ -30,4 +30,16 @@ return [
     // Umbral de adquisiciones/día para disparar el digest diario
     // (`push:creator-digest`, corre a las 20:30).
     'push_digest_threshold' => 3,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Catalog pagination (marketplace-pagination)
+    |--------------------------------------------------------------------------
+    | Page size is server-authoritative: the client only sends `offset` and
+    | echoes back the `next_offset` the server returns. `rail_cap` bounds the
+    | Featured/Trending discovery rails, which never paginate. Both are
+    | ajustables sin release.
+    */
+    'catalog_page_size' => 20,
+    'rail_cap'          => 10,
 ];

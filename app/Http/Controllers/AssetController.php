@@ -26,14 +26,44 @@ class AssetController extends Controller
             return response()->json((new Asset)->getAllAssets());
         }
 
-        // Catalog path: returns only user-submitted designs under the `public_assets`
-        // key so the Flutter marketplace can read data['public_assets'] uniformly.
-        $assets = (new Asset)->getPublicCatalog(
-            $q ?? null,
-            $categorySlug ?? null,
-            $sort ?? null,
-            $featured
-        );
+        // Pagination is opt-in: triggered by the mere presence of `offset`
+        // (offset=0 counts). Sanitize hostile input — never interpolated,
+        // never a negative OFFSET sent to SQL.
+        $offsetParam = $request->query('offset');
+        $offset      = $offsetParam !== null ? max(0, (int) $offsetParam) : null;
+
+        // Discovery rail context: featured or trending, requested without an
+        // offset. The rails never paginate — hard server-side cap instead.
+        if ($offset === null && ($featured || $sort === 'trending')) {
+            $railCap = (int) config('marketplace.rail_cap', 10);
+            $assets  = (new Asset)->getPublicCatalog($q, $categorySlug, $sort, $featured, $railCap, null);
+
+            return response()->json([
+                'success'       => true,
+                'public_assets' => $assets,
+            ]);
+        }
+
+        if ($offset !== null) {
+            // Paginated catalog: fetch page_size + 1 (sentinel) so has_more is
+            // computed with zero extra queries, then slice back to page_size.
+            $pageSize = (int) config('marketplace.catalog_page_size', 20);
+            $rows     = (new Asset)->getPublicCatalog($q, $categorySlug, $sort, $featured, $pageSize + 1, $offset);
+
+            $hasMore = count($rows) > $pageSize;
+            $items   = array_slice($rows, 0, $pageSize);
+
+            return response()->json([
+                'success'       => true,
+                'public_assets' => $items,
+                'has_more'      => $hasMore,
+                'next_offset'   => $offset + count($items),
+            ]);
+        }
+
+        // Legacy catalog path: no offset, no rail context → full list,
+        // byte-compatible with the pre-pagination contract.
+        $assets = (new Asset)->getPublicCatalog($q, $categorySlug, $sort, $featured);
 
         return response()->json([
             'success'       => true,
