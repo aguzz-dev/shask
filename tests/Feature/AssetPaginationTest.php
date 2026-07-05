@@ -236,3 +236,42 @@ it('hostile offset values are handled safely without a 500 or SQL injection', fu
     $followUp = $this->getJson("/api/assets?catalog=1&category={$this->categorySlug}");
     $followUp->assertOk();
 });
+
+// ── Slice 1 gate-review rider: pagination boundary cases ──────────────────────
+// (test(marketplace): harden pagination boundary cases)
+
+it('an offset beyond the end of the catalog returns an empty page with has_more false', function () {
+    config(['marketplace.catalog_page_size' => 2]);
+
+    $ids = insertCatalogAssets($this->db, $this->userId, $this->categoryId, [30, 20, 10]);
+    $this->assetIds = $ids;
+
+    // Only 3 rows exist; an offset past the last row must not error, must not
+    // wrap around, and must report has_more=false with next_offset echoing
+    // the requested offset plus zero items returned.
+    $response = $this->getJson("/api/assets?catalog=1&category={$this->categorySlug}&offset=100");
+
+    $response->assertOk();
+    $json = $response->json();
+
+    expect($json)->toHaveKeys(['success', 'public_assets', 'has_more', 'next_offset']);
+    expect($json['public_assets'])->toBeEmpty();
+    expect($json['has_more'])->toBeFalse();
+    expect($json['next_offset'])->toBe(100);
+});
+
+it('a negative offset is floored to 0 and returns the same page as offset=0', function () {
+    config(['marketplace.catalog_page_size' => 2]);
+
+    $ids = insertCatalogAssets($this->db, $this->userId, $this->categoryId, [30, 20, 10]);
+    $this->assetIds = $ids;
+
+    $zeroOffset = $this->getJson("/api/assets?catalog=1&category={$this->categorySlug}&offset=0")->json();
+    $negativeOffset = $this->getJson("/api/assets?catalog=1&category={$this->categorySlug}&offset=-5")->json();
+
+    expect($negativeOffset)->toHaveKeys(['success', 'public_assets', 'has_more', 'next_offset']);
+    expect(array_column($negativeOffset['public_assets'], 'id'))
+        ->toBe(array_column($zeroOffset['public_assets'], 'id'));
+    expect($negativeOffset['has_more'])->toBe($zeroOffset['has_more']);
+    expect($negativeOffset['next_offset'])->toBe($zeroOffset['next_offset']);
+});
