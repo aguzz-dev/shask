@@ -122,6 +122,81 @@ it('GET /api/assets?sort=trending orders by downloads_count DESC', function () {
                  ->and($idxC)->toBeLessThan($idxB);
 });
 
+// ── Batch 1 (marketplace-item-showcase): 7-day acquisition momentum ───────────
+
+it('GET /api/assets?sort=trending ranks 7-day momentum over lifetime downloads_count', function () {
+    // Asset B has the lowest lifetime downloads_count (5) in the shared
+    // fixture, but gets 5 acquisitions THIS WEEK — real momentum.
+    $stmt = $this->db->dbConnection->prepare(
+        "INSERT INTO asset_acquisitions (asset_id, buyer_user_id, source, hype_minted, created_at)
+         VALUES (?, ?, 'hype', 15, NOW())"
+    );
+    for ($i = 0; $i < 5; $i++) {
+        $stmt->bind_param('ii', $this->assetBId, $this->userId);
+        $stmt->execute();
+    }
+    $stmt->close();
+
+    // Asset A has the highest lifetime downloads_count (100) but its only
+    // acquisition is 10 days OLD — outside the 7-day window, must not count.
+    $staleStmt = $this->db->dbConnection->prepare(
+        "INSERT INTO asset_acquisitions (asset_id, buyer_user_id, source, hype_minted, created_at)
+         VALUES (?, ?, 'hype', 15, NOW() - INTERVAL 10 DAY)"
+    );
+    $staleStmt->bind_param('ii', $this->assetAId, $this->userId);
+    $staleStmt->execute();
+    $staleStmt->close();
+
+    $response = $this->getJson('/api/assets?sort=trending');
+
+    $response->assertOk();
+
+    $assets = collect($response->json('public_assets'))
+        ->whereIn('id', [$this->assetAId, $this->assetBId])
+        ->keyBy('id');
+
+    expect((int) $assets[$this->assetBId]['recent_acquisitions'])->toBe(5)
+        ->and((int) $assets[$this->assetAId]['recent_acquisitions'])->toBe(0);
+
+    $ids   = array_column($response->json('public_assets'), 'id');
+    $idxB  = array_search($this->assetBId, $ids);
+    $idxA  = array_search($this->assetAId, $ids);
+
+    // Asset B (5 recent acquisitions) outranks Asset A (0 recent, despite
+    // 100 lifetime downloads) — momentum beats lifetime popularity.
+    expect($idxB)->toBeLessThan($idxA);
+});
+
+it('GET /api/assets?sort=trending pads the rail with all-time favorites when few movers exist this week, and padded rows report recent_acquisitions=0', function () {
+    // Only Asset C gets real momentum this week.
+    $stmt = $this->db->dbConnection->prepare(
+        "INSERT INTO asset_acquisitions (asset_id, buyer_user_id, source, hype_minted, created_at)
+         VALUES (?, ?, 'hype', 15, NOW())"
+    );
+    $stmt->bind_param('ii', $this->assetCId, $this->userId);
+    $stmt->execute();
+    $stmt->close();
+
+    $railCap = (int) config('marketplace.rail_cap', 10);
+
+    $response = $this->getJson('/api/assets?sort=trending');
+    $response->assertOk();
+
+    $items = $response->json('public_assets');
+
+    // The rail is capped, never starved: it fills with all-time favorites
+    // even though only one asset moved this week.
+    expect(count($items))->toBe($railCap);
+
+    $byId = collect($items)->keyBy('id');
+    expect((int) $byId[$this->assetCId]['recent_acquisitions'])->toBe(1);
+
+    // At least one padding item (filled via downloads_count DESC fallback)
+    // must report recent_acquisitions=0 — it did not move this week.
+    $paddedCount = collect($items)->filter(fn ($row) => (int) $row['recent_acquisitions'] === 0)->count();
+    expect($paddedCount)->toBeGreaterThan(0);
+});
+
 it('GET /api/assets?category=slug filters by category slug', function () {
     $response = $this->getJson('/api/assets?category=' . $this->categorySlug);
 

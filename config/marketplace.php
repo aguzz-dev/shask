@@ -42,4 +42,15 @@ return [
     */
     'catalog_page_size' => 20,
     'rail_cap'          => 10,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trending momentum window (marketplace-trending-momentum)
+    |--------------------------------------------------------------------------
+    | The trending rail ranks items by acquisitions within the last N days,
+    | not lifetime downloads_count. Cold-start (few weekly movers) pads the
+    | rail with all-time favorites (downloads_count DESC) instead of a
+    | separate query — see Asset::getPublicCatalog().
+    */
+    'trending_window_days' => 7,
 ];

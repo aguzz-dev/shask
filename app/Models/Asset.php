@@ -265,7 +265,9 @@ class Asset extends Database
      *
      * @param string|null $q           Title LIKE search (case-insensitive).
      * @param string|null $categorySlug Category slug to filter by (JOIN on categories).
-     * @param string|null $sort         'trending' → ORDER BY downloads_count DESC.
+     * @param string|null $sort         'trending' → ranked by 7-day acquisition momentum
+     *                                  (recent_acquisitions DESC), falling back to
+     *                                  downloads_count DESC for cold-start padding.
      * @param bool        $featured     true → only is_featured = 1.
      * @param int|null    $limit        Bound int, applied after ORDER BY. Null → no LIMIT (current behavior).
      * @param int|null    $offset       Bound int, applied after LIMIT. Ignored if $limit is null.
@@ -278,7 +280,40 @@ class Asset extends Database
         ?int    $limit = null,
         ?int    $offset = null
     ): array {
-        if ($categorySlug !== null) {
+        $trending = $sort === 'trending';
+
+        if ($trending) {
+            // Momentum branch: LEFT JOIN a 7-day acquisition sub-count onto
+            // public_assets. COALESCE pads assets with zero recent
+            // acquisitions to 0 instead of NULL. `recent_acquisitions` is
+            // additive JSON — it only appears on THIS branch's response.
+            // The window param binds FIRST (it sits inside the subquery,
+            // which appears before WHERE in the SQL text).
+            $windowDays = (int) config('marketplace.trending_window_days', 7);
+
+            $sql    = "SELECT pa.*, COALESCE(m.recent_acquisitions, 0) AS recent_acquisitions
+                       FROM public_assets pa
+                       LEFT JOIN (
+                           SELECT asset_id, COUNT(*) AS recent_acquisitions
+                           FROM asset_acquisitions
+                           WHERE created_at >= (NOW() - INTERVAL ? DAY)
+                           GROUP BY asset_id
+                       ) m ON m.asset_id = pa.id";
+            $types  = 'i';
+            $params = [$windowDays];
+
+            if ($categorySlug !== null) {
+                $sql .= ' INNER JOIN categories c ON c.id = pa.category_id';
+            }
+
+            $sql .= " WHERE pa.status IN ('pending','approved') AND pa.submitter_user_id IS NOT NULL";
+
+            if ($categorySlug !== null) {
+                $sql      .= ' AND c.slug = ?';
+                $types    .= 's';
+                $params[] = $categorySlug;
+            }
+        } elseif ($categorySlug !== null) {
             // Use INNER JOIN to filter by category slug.
             // Only user-submitted designs (submitter_user_id IS NOT NULL); system presets are excluded.
             $sql    = "SELECT pa.*
@@ -296,22 +331,28 @@ class Asset extends Database
             $params = [];
         }
 
+        // Both the trending and category branches select from an aliased
+        // `pa` table; the plain branch selects unaliased columns directly.
+        $pa = ($trending || $categorySlug !== null) ? 'pa.' : '';
+
         if ($featured) {
-            $sql    .= ' AND ' . ($categorySlug !== null ? 'pa.' : '') . 'is_featured = 1';
+            $sql    .= " AND {$pa}is_featured = 1";
         }
 
         if ($q !== null && $q !== '') {
-            $col     = $categorySlug !== null ? 'pa.title' : 'title';
+            $col     = "{$pa}title";
             $sql    .= " AND {$col} LIKE ?";
             $types  .= 's';
             $params[] = '%' . $q . '%';
         }
 
         // ORDER BY — whitelisted, never interpolated from user input
-        $orderCol = $categorySlug !== null ? 'pa.downloads_count' : 'downloads_count';
-        $idCol    = $categorySlug !== null ? 'pa.id' : 'id';
-        if ($sort === 'trending') {
-            $sql .= " ORDER BY {$orderCol} DESC, {$idCol} DESC";
+        $orderCol = "{$pa}downloads_count";
+        $idCol    = "{$pa}id";
+        if ($trending) {
+            // Momentum first; downloads_count DESC is the cold-start padding
+            // fallback that fills the rail when few items moved this week.
+            $sql .= " ORDER BY recent_acquisitions DESC, {$orderCol} DESC, {$idCol} DESC";
         } else {
             $sql .= " ORDER BY {$idCol} DESC";
         }
