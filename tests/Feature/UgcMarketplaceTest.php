@@ -97,6 +97,29 @@ it('segundo asset del mismo creador queda en status approved', function () {
     expect($row['status'])->toBe('approved');
 });
 
+// ── Batch 1 follow-up (marketplace-item-showcase, task 1.9): stamp created_at ─
+
+it('createPublicAsset stamps created_at with a current, non-null timestamp', function () {
+    $model  = new Asset;
+    $before = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
+    $id = $model->createPublicAsset('Diseño con fecha', [], 'star', '', null, $this->creatorId);
+    $this->createdAssetIds[] = $id;
+
+    $after = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
+    $row = $this->db->query("SELECT created_at FROM public_assets WHERE id = {$id}")->fetch_assoc();
+
+    expect($row['created_at'])->not->toBeNull();
+
+    $createdAt = new DateTimeImmutable($row['created_at'], new DateTimeZone('UTC'));
+
+    // Stamped value must fall within the request's execution window — proves
+    // it is a REAL current timestamp, not a hardcoded/fabricated value.
+    expect($createdAt->getTimestamp())->toBeGreaterThanOrEqual($before->getTimestamp() - 1)
+        ->and($createdAt->getTimestamp())->toBeLessThanOrEqual($after->getTimestamp() + 1);
+});
+
 // ── D.1.4: updatePublicAsset verifica ownership ───────────────────────────────
 
 it('updatePublicAsset del propietario actualiza el asset correctamente', function () {

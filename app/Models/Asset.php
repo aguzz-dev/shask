@@ -116,21 +116,27 @@ class Asset extends Database
             $status = $existing === 0 ? 'pending' : 'approved';
         }
 
+        // NEW assets get a real created_at stamp (NOW() — no user input,
+        // safe to interpolate as a literal SQL function call). Legacy rows
+        // predating the created_at migration stay permanently NULL because
+        // the column has no schema-level default (see marketplace-item-showcase
+        // migration 2026_07_13_191321) — this INSERT is the only place a
+        // value is ever written for NEW rows.
         if ($canvasJson !== null) {
             $this->query(
                 "INSERT INTO public_assets
-                    (title, color, icon, background, canvas, submitter_user_id, status)
+                    (title, color, icon, background, canvas, submitter_user_id, status, created_at)
                  VALUES
                     ('{$titleEsc}', '{$colorsJson}', '{$iconEsc}', '{$bgEsc}',
-                     '{$canvasJson}', {$submitterSql}, '{$status}')"
+                     '{$canvasJson}', {$submitterSql}, '{$status}', NOW())"
             );
         } else {
             $this->query(
                 "INSERT INTO public_assets
-                    (title, color, icon, background, submitter_user_id, status)
+                    (title, color, icon, background, submitter_user_id, status, created_at)
                  VALUES
                     ('{$titleEsc}', '{$colorsJson}', '{$iconEsc}', '{$bgEsc}',
-                     {$submitterSql}, '{$status}')"
+                     {$submitterSql}, '{$status}', NOW())"
             );
         }
 
