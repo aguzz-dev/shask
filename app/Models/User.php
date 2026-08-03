@@ -225,13 +225,22 @@ class User extends Database
         return true;
     }
 
-    public function updateAvatar($id,$avatarJson)
+    /**
+     * Actualiza el avatar del usuario usando prepared statement.
+     * Nunca interpola $avatarJson directo en el SQL: viene del cliente y
+     * antes se pegaba crudo en el UPDATE (SQL injection).
+     */
+    public function updateAvatar($id, string $avatarJson)
     {
         $User = $this->findById($id);
         if(!$User){
             throw new Exception('Usuario no encontrado', 404);
         }
-        $this->query("UPDATE `users` SET `avatar` = '{$avatarJson}' WHERE id = '{$id}'");
+        $userId = (int) $id;
+        $stmt = $this->dbConnection->prepare('UPDATE users SET avatar = ? WHERE id = ?');
+        $stmt->bind_param('si', $avatarJson, $userId);
+        $stmt->execute();
+        $stmt->close();
     }
 
     public function destroy($id)
