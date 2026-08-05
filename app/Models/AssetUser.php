@@ -170,6 +170,74 @@ class AssetUser extends Database
         $stmt->close();
     }
 
+    /**
+     * IDs de `public_assets` (diseños UGC) que el usuario realmente posee,
+     * usados para construir el selector `owned_assets` (official-brand-designs
+     * PR3). Regla de posesión, en orden de precedencia, fail-open ante
+     * colisión de namespace (nunca cerrado — misma filosofía que `buyAsset()`,
+     * que ya resuelve la ambigüedad de ids probando `public_assets` antes que
+     * `assets`):
+     *
+     *   1. Ledger `asset_acquisitions` (adquisiciones posteriores a su creación,
+     *      siempre referencian `public_assets` — ver FK en la migración).
+     *   2. Diseños propios en `public_assets` (submitter_user_id = $userId),
+     *      en CUALQUIER status — la autoría nunca se bloquea.
+     *   3. Filas legacy en `asset_user` sin match en el ledger (compras
+     *      previas a la creación de `asset_acquisitions`): se sondean contra
+     *      `public_assets` primero (misma precedencia que `buyAsset()`); si
+     *      resuelven ahí, se consideran UGC poseída. Si no resuelven en
+     *      `public_assets`, son assets de sistema — ya cubiertos por la
+     *      consulta existente de `assets` en `getUserAssetsByUserId()`, no se
+     *      agregan acá para no duplicar el namespace.
+     *
+     * @return int[] IDs únicos de `public_assets`, sin orden garantizado más
+     *               allá del de aparición por precedencia.
+     */
+    public function ownedAssetIds(int $userId): array
+    {
+        $userIdInt = (int) $userId;
+        $ids       = [];
+
+        // 1. Ledger — siempre apunta a public_assets (FK asset_acquisitions.asset_id -> public_assets.id)
+        $ledgerRows = $this->query(
+            "SELECT DISTINCT asset_id FROM asset_acquisitions WHERE buyer_user_id = {$userIdInt}"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($ledgerRows as $row) {
+            $ids[] = (int) $row['asset_id'];
+        }
+
+        // 2. Diseños propios, cualquier status
+        $ownRows = $this->query(
+            "SELECT id FROM public_assets WHERE submitter_user_id = {$userIdInt}"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($ownRows as $row) {
+            $ids[] = (int) $row['id'];
+        }
+
+        // 3. Filas legacy en asset_user sin match en el ledger — sondeo fail-open
+        $legacyRows = $this->query(
+            "SELECT au.asset_id
+             FROM {$this->table} au
+             LEFT JOIN asset_acquisitions aq
+                    ON aq.asset_id = au.asset_id AND aq.buyer_user_id = au.user_id
+             WHERE au.user_id = {$userIdInt} AND aq.id IS NULL"
+        )->fetch_all(MYSQLI_ASSOC);
+
+        foreach ($legacyRows as $row) {
+            $legacyId = (int) $row['asset_id'];
+            $existsPublic = $this->query(
+                "SELECT id FROM public_assets WHERE id = {$legacyId}"
+            )->fetch_assoc();
+            if ($existsPublic !== false && $existsPublic !== null) {
+                $ids[] = $legacyId;
+            }
+            // else: resuelve en `assets` (sistema) — ya servido por la
+            // consulta existente de `assets` en getUserAssetsByUserId().
+        }
+
+        return array_values(array_unique($ids));
+    }
+
     public function checkAssetExpired($userId)
     {
         $now = (new DateTime)->modify('-3 days')->format('Y-m-d H:i:s');

@@ -43,8 +43,17 @@ class Asset extends Database
     }
 
     /**
-     * Assets del usuario: assets privados adquiridos + assets públicos visibles
-     * + los propios diseños UGC del usuario en todos sus estados.
+     * Assets del usuario: assets privados adquiridos + diseños UGC
+     * REALMENTE poseídos (ledger de adquisiciones, autoría propia o compra
+     * legacy) + los propios diseños UGC del usuario en todos sus estados.
+     *
+     * `owned_assets` (official-brand-designs PR3, ADR-3 opción C): reemplaza
+     * la exposición del catálogo público completo por la posesión real,
+     * resuelta en `AssetUser::ownedAssetIds()`. `public_assets` queda como
+     * alias DEPRECADO de las mismas filas (no se borra la clave para no
+     * romper builds instalados que todavía no leen `owned_assets` — ver
+     * fallback en el frontend, PR4). `user_designs` y `assets` quedan
+     * BYTE-IDÉNTICOS a como estaban antes de este cambio.
      */
     public function getUserAssetsByUserId(int $id): array
     {
@@ -55,12 +64,15 @@ class Asset extends Database
              WHERE ua.user_id = '{$id}'"
         )->fetch_all(MYSQLI_ASSOC);
 
-        // Catálogo público visible para el selector de temas
-        $publicAssets = $this->query(
-            "SELECT * FROM public_assets
-             WHERE status IN ('pending', 'approved')
-             ORDER BY id DESC"
-        )->fetch_all(MYSQLI_ASSOC);
+        // Diseños UGC realmente poseídos: ledger -> autoría propia -> compra legacy
+        $ownedIds    = (new AssetUser)->ownedAssetIds($id);
+        $ownedAssets = [];
+        if (!empty($ownedIds)) {
+            $idsList     = implode(',', array_map('intval', $ownedIds));
+            $ownedAssets = $this->query(
+                "SELECT * FROM public_assets WHERE id IN ({$idsList}) ORDER BY id DESC"
+            )->fetch_all(MYSQLI_ASSOC);
+        }
 
         // Propios diseños UGC del usuario con todos los estados (para "mis diseños")
         $stmt = $this->dbConnection->prepare(
@@ -72,7 +84,12 @@ class Asset extends Database
         $stmt->close();
 
         return [
-            'public_assets' => $publicAssets,
+            'owned_assets'  => $ownedAssets,
+            // DEPRECATED: alias de owned_assets, narrowed a las mismas filas
+            // poseídas (ya NO es el catálogo completo). Se mantiene por
+            // compatibilidad con clientes instalados sin el fallback de PR4;
+            // eliminar en un cambio de seguimiento (ver design.md, Open Questions).
+            'public_assets' => $ownedAssets,
             'user_designs'  => $userDesigns,
             'assets'        => $userAssets,
         ];
