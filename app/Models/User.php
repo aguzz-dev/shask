@@ -16,6 +16,15 @@ class User extends Database
     use HasFactory, Notifiable;
 
     protected $table = 'users';
+
+    /** Usernames reservados para cuentas de marca — nadie puede registrarlos ni cambiarse a ellos. */
+    private const RESERVED_USERNAMES = ['shhask'];
+
+    private static function isReservedUsername(string $username): bool
+    {
+        return in_array(strtolower($username), self::RESERVED_USERNAMES, true);
+    }
+
     protected $fillable = [
         'name',
         'email',
@@ -163,15 +172,34 @@ class User extends Database
             throw new Exception('Usuario no encontrado', 404);
         }
 
+        $requestId = $request->id;
+
         if (isset($request->username)) {
-            $existUsername = $this->query("SELECT * FROM `users` WHERE `username` = '{$request->username}' AND id != '{$request->id}'")->fetch_assoc();
+            $usernameInput = $request->username;
+            if (self::isReservedUsername($usernameInput)) {
+                throw new Exception('El nombre de usuario ya está en uso', 422);
+            }
+            $stmt = $this->dbConnection->prepare(
+                'SELECT * FROM `users` WHERE `username` = ? AND id != ?'
+            );
+            $stmt->bind_param('si', $usernameInput, $requestId);
+            $stmt->execute();
+            $existUsername = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
             if ($existUsername) {
                 throw new Exception('El nombre de usuario ya está en uso', 422);
             }
         }
 
         if (isset($request->email)) {
-            $existEmail = $this->query("SELECT * FROM `users` WHERE `email` = '{$request->email}' AND id != '{$request->id}'")->fetch_assoc();
+            $emailInput = $request->email;
+            $stmt = $this->dbConnection->prepare(
+                'SELECT * FROM `users` WHERE `email` = ? AND id != ?'
+            );
+            $stmt->bind_param('si', $emailInput, $requestId);
+            $stmt->execute();
+            $existEmail = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
             if ($existEmail) {
                 throw new Exception('El correo electrónico ya está en uso', 422);
             }
@@ -179,18 +207,35 @@ class User extends Database
 
         // 'bio' se excluye del SET dinámico (se actualiza solo via updateBio()).
         $excluded = ['bio'];
-        $fields = [];
+        $setClauses = [];
+        $values = [];
+        $types = '';
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $excluded)) {
                 continue;
             }
-            $fields[] = "{$key} = '{$value}'";
+            // Solo identificadores SQL válidos como nombre de columna — los
+            // placeholders de mysqli no cubren identificadores, así que esto
+            // es lo único que evita inyección vía una clave manipulada del body.
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', (string) $key)) {
+                continue;
+            }
+            $setClauses[] = "`{$key}` = ?";
+            $values[]     = $value;
+            $types       .= 's';
         }
 
-        $fields = implode(', ', $fields);
+        if (!empty($setClauses)) {
+            $types   .= 'i';
+            $values[] = $request->id;
 
-        $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$request->id}";
-        $this->query($sql);
+            $sql  = "UPDATE {$this->table} SET " . implode(', ', $setClauses) . ' WHERE id = ?';
+            $stmt = $this->dbConnection->prepare($sql);
+            $stmt->bind_param($types, ...$values);
+            $stmt->execute();
+            $stmt->close();
+        }
+
         $userUpdated = $this->findById($request->id)[0];
         return [
             'id'                      => $userUpdated['id'],
@@ -205,6 +250,9 @@ class User extends Database
 
     public function checkUsername($username)
     {
+        if (self::isReservedUsername($username)) {
+            return false;
+        }
         $user = $this->query("SELECT * FROM `users` WHERE `username` = '{$username}'")->fetch_assoc();
         if ($user) {
             return false;
