@@ -89,8 +89,9 @@ class BrandImportDesigns extends Command
             )] = true;
         }
 
-        $created = [];
-        $skipped = [];
+        $created  = [];
+        $skipped  = [];
+        $rejected = [];
 
         foreach ($envelope['designs'] as $design) {
             $title        = (string) ($design['title'] ?? '');
@@ -105,6 +106,19 @@ class BrandImportDesigns extends Command
 
             if (isset($existingHashes[$hash])) {
                 $skipped[] = $key;
+                continue;
+            }
+
+            // Sticker catalog gate: a design with a canvas sticker missing
+            // from media_images is rejected WITHOUT aborting the rest of the
+            // batch — checked in both dry-run and real runs so a --dry-run
+            // preview surfaces exactly what would be rejected for real.
+            $missingStickers = $asset->findMissingStickerRefs($canvas);
+            if (!empty($missingStickers)) {
+                $rejected[] = [
+                    'title'            => $title,
+                    'missing_stickers' => $missingStickers,
+                ];
                 continue;
             }
 
@@ -145,22 +159,32 @@ class BrandImportDesigns extends Command
         $targetDb = DB::connection()->getDatabaseName();
 
         $this->info(sprintf(
-            'created: %d, skipped: %d, target_db: %s, file_sha256: %s%s',
+            'created: %d, skipped: %d, rejected: %d, target_db: %s, file_sha256: %s%s',
             count($created),
             count($skipped),
+            count($rejected),
             $targetDb,
             $fileHash,
             $dryRun ? ' (dry-run — no rows written, no audit logged)' : ''
         ));
 
+        foreach ($rejected as $r) {
+            $this->warn(sprintf(
+                "rechazado '%s': stickers no catalogados en media_images: %s",
+                $r['title'],
+                implode(', ', $r['missing_stickers'])
+            ));
+        }
+
         if (!$dryRun) {
             AdminAuditLog::log($adminId, 'brand.import', [
-                'actor'         => $adminId === 0 ? 'system:cli' : "admin:{$adminId}",
-                'submitter_id'  => $submitterId,
-                'created'       => $created,
-                'skipped_count' => count($skipped),
-                'target_db'     => $targetDb,
-                'file_sha256'   => $fileHash,
+                'actor'          => $adminId === 0 ? 'system:cli' : "admin:{$adminId}",
+                'submitter_id'   => $submitterId,
+                'created'        => $created,
+                'skipped_count'  => count($skipped),
+                'rejected'       => $rejected,
+                'target_db'      => $targetDb,
+                'file_sha256'    => $fileHash,
             ]);
         }
 

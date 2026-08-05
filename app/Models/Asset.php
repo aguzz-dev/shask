@@ -96,6 +96,106 @@ class Asset extends Database
     }
 
     /**
+     * Recorre el canvas completo buscando los `src` de TODOS los layers
+     * `type === 'sticker'`, en cualquier profundidad. Soporta shape v3 bundle
+     * (`{pillCard: {layers: [...]}, shareCard: {...}, storyCard: {...}}`) y
+     * shape legacy plano (`{layers: [...]}` directo en la raíz). Los stickers
+     * anidados dentro de un layer `type === 'group'` (vía su array
+     * `children`) se recorren recursivamente.
+     *
+     * Layers `type === 'image'` (ej. el logo de marca bundleado con la app
+     * Flutter) NO cuentan como sticker — son un mecanismo completamente
+     * distinto (asset embebido en el bundle, no del catálogo `media_images`).
+     *
+     * Traversal puro, sin acceso a base de datos — reutilizable por
+     * findMissingStickerRefs() y por el comando de auditoría (--reverse).
+     *
+     * @return string[]
+     */
+    public static function collectStickerSrcs(?array $canvas): array
+    {
+        if ($canvas === null) {
+            return [];
+        }
+
+        $srcs = [];
+
+        // Shape v3 bundle: cada card tiene su propio array `layers`.
+        foreach (['pillCard', 'shareCard', 'storyCard'] as $cardKey) {
+            if (isset($canvas[$cardKey]['layers']) && is_array($canvas[$cardKey]['layers'])) {
+                self::collectStickerSrcsFromLayers($canvas[$cardKey]['layers'], $srcs);
+            }
+        }
+
+        // Shape legacy plano: `layers` directo en la raíz del canvas.
+        if (isset($canvas['layers']) && is_array($canvas['layers'])) {
+            self::collectStickerSrcsFromLayers($canvas['layers'], $srcs);
+        }
+
+        return $srcs;
+    }
+
+    /** @param array<int,mixed> $layers @param string[] $srcs */
+    private static function collectStickerSrcsFromLayers(array $layers, array &$srcs): void
+    {
+        foreach ($layers as $layer) {
+            if (!is_array($layer)) {
+                continue;
+            }
+
+            $type = $layer['type'] ?? null;
+
+            if ($type === 'sticker' && isset($layer['src']) && $layer['src'] !== '') {
+                $srcs[] = (string) $layer['src'];
+            }
+
+            if ($type === 'group' && isset($layer['children']) && is_array($layer['children'])) {
+                self::collectStickerSrcsFromLayers($layer['children'], $srcs);
+            }
+        }
+    }
+
+    /**
+     * De todos los `src` de sticker referenciados en el canvas, cuáles NO
+     * tienen fila en `media_images.name` (el catálogo real que gestiona el
+     * panel admin vía MediaCatalog/AdminImageController). Una sola query
+     * `WHERE name IN (...)` para todos los srcs únicos encontrados — nunca
+     * N+1.
+     *
+     * Gate de integridad: un sticker puede existir físicamente en el disco
+     * `media` (MediaStorage::url() lo sirve directo en /api/image/{name}, por
+     * eso se ve perfecto en la app) sin tener fila en `media_images` — ahí
+     * queda invisible/no editable/no borrable desde el admin (caso real:
+     * diseño "Y2K" importado, submitter_user_id=2, con `y2k_sticker_1` /
+     * `y2k_sticker_2` sin catalogar). Este método DETECTA ese estado antes de
+     * publicar; no lo corrige.
+     *
+     * @return string[]  vacío si no hay stickers en el canvas o si todos
+     *                    están catalogados
+     */
+    public function findMissingStickerRefs(?array $canvas): array
+    {
+        $srcs = self::collectStickerSrcs($canvas);
+        if (empty($srcs)) {
+            return [];
+        }
+
+        $unique       = array_values(array_unique($srcs));
+        $placeholders = implode(',', array_fill(0, count($unique), '?'));
+        $types        = str_repeat('s', count($unique));
+
+        $stmt = $this->dbConnection->prepare(
+            "SELECT name FROM media_images WHERE name IN ({$placeholders})"
+        );
+        $stmt->bind_param($types, ...$unique);
+        $stmt->execute();
+        $cataloged = array_column($stmt->get_result()->fetch_all(MYSQLI_ASSOC), 'name');
+        $stmt->close();
+
+        return array_values(array_diff($unique, $cataloged));
+    }
+
+    /**
      * Crea un asset público.
      *
      * Si $submitterUserId no es null, el asset es UGC. El status depende de si
@@ -113,6 +213,10 @@ class Asset extends Database
      * auditoría de una importación nunca debe reportar éxito silencioso sobre
      * un status que en realidad no se aplicó.
      *
+     * Gate de integridad (sticker catalog gate): si el canvas referencia un
+     * sticker que no está catalogado en `media_images`, se rechaza con 422
+     * ANTES de insertar nada — ver findMissingStickerRefs().
+     *
      * @return int  ID del registro creado
      */
     public function createPublicAsset(
@@ -124,6 +228,15 @@ class Asset extends Database
         ?int   $submitterUserId = null,
         ?string $forceStatus = null
     ): int {
+        $missingStickers = $this->findMissingStickerRefs($canvas);
+        if (!empty($missingStickers)) {
+            throw new \Exception(
+                'No se puede publicar: stickers no catalogados en media_images: '
+                    . implode(', ', $missingStickers),
+                422
+            );
+        }
+
         $colorsJson  = $this->dbConnection->real_escape_string(json_encode($colors));
         $titleEsc    = $this->dbConnection->real_escape_string($title ?? '');
         $iconEsc     = $this->dbConnection->real_escape_string($icon ?? '');
@@ -202,7 +315,13 @@ class Asset extends Database
     /**
      * Actualiza un asset público. Solo el propietario puede modificarlo.
      *
-     * @throws \Exception Con código 403 si $callerUserId no es el propietario.
+     * Gate de integridad (sticker catalog gate): mismo chequeo que
+     * createPublicAsset() — si el canvas referencia un sticker no catalogado
+     * en `media_images`, se rechaza con 422 ANTES de actualizar nada.
+     *
+     * @throws \Exception Con código 403 si $callerUserId no es el propietario,
+     *                     o 422 si el canvas referencia un sticker no
+     *                     catalogado.
      * @return int ID del asset actualizado
      */
     public function updatePublicAsset(
@@ -227,6 +346,15 @@ class Asset extends Database
             ) {
                 throw new \Exception('No autorizado: no sos el propietario de este asset', 403);
             }
+        }
+
+        $missingStickers = $this->findMissingStickerRefs($canvas);
+        if (!empty($missingStickers)) {
+            throw new \Exception(
+                'No se puede actualizar: stickers no catalogados en media_images: '
+                    . implode(', ', $missingStickers),
+                422
+            );
         }
 
         $colorsJson = $this->dbConnection->real_escape_string(json_encode($colors));

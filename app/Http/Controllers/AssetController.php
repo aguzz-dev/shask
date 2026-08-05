@@ -171,14 +171,18 @@ class AssetController extends Controller
     {
         (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->user_id);
 
-        $id = (new Asset)->createPublicAsset(
-            $request->title,
-            $request->colors ?? [],
-            $request->icon ?? '',
-            $request->background ?? '',
-            $request->canvas,
-            (int) $request->user_id
-        );
+        try {
+            $id = (new Asset)->createPublicAsset(
+                $request->title,
+                $request->colors ?? [],
+                $request->icon ?? '',
+                $request->background ?? '',
+                $request->canvas,
+                (int) $request->user_id
+            );
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json([
             'message' => 'Asset enviado a revisión',
