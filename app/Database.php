@@ -45,4 +45,18 @@ class Database
             echo "Conexión exitosa a la BD.";
         }
     }
+
+    /**
+     * Cada instancia abre su propia conexión mysqli y nunca la cerraba —
+     * bajo carga (ej. suites de test que instancian muchos modelos) esto
+     * agota max_connections antes de que el garbage collector actúe.
+     */
+    public function __destruct()
+    {
+        try {
+            $this->dbConnection?->close();
+        } catch (\Throwable $e) {
+            // Ya pudo haber sido cerrada por otra instancia del mismo request.
+        }
+    }
 }
