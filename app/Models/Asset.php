@@ -8,6 +8,15 @@ class Asset extends Database
 {
     protected $table = 'assets';
 
+    /**
+     * Brand attribution mask: brand-creator submissions display as "Shhask"
+     * instead of the real handle. Computed in the SQL projection — no fake
+     * "Shhask" user row is ever created; submitter_user_id always points at
+     * the real creator's id.
+     */
+    private const SUBMITTER_USERNAME_MASK_SQL =
+        "CASE WHEN u.is_brand_creator = 1 THEN 'Shhask' ELSE u.username END AS submitter_username";
+
     public function findById($id)
     {
         return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
@@ -242,8 +251,10 @@ class Asset extends Database
      */
     public function getModerationQueue(): array
     {
+        $mask = self::SUBMITTER_USERNAME_MASK_SQL;
+
         return $this->query(
-            "SELECT pa.*, u.username AS submitter_username
+            "SELECT pa.*, {$mask}
              FROM public_assets pa
              LEFT JOIN users u ON u.id = pa.submitter_user_id
              WHERE pa.status IN ('reported', 'pending')
@@ -287,6 +298,7 @@ class Asset extends Database
         ?int    $offset = null
     ): array {
         $trending = $sort === 'trending';
+        $mask     = self::SUBMITTER_USERNAME_MASK_SQL;
 
         if ($trending) {
             // Momentum branch: LEFT JOIN a 7-day acquisition sub-count onto
@@ -297,14 +309,15 @@ class Asset extends Database
             // which appears before WHERE in the SQL text).
             $windowDays = (int) config('marketplace.trending_window_days', 7);
 
-            $sql    = "SELECT pa.*, COALESCE(m.recent_acquisitions, 0) AS recent_acquisitions
+            $sql    = "SELECT pa.*, COALESCE(m.recent_acquisitions, 0) AS recent_acquisitions, {$mask}
                        FROM public_assets pa
                        LEFT JOIN (
                            SELECT asset_id, COUNT(*) AS recent_acquisitions
                            FROM asset_acquisitions
                            WHERE created_at >= (NOW() - INTERVAL ? DAY)
                            GROUP BY asset_id
-                       ) m ON m.asset_id = pa.id";
+                       ) m ON m.asset_id = pa.id
+                       LEFT JOIN users u ON u.id = pa.submitter_user_id";
             $types  = 'i';
             $params = [$windowDays];
 
@@ -322,9 +335,10 @@ class Asset extends Database
         } elseif ($categorySlug !== null) {
             // Use INNER JOIN to filter by category slug.
             // Only user-submitted designs (submitter_user_id IS NOT NULL); system presets are excluded.
-            $sql    = "SELECT pa.*
+            $sql    = "SELECT pa.*, {$mask}
                        FROM public_assets pa
                        INNER JOIN categories c ON c.id = pa.category_id
+                       LEFT JOIN users u ON u.id = pa.submitter_user_id
                        WHERE pa.status IN ('pending','approved')
                          AND pa.submitter_user_id IS NOT NULL
                          AND c.slug = ?";
@@ -332,14 +346,18 @@ class Asset extends Database
             $params = [$categorySlug];
         } else {
             // System presets (submitter_user_id IS NULL) are editor ingredients, not catalog items.
-            $sql    = "SELECT * FROM public_assets WHERE status IN ('pending','approved') AND submitter_user_id IS NOT NULL";
+            $sql    = "SELECT pa.*, {$mask}
+                       FROM public_assets pa
+                       LEFT JOIN users u ON u.id = pa.submitter_user_id
+                       WHERE pa.status IN ('pending','approved') AND pa.submitter_user_id IS NOT NULL";
             $types  = '';
             $params = [];
         }
 
-        // Both the trending and category branches select from an aliased
-        // `pa` table; the plain branch selects unaliased columns directly.
-        $pa = ($trending || $categorySlug !== null) ? 'pa.' : '';
+        // All three branches now select from an aliased `pa` table uniformly
+        // (normalized so the LEFT JOIN users mask applies the same way
+        // regardless of which filter combination is active).
+        $pa = 'pa.';
 
         if ($featured) {
             $sql    .= " AND {$pa}is_featured = 1";
