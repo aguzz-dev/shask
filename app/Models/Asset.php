@@ -87,6 +87,15 @@ class Asset extends Database
      *
      * Si $submitterUserId es null, el asset es del sistema (admin) → approved.
      *
+     * $forceStatus (additivo, official-brand-designs / PR2): cuando se pasa,
+     * omite por completo la regla "primer asset → pending" y usa ese status
+     * directo. Pensado para el import de diseños de marca (brand:import-designs),
+     * que necesita insertar como 'approved' aunque sea el primer asset del
+     * submitter de marca. Se verifica con un assert post-insert: si la fila
+     * no quedó exactamente en $forceStatus, se lanza una excepción — la
+     * auditoría de una importación nunca debe reportar éxito silencioso sobre
+     * un status que en realidad no se aplicó.
+     *
      * @return int  ID del registro creado
      */
     public function createPublicAsset(
@@ -95,7 +104,8 @@ class Asset extends Database
         string $icon,
         string $background,
         ?array $canvas = null,
-        ?int   $submitterUserId = null
+        ?int   $submitterUserId = null,
+        ?string $forceStatus = null
     ): int {
         $colorsJson  = $this->dbConnection->real_escape_string(json_encode($colors));
         $titleEsc    = $this->dbConnection->real_escape_string($title ?? '');
@@ -113,16 +123,22 @@ class Asset extends Database
             $submitterInt = (int) $submitterUserId;
             $submitterSql = (string) $submitterInt;
 
-            // Primer asset del creador → pending (flag de revisión prioritaria)
-            $countStmt = $this->dbConnection->prepare(
-                "SELECT COUNT(*) AS c FROM public_assets WHERE submitter_user_id = ?"
-            );
-            $countStmt->bind_param('i', $submitterInt);
-            $countStmt->execute();
-            $existing = (int) $countStmt->get_result()->fetch_assoc()['c'];
-            $countStmt->close();
+            if ($forceStatus === null) {
+                // Primer asset del creador → pending (flag de revisión prioritaria)
+                $countStmt = $this->dbConnection->prepare(
+                    "SELECT COUNT(*) AS c FROM public_assets WHERE submitter_user_id = ?"
+                );
+                $countStmt->bind_param('i', $submitterInt);
+                $countStmt->execute();
+                $existing = (int) $countStmt->get_result()->fetch_assoc()['c'];
+                $countStmt->close();
 
-            $status = $existing === 0 ? 'pending' : 'approved';
+                $status = $existing === 0 ? 'pending' : 'approved';
+            }
+        }
+
+        if ($forceStatus !== null) {
+            $status = $forceStatus;
         }
 
         // NEW assets get a real created_at stamp (NOW() — no user input,
@@ -149,7 +165,21 @@ class Asset extends Database
             );
         }
 
-        return (int) $this->query("SELECT LAST_INSERT_ID() as id")->fetch_assoc()['id'];
+        $newId = (int) $this->query("SELECT LAST_INSERT_ID() as id")->fetch_assoc()['id'];
+
+        if ($forceStatus !== null) {
+            $actualStatus = $this->query(
+                "SELECT status FROM public_assets WHERE id = {$newId}"
+            )->fetch_assoc()['status'];
+
+            if ($actualStatus !== $forceStatus) {
+                throw new \Exception(
+                    "createPublicAsset(): forced status '{$forceStatus}' did not persist for asset #{$newId} (got '{$actualStatus}')"
+                );
+            }
+        }
+
+        return $newId;
     }
 
     /**
