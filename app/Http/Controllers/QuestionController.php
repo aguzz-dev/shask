@@ -67,6 +67,22 @@ class QuestionController extends Controller
         return response()->json(['Se ha actualizado el estado de la pregunta a Respondida', $res]);
     }
 
+    /**
+     * Luminancia relativa WCAG (misma fórmula que Color.computeLuminance()
+     * en Flutter) — permite decidir el color de texto (negro/blanco) sobre
+     * el acento del asset con el mismo criterio que usa la app nativa.
+     */
+    private function relativeLuminance(array $rgb): float
+    {
+        $linearize = function (float $c): float {
+            $c /= 255;
+            return $c <= 0.03928 ? $c / 12.92 : pow(($c + 0.055) / 1.055, 2.4);
+        };
+        return 0.2126 * $linearize((float) ($rgb[0] ?? 0))
+            + 0.7152 * $linearize((float) ($rgb[1] ?? 0))
+            + 0.0722 * $linearize((float) ($rgb[2] ?? 0));
+    }
+
     public function sendQuestion(Request $request, $url)
     {
         $existPost = (new PublicPost)->getPostDataByUrl($url);
@@ -106,6 +122,16 @@ class QuestionController extends Controller
             $dataPost = (new PublicAsset)->findById($existPost['asset_id'])[0];
         }
         $userData = (new User)->findById($existPost['user_id'])[0];
+
+        // Acento = colors[0] del asset (mismo criterio que themedAccentColor
+        // en la app Flutter: el color que el propio diseño eligió). El
+        // contraste del texto sobre ese acento usa la misma fórmula WCAG que
+        // Color.computeLuminance(), para que la landing web y la app decidan
+        // negro/blanco de forma idéntica.
+        $colors      = json_decode($dataPost['color']);
+        $accentRgb   = $colors[0] ?? [255, 106, 19];
+        $onAccent    = $this->relativeLuminance($accentRgb) > 0.5 ? '#000000' : '#ffffff';
+
         return view('Index', [
             'idPublicPost' => $existPost['id'],
             'idPost' => $existPost['post_id'],
@@ -116,7 +142,9 @@ class QuestionController extends Controller
             'avatarUser' => json_decode($userData['avatar']),
             'title' => $existPost['title'],
             'url' => $existPost['url'],
-            'colors' => json_decode($dataPost['color']),
+            'colors' => $colors,
+            'accentRgb' => $accentRgb,
+            'onAccent' => $onAccent,
             'assetIcon' => $dataPost['icon']
         ]);
     }

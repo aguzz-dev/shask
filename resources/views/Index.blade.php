@@ -9,19 +9,22 @@
     <link rel="icon" href="{{ asset('assets/shhask-icono.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Shhask!</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
-
         :root {
-            --color-boton-card: #131215;
-            --color-1: rgba({{ isset($colors[0]) ? implode(',', $colors[0]) : '192,192,209,0.5' }});
-            --color-2: rgba({{ isset($colors[1]) ? implode(',', $colors[1]) : '192,192,209,0.9' }});
-            --color-3: rgba({{ isset($colors[2]) ? implode(',', $colors[2]) : '192,192,209,0.9' }});
-            --negro: #131215;
+            /* Acento = color propio del asset (colors[0]); onAccent lo decide
+               el servidor con la misma fórmula de luminancia que la app. */
+            --accent: rgb({{ isset($accentRgb) ? implode(',', array_slice($accentRgb, 0, 3)) : '255,106,19' }});
+            --on-accent: {{ $onAccent ?? '#ffffff' }};
+            --glow: rgba({{ isset($colors[1]) ? implode(',', array_slice((array) $colors[1], 0, 3)) : '255,106,19' }}, 0.22);
+            --cream: #ECE8E1;
+            --white-cream: #FEFEF2;
+            --ink: #000000;
+            --grey-soft: #676262;
         }
 
         * {
@@ -31,9 +34,8 @@
         }
 
         body {
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(to bottom, var(--color-1), var(--color-2));
+            font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--cream);
             min-height: 100vh;
             padding: 20px;
         }
@@ -50,21 +52,21 @@
             border: 0;
         }
 
-
         .container {
-            max-width: 600px;
+            max-width: 420px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 4px;
             position: relative;
         }
 
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding: 12px 0 24px;
         }
 
         .logo-shhask {
-            width: 60%;
+            width: 46%;
+            max-width: 190px;
         }
 
         .card-container {
@@ -72,62 +74,86 @@
             margin: 20px 0;
         }
 
+        /* Halo suave con el color propio del asset detrás de la card: le da
+           identidad al buzón sin romper el fondo crema de marca. */
+        .card-container::before {
+            content: '';
+            position: absolute;
+            inset: -18px;
+            background: radial-gradient(circle at 30% 20%, var(--glow), transparent 65%);
+            border-radius: 32px;
+            z-index: 0;
+        }
+
         .asset-icon {
             position: absolute;
-            width: 120px;
-            right: -50px;
-            top: -40px;
+            width: 104px;
+            right: -14px;
+            top: -30px;
             z-index: 2;
-            transform: rotate(-7deg);
+            transform: rotate(-6deg);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18));
         }
 
         .question-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: var(--white-cream);
+            border-radius: 20px;
+            padding: 24px 22px;
             position: relative;
             z-index: 1;
+            border: 2px solid var(--ink);
+            border-bottom-width: 5px;
+            border-right-width: 4px;
         }
 
         .profile-section {
             display: flex;
             align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 18px;
         }
 
         .profile-image svg {
-            width: 70px;
-            height: 70px;
+            width: 62px;
+            height: 62px;
             border-radius: 50%;
             object-fit: cover;
             background: linear-gradient(to bottom, #FFF1E6, #CDDAFD);
+            border: 1.5px solid var(--ink);
         }
 
         .profile-info {
             flex-grow: 1;
+            padding-top: 2px;
         }
 
         .username {
-            color: #666;
-            font-size: 0.9rem;
+            display: block;
+            color: var(--grey-soft);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
         .question-text {
-            font-size: 1.2rem;
-            margin: 5px 0;
+            font-family: 'Londrina Solid', sans-serif;
+            font-weight: 900;
+            font-size: 1.7rem;
+            line-height: 1.1;
+            color: var(--ink);
             word-wrap: break-word;
         }
 
         .message-input {
             width: 100%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 14px;
+            border: 1.5px solid var(--ink);
+            border-radius: 14px;
             resize: none;
-            margin-bottom: 15px;
-            font-family: inherit;
+            margin-bottom: 12px;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 0.95rem;
+            background: #fff;
         }
 
         .hint-section {
@@ -135,36 +161,50 @@
         }
 
         .hint-text {
-            color: #666;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-weight: 600;
+            color: var(--grey-soft);
             margin-bottom: 10px;
         }
 
         .hint-input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--ink);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 0.9rem;
+            background: #fff;
         }
 
         .submit-button {
-            background: var(--color-1);
-            color: white;
-            border: 2px solid var(--color-3);
-            padding: 10px 25px;
-            border-radius: 20px;
+            width: 100%;
+            background: var(--accent);
+            color: var(--on-accent);
+            border: 2px solid var(--ink);
+            border-bottom-width: 5px;
+            border-right-width: 4px;
+            padding: 14px 25px;
+            border-radius: 16px;
             cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: transform 0.12s ease;
         }
 
-        .submit-button:hover {
-            background: var(--color-2);
-            color: #fff;
+        .submit-button:active {
+            transform: translateY(2px);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .footer {
-            margin-top: 40px;
+            margin-top: 36px;
             text-align: center;
         }
 
@@ -172,11 +212,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 18px;
         }
 
         .mascot-image {
-            width: 80px;
+            width: 74px;
             height: auto;
         }
 
@@ -184,40 +224,37 @@
             text-align: left;
         }
 
+        .app-promo p {
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-weight: 600;
+            color: var(--grey-soft);
+            font-size: 0.9rem;
+        }
+
         .store-badge {
-            max-width: 160px;
+            max-width: 150px;
             height: auto;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         @media (max-width: 480px) {
-
-            html,
-            body {
-                overflow: hidden;
-                height: 100vh;
-            }
-
             .container {
-                padding: 10px;
+                padding: 12px 4px;
             }
 
             .asset-icon {
-                position: absolute;
-                width: 200px;
-                z-index: 2;
-                transform: rotate(-12deg);
-                scale: 0.5;
-                right: -80px;
-                top: -70px;
+                width: 90px;
+                right: -10px;
+                top: -26px;
+                transform: rotate(-8deg);
             }
         }
 
         .message-input:focus,
         .hint-input:focus {
             outline: none;
-            border-color: var(--color-2);
-            box-shadow: 0 0 0 2px rgba(170, 170, 170, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--glow);
         }
 
         .question-card {
@@ -244,7 +281,7 @@
         </header>
 
         <div class="card-container">
-            <img class="asset-icon" src="{{ asset('images/' . $assetIcon . '.png') }}" alt="Snake">
+            <img class="asset-icon" src="{{ asset('images/' . $assetIcon . '.png') }}" alt="Sticker">
             <main class="question-card">
                 <div class="profile-section">
                     <div id="avatar" class="profile-image">
@@ -504,18 +541,21 @@
                         title: "🖊️Escribe algo para poder enviar el mensaje🤗",
                         width: 600,
                         padding: "3em",
-                        color: "#716add",
-                        backdrop: `rgba(0,0,123,0.4)`
+                        color: "#000000",
+                        backdrop: `rgba(0,0,0,0.5)`,
+                        confirmButtonColor: "#FF6A13"
                     });
                     return;
                 }
                 Swal.fire({
                     title: "Enviando mensaje anónimo😁",
                     icon: "success",
+                    iconColor: "#FF6A13",
                     draggable: true,
                     timer: 5000,
                     timerProgressBar: true,
-                    backdrop: 'rgba(0,0,123,0.4)',
+                    backdrop: 'rgba(0,0,0,0.5)',
+                    color: "#000000",
                     didOpen: () => {
                         Swal.showLoading();
                     },
@@ -553,8 +593,9 @@
                             title: "Mensaje enviado😉 Shhh🤫!",
                             width: 600,
                             padding: "3em",
-                            color: "#716add",
-                            backdrop: 'rgba(0,0,123,0.4)',
+                            color: "#000000",
+                            backdrop: 'rgba(0,0,0,0.5)',
+                            confirmButtonColor: "#FF6A13"
                         });
                     },
                     error: function(xhr, status, error) {
@@ -563,8 +604,9 @@
                                 title: "Debes esperar un momento para volver a mandar otro mensaje🤗",
                                 width: 600,
                                 padding: "3em",
-                                color: "#716add",
-                                backdrop: `rgba(0,0,123,0.4)`
+                                color: "#000000",
+                                backdrop: `rgba(0,0,0,0.5)`,
+                                confirmButtonColor: "#FF6A13"
                             });
 
                             var $button = $('#boton-fachero');
@@ -586,8 +628,9 @@
                                 title: "Se envió el mensaje anónimo😁, Shhh🤫!",
                                 width: 600,
                                 padding: "3em",
-                                color: "#716add",
-                                backdrop: `rgba(0,0,123,0.4)`
+                                color: "#000000",
+                                backdrop: `rgba(0,0,0,0.5)`,
+                                confirmButtonColor: "#FF6A13"
                             });
                             $('#mensaje').val('');
                             $('#hint').val('');
@@ -596,8 +639,9 @@
                                 title: "Ups, parece que algo no está bien!😥",
                                 width: 600,
                                 padding: "3em",
-                                color: "#E63F3C",
-                                backdrop: `rgba(230,63,60,0.4)`
+                                color: "#000000",
+                                backdrop: `rgba(229,57,53,0.35)`,
+                                confirmButtonColor: "#E53935"
                             });
                         }
                     }
