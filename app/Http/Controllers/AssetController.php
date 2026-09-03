@@ -118,7 +118,10 @@ class AssetController extends Controller
     {
         (new PersonalAccessToken)->validateToken($request->bearerToken(), $request->user_id);
 
-        $source  = in_array($request->source, ['hype', 'ad'], true) ? $request->source : 'hype';
+        // Deprecated by the ad-consumable-per-post model (unlock now happens at
+        // mailbox creation). Kept as a backward-compat shim for legacy builds:
+        // hype is no longer spendable, so a buyer is never debited — force 'ad'.
+        $source  = 'ad';
         $assetId = (int) $request->asset_id;
         $userId  = (int) $request->user_id;
 

@@ -171,6 +171,84 @@ class AssetUser extends Database
     }
 
     /**
+     * Server-authoritative premium gate for an asset id.
+     *
+     * Premium is decided here, never by the client. UGC designs live in
+     * public_assets and carry is_premium; anything not found there is a
+     * system/free asset (assets table) and is never gated.
+     *
+     * @return array{is_public: bool, is_premium: bool, creator_id: int|null}
+     */
+    public function premiumGate(int $assetId): array
+    {
+        $assetIdInt = (int) $assetId;
+        $row = $this->query(
+            "SELECT submitter_user_id, is_premium FROM public_assets WHERE id = {$assetIdInt}"
+        )->fetch_assoc();
+
+        if ($row === false || $row === null) {
+            return ['is_public' => false, 'is_premium' => false, 'creator_id' => null];
+        }
+
+        return [
+            'is_public'   => true,
+            'is_premium'  => (int) ($row['is_premium'] ?? 0) === 1,
+            'creator_id'  => $row['submitter_user_id'] !== null ? (int) $row['submitter_user_id'] : null,
+        ];
+    }
+
+    /**
+     * Records a single consumable premium use (one mailbox = one use). Unlike
+     * buyAsset() this grants NO permanent ownership: it only bumps the download
+     * counter, mints creator reputation and writes the earnings ledger row. The
+     * ad/subscription entitlement was already verified server-side by the caller.
+     *
+     * @param  string  $source  'ad' | 'sub'
+     * @return int|null Creator id to notify, or null for system assets.
+     */
+    public function registerPremiumUse(int $assetId, int $userId, string $source): ?int
+    {
+        $assetIdInt = (int) $assetId;
+        $userIdInt  = (int) $userId;
+        $mint       = (int) config('admob.creator_reward_mint', 15);
+        $source     = in_array($source, ['ad', 'sub'], true) ? $source : 'ad';
+
+        $gate      = $this->premiumGate($assetIdInt);
+        $creatorId = $gate['creator_id'];
+
+        $this->dbConnection->begin_transaction();
+        try {
+            if ($creatorId !== null) {
+                $stmtMint = $this->dbConnection->prepare(
+                    "UPDATE users SET hype = hype + ? WHERE id = ?"
+                );
+                $stmtMint->bind_param('ii', $mint, $creatorId);
+                $stmtMint->execute();
+                $stmtMint->close();
+            }
+
+            $this->query(
+                "UPDATE public_assets SET downloads_count = downloads_count + 1 WHERE id = {$assetIdInt}"
+            );
+
+            $stmtLedger = $this->dbConnection->prepare(
+                "INSERT INTO asset_acquisitions (asset_id, buyer_user_id, source, hype_minted)
+                 VALUES (?, ?, ?, ?)"
+            );
+            $stmtLedger->bind_param('iisi', $assetIdInt, $userIdInt, $source, $mint);
+            $stmtLedger->execute();
+            $stmtLedger->close();
+
+            $this->dbConnection->commit();
+        } catch (\Throwable $e) {
+            $this->dbConnection->rollback();
+            throw $e;
+        }
+
+        return $creatorId;
+    }
+
+    /**
      * IDs de `public_assets` (diseños UGC) que el usuario realmente posee,
      * usados para construir el selector `owned_assets` (official-brand-designs
      * PR3). Regla de posesión, en orden de precedencia, fail-open ante
@@ -198,41 +276,17 @@ class AssetUser extends Database
         $userIdInt = (int) $userId;
         $ids       = [];
 
-        // 1. Ledger — siempre apunta a public_assets (FK asset_acquisitions.asset_id -> public_assets.id)
-        $ledgerRows = $this->query(
-            "SELECT DISTINCT asset_id FROM asset_acquisitions WHERE buyer_user_id = {$userIdInt}"
-        )->fetch_all(MYSQLI_ASSOC);
-        foreach ($ledgerRows as $row) {
-            $ids[] = (int) $row['asset_id'];
-        }
-
-        // 2. Diseños propios, cualquier status
+        // Consumable-per-post model: premium designs are used per mailbox, not
+        // permanently owned, so the acquisition ledger no longer confers
+        // ownership. The only truly "owned" public_assets are the user's own
+        // designs (any status — authorship is never blocked). Free/system assets
+        // are available to everyone and are served separately by
+        // getUserAssetsByUserId().
         $ownRows = $this->query(
             "SELECT id FROM public_assets WHERE submitter_user_id = {$userIdInt}"
         )->fetch_all(MYSQLI_ASSOC);
         foreach ($ownRows as $row) {
             $ids[] = (int) $row['id'];
-        }
-
-        // 3. Filas legacy en asset_user sin match en el ledger — sondeo fail-open
-        $legacyRows = $this->query(
-            "SELECT au.asset_id
-             FROM {$this->table} au
-             LEFT JOIN asset_acquisitions aq
-                    ON aq.asset_id = au.asset_id AND aq.buyer_user_id = au.user_id
-             WHERE au.user_id = {$userIdInt} AND aq.id IS NULL"
-        )->fetch_all(MYSQLI_ASSOC);
-
-        foreach ($legacyRows as $row) {
-            $legacyId = (int) $row['asset_id'];
-            $existsPublic = $this->query(
-                "SELECT id FROM public_assets WHERE id = {$legacyId}"
-            )->fetch_assoc();
-            if ($existsPublic !== false && $existsPublic !== null) {
-                $ids[] = $legacyId;
-            }
-            // else: resuelve en `assets` (sistema) — ya servido por la
-            // consulta existente de `assets` en getUserAssetsByUserId().
         }
 
         return array_values(array_unique($ids));

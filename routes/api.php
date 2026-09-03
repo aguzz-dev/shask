@@ -68,6 +68,11 @@ Route::post('/assets/create', [AssetController::class, 'createPublicAsset']);
 Route::post('/assets/update', [AssetController::class, 'updatePublicAsset']);
 Route::post('/assets/report', [AssetController::class, 'reportPublicAsset']);
 
+// Rewarded-ad anti-fraud: issue nonce (auth) + AdMob SSV callback (public, signed)
+Route::post('/ad-reward/nonce', [\App\Http\Controllers\AdRewardController::class, 'nonce']);
+Route::get('/ad-reward/ssv', [\App\Http\Controllers\AdRewardController::class, 'ssv']);
+Route::post('/ad-reward/ssv', [\App\Http\Controllers\AdRewardController::class, 'ssv']);
+
 // Discovery: public category list
 Route::get('/categories', [AssetController::class, 'getCategories']);
 

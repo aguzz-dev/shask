@@ -452,4 +452,29 @@ class User extends Database
     {
         return $this->query("SELECT hype FROM `users` WHERE `id` = '{$id}'")->fetch_assoc();
     }
+
+    /**
+     * Server-authoritative subscription check. A subscriber gets premium assets
+     * and paid lifecycle actions without watching an ad. The client's own claim
+     * is never trusted — this always re-reads the users table.
+     */
+    public function isSubscriber(int $userId): bool
+    {
+        $userId = (int) $userId;
+        $row = $this->query(
+            "SELECT is_subscriber, subscription_expires_at FROM `users` WHERE `id` = {$userId}"
+        )->fetch_assoc();
+
+        if ($row === false || $row === null) {
+            return false;
+        }
+
+        if ((int) ($row['is_subscriber'] ?? 0) === 1) {
+            return true;
+        }
+
+        $expiresAt = $row['subscription_expires_at'] ?? null;
+
+        return $expiresAt !== null && strtotime($expiresAt) > time();
+    }
 }

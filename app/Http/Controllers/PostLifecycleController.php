@@ -62,7 +62,7 @@ class PostLifecycleController extends Controller
         if ((int) $post['extended'] >= 1) {
             return response()->json('Ya usaste la extensión de este ciclo', 409);
         }
-        $this->charge($request, (int) config('app.hype_extend'));
+        $this->charge($request, 'extend');
         $id = (int) $post['id'];
         (new Post)->query("UPDATE posts SET expires_at = DATE_ADD(expires_at, INTERVAL 24 HOUR), extended = 1 WHERE id = {$id}");
         return response()->json(['Buzón extendido', (new Post)->findEnriched($id)]);
@@ -74,7 +74,7 @@ class PostLifecycleController extends Controller
         if (!$this->isClosed($post)) {
             return response()->json('El buzón sigue activo: no hace falta desbloquear', 409);
         }
-        $this->charge($request, (int) config('app.hype_unlock'));
+        $this->charge($request, 'unlock');
         $id = (int) $post['id'];
         (new Post)->query("UPDATE posts SET unlocked = 1 WHERE id = {$id}");
         return response()->json(['Buzón desbloqueado', (new Post)->findEnriched($id)]);
@@ -86,7 +86,7 @@ class PostLifecycleController extends Controller
         if (!$this->isClosed($post)) {
             return response()->json('El buzón sigue activo: usá renovar', 409);
         }
-        $this->charge($request, (int) config('app.hype_revive'));
+        $this->charge($request, 'revive');
         $id     = (int) $post['id'];
         $userId = (int) $post['user_id'];
         $minutes = (int) config('app.mailbox_lifetime_minutes');
@@ -132,24 +132,34 @@ class PostLifecycleController extends Controller
     }
 
     /**
-     * Cobra una acción paga. source=ad confía en el rewarded client-side
-     * (mismo modelo que las pistas); source=hype valida saldo y descuenta.
+     * Gates a paid lifecycle action. Subscribers act for free. Everyone else
+     * must present a signature-verified rewarded-ad grant, consumed atomically
+     * so it can't be replayed. The legacy grace flag lets pre-SSV builds through
+     * without a nonce during the coordinated rollout.
+     *
+     * @param  string  $purpose  extend | unlock | revive
      */
-    private function charge(Request $request, int $price): void
+    private function charge(Request $request, string $purpose): void
     {
-        $source = $request->source;
-        if ($source === 'ad') {
+        $userId = (int) $request->user_id;
+
+        if ((new \App\Models\User)->isSubscriber($userId)) {
             return;
         }
-        if ($source !== 'hype') {
-            abort(422, 'source debe ser ad o hype');
+
+        $nonce = (string) $request->ad_nonce;
+        if ($nonce === '' && config('admob.legacy_ad_grace')) {
+            return; // legacy build during rollout
         }
-        $db = new Post;
-        $userId = (int) $request->user_id;
-        $user = $db->query("SELECT hype FROM users WHERE id = {$userId}")->fetch_assoc();
-        if ((int) $user['hype'] < $price) {
-            abort(422, 'Hype insuficiente');
+
+        $postId = (int) $request->id;
+        $result = (new \App\Models\AdRewardGrant)->consume($userId, $nonce, $purpose, $postId);
+
+        if ($result === \App\Models\AdRewardGrant::PENDING_R) {
+            abort(425, 'Estamos confirmando tu anuncio, probá de nuevo en un momento');
         }
-        $db->query("UPDATE users SET hype = hype - {$price} WHERE id = {$userId}");
+        if ($result !== \App\Models\AdRewardGrant::OK) {
+            abort(402, 'Mirá un anuncio para completar esta acción');
+        }
     }
 }

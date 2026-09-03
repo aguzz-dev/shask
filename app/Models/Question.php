@@ -31,9 +31,6 @@ class Question extends Database
         }
         $text = $request->text;
         $hint = $request->hint;
-        $hype = (new User)->getHypeById($userId)['hype'];
-        $hype++;
-        $this->query("UPDATE users SET hype = {$hype} WHERE id = {$userId}");
 
         $id = DB::table($this->table)->insertGetId([
             'public_post_id' => (int) $publicPostId, // posts.id — ver migración realign
