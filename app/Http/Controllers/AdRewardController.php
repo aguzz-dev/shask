@@ -51,38 +51,33 @@ class AdRewardController extends Controller
         $keyId     = (string) $request->query('key_id', '');
         $nonce     = (string) $request->query('custom_data', '');
 
-        // Reachability/validation probe: AdMob (and manual curl) may hit the URL
-        // with no params to confirm it exists. Answer 200 so the callback URL is
-        // accepted — real callbacks always carry all three fields.
-        if ($signature === '' && $keyId === '' && $nonce === '') {
+        // AdMob's URL validation (and a bare curl) may omit the signature or the
+        // custom_data nonce. Acknowledge with 200 so the callback URL is accepted
+        // and AdMob doesn't retry — nothing is ever granted without a valid Google
+        // signature, so a 200 here carries no security cost.
+        if ($signature === '' || $keyId === '') {
             return response()->json(['ok' => true]);
         }
 
-        if ($signature === '' || $keyId === '' || $nonce === '') {
-            return response()->json(['message' => 'callback incompleto'], 400);
-        }
-
         // The signed content is the raw query string up to `&signature=...`.
-        $queryString = (string) $request->server('QUERY_STRING', '');
-        $sigMarker   = strpos($queryString, '&signature=');
-        if ($sigMarker === false) {
-            return response()->json(['message' => 'query inválida'], 400);
+        $queryString     = (string) $request->server('QUERY_STRING', '');
+        $sigMarker       = strpos($queryString, '&signature=');
+        $contentToVerify = $sigMarker === false ? '' : substr($queryString, 0, $sigMarker);
+
+        // Only a signature-valid callback carrying a nonce marks a grant as
+        // spendable. The HTTP code is always 200 (an acknowledgement); the real
+        // gate is that consume() requires status=verified, set only here.
+        if ($contentToVerify !== '' && $nonce !== ''
+            && $verifier->verify($contentToVerify, $signature, $keyId)) {
+            $transactionId = (string) $request->query('transaction_id', $nonce);
+            $rewardItem    = $request->query('reward_item');
+            $rewardAmount  = $request->query('reward_amount') !== null
+                ? (int) $request->query('reward_amount')
+                : null;
+
+            (new AdRewardGrant)->markVerified($nonce, $transactionId, $rewardItem, $rewardAmount);
         }
-        $contentToVerify = substr($queryString, 0, $sigMarker);
 
-        if (!$verifier->verify($contentToVerify, $signature, $keyId)) {
-            return response()->json(['message' => 'firma inválida'], 400);
-        }
-
-        $transactionId = (string) $request->query('transaction_id', $nonce);
-        $rewardItem    = $request->query('reward_item');
-        $rewardAmount  = $request->query('reward_amount') !== null
-            ? (int) $request->query('reward_amount')
-            : null;
-
-        (new AdRewardGrant)->markVerified($nonce, $transactionId, $rewardItem, $rewardAmount);
-
-        // Ack even if the nonce was already verified (idempotent) so AdMob stops retrying.
         return response()->json(['ok' => true]);
     }
 }
