@@ -1,22 +1,22 @@
 <?php
 
-namespace Database\Seeders;
-
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Seed (upsert) del catálogo de logros.
- * ON DUPLICATE KEY UPDATE garantiza idempotencia: correr el seeder
- * dos veces no duplica rows.
+ * Revamp the achievement catalog for the ad-consumable model:
+ *  - Drop the hype-balance achievements (hype_1k / hype_10k) — hype is no
+ *    longer earned by regular users, so they were unreachable.
+ *  - Refresh names to punchier, on-brand copy.
+ *  - Clear the `reward` field ("+N hype") everywhere — rewards are gone.
+ *
+ * Idempotent: upserts by unique `code`, safe to run repeatedly. Runs on deploy.
  */
-class AchievementSeeder extends Seeder
+return new class extends Migration
 {
-    public function run(): void
+    public function up(): void
     {
-        // Ad-consumable model catalog: no hype achievements, no rewards.
-        // [code, weight, emoji, name_es, name_en]
-        $achievements = [
+        $catalog = [
             ['first_mailbox',    20, '📬', 'Tu primer buzón',              'Your first mailbox'],
             ['first_question',   30, '📨', 'Te llegó la primera',          'First one in'],
             ['answered_10',      40, '💬', 'Arrancaste a responder',       'Started replying'],
@@ -37,7 +37,7 @@ class AchievementSeeder extends Seeder
             ['first_revive',     28, '↩️', 'Lo reviviste',                 'Brought it back'],
         ];
 
-        foreach ($achievements as [$code, $weight, $emoji, $nameEs, $nameEn]) {
+        foreach ($catalog as [$code, $weight, $emoji, $nameEs, $nameEn]) {
             DB::statement(
                 "INSERT INTO achievements (code, weight, emoji, name_es, name_en, active, reward)
                  VALUES (?, ?, ?, ?, ?, 1, NULL)
@@ -52,7 +52,14 @@ class AchievementSeeder extends Seeder
             );
         }
 
-        // Hype achievements are retired in the ad-consumable model.
+        // Retire the hype achievements — no longer earnable.
         DB::statement("UPDATE achievements SET active = 0 WHERE code IN ('hype_1k', 'hype_10k')");
     }
-}
+
+    public function down(): void
+    {
+        // Non-destructive: re-enable the hype achievements. Names/rewards are
+        // not restored (that data lived only in the pre-revamp seeder).
+        DB::statement("UPDATE achievements SET active = 1 WHERE code IN ('hype_1k', 'hype_10k')");
+    }
+};

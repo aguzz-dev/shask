@@ -40,7 +40,11 @@ class PostController extends Controller
         $gate   = (new AssetUser)->premiumGate($assetId);
         $source = null;
 
-        if ($gate['is_premium']) {
+        // A creator using their OWN premium design pays nothing — no ad, no
+        // mint. Only other people's premium designs are gated.
+        $isOwnDesign = $gate['is_premium'] && $gate['creator_id'] === $userId;
+
+        if ($gate['is_premium'] && !$isOwnDesign) {
             $nonce = (string) $request->ad_nonce;
             if ((new User)->isSubscriber($userId)) {
                 $source = 'sub';
@@ -68,8 +72,9 @@ class PostController extends Controller
         $res = (new Post)->store($request);
 
         // Earnings/analytics for the premium use — best-effort, never blocks the
-        // mailbox that was already created.
-        if ($gate['is_premium'] && $source !== null) {
+        // mailbox that was already created. Skipped when the creator uses their
+        // own design (no self-acquisition).
+        if ($gate['is_premium'] && !$isOwnDesign && $source !== null) {
             try {
                 $creatorId = (new AssetUser)->registerPremiumUse($assetId, $userId, $source);
                 if ($creatorId !== null && $creatorId !== $userId) {

@@ -50,11 +50,11 @@ class Achievement extends Database
     {
         $conditions = [
             // ── Logros originales ─────────────────────────────────────────────
-            'hype_10k'         => ($stats['hype'] ?? 0) >= 10000,
+            // hype_1k / hype_10k retired in the ad-consumable model (hype is no
+            // longer earned by regular users).
             'mailbox_exploded' => ($stats['max_unread_in_a_mailbox'] ?? 0) > 5,
             'received_100'     => ($stats['questions_received'] ?? 0) >= 100,
             'answered_50'      => ($stats['questions_answered'] ?? 0) >= 50,
-            'hype_1k'          => ($stats['hype'] ?? 0) >= 1000,
             'answered_10'      => ($stats['questions_answered'] ?? 0) >= 10,
             'first_question'   => ($stats['questions_received'] ?? 0) >= 1,
             'first_mailbox'    => ($stats['mailboxes_created'] ?? 0) >= 1,
