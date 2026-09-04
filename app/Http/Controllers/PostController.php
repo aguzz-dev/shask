@@ -48,8 +48,9 @@ class PostController extends Controller
             $nonce = (string) $request->ad_nonce;
             if ((new User)->isSubscriber($userId)) {
                 $source = 'sub';
-            } elseif ($nonce === '' && config('admob.legacy_ad_grace')) {
-                // Legacy build during rollout: no SSV nonce available.
+            } elseif (config('admob.legacy_ad_grace')) {
+                // Dev/rollout bypass: SSV not enforced. Accept regardless of the
+                // nonce state (even a still-pending one). MUST be false in prod.
                 $source = 'ad';
             } else {
                 $result = (new AdRewardGrant)->consume($userId, $nonce, 'asset_use', $assetId);

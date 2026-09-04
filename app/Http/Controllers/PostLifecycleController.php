@@ -147,11 +147,12 @@ class PostLifecycleController extends Controller
             return;
         }
 
-        $nonce = (string) $request->ad_nonce;
-        if ($nonce === '' && config('admob.legacy_ad_grace')) {
-            return; // legacy build during rollout
+        // Dev/rollout bypass: SSV not enforced (accepts any/no nonce). Prod=false.
+        if (config('admob.legacy_ad_grace')) {
+            return;
         }
 
+        $nonce = (string) $request->ad_nonce;
         $postId = (int) $request->id;
         $result = (new \App\Models\AdRewardGrant)->consume($userId, $nonce, $purpose, $postId);
 
