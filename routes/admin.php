@@ -28,6 +28,8 @@ Route::prefix($adminPath)->middleware(['web', 'admin.headers'])->group(function 
             ->where('key', '[a-z0-9_]+');
         Route::post('/designs/{id}/unpublish', [\App\Http\Controllers\Admin\AdminDesignController::class, 'unpublish'])
             ->whereNumber('id');
+        Route::post('/designs/{id}/premium', [\App\Http\Controllers\Admin\AdminDesignController::class, 'setPremium'])
+            ->whereNumber('id');
         Route::post('/designs/{id}/takedown', [\App\Http\Controllers\Admin\AdminModerationController::class, 'takedown'])
             ->whereNumber('id');
         Route::post('/designs/{id}/approve', [\App\Http\Controllers\Admin\AdminModerationController::class, 'approveReported'])

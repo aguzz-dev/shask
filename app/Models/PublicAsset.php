@@ -14,10 +14,10 @@ class PublicAsset extends Database
         return $this->query("SELECT * FROM {$this->table} WHERE id = {$id}")->fetch_all(MYSQLI_ASSOC);
     }
 
-    /** Lista liviana (id + title) para marcar presets publicados en el back office. */
+    /** Lista liviana (id + title + is_premium) para el back office. */
     public function all(): array
     {
-        return $this->query("SELECT id, title FROM {$this->table} ORDER BY id DESC")
+        return $this->query("SELECT id, title, is_premium FROM {$this->table} ORDER BY id DESC")
             ->fetch_all(MYSQLI_ASSOC);
     }
 
@@ -25,5 +25,17 @@ class PublicAsset extends Database
     {
         $id = (int) $id;
         $this->query("DELETE FROM {$this->table} WHERE id = {$id}");
+    }
+
+    /** Marca un diseño como premium (paga con ad) o gratis. Admin-only. */
+    public function setPremium(int $id, bool $premium): void
+    {
+        $stmt = $this->dbConnection->prepare(
+            "UPDATE {$this->table} SET is_premium = ? WHERE id = ?"
+        );
+        $value = $premium ? 1 : 0;
+        $stmt->bind_param('ii', $value, $id);
+        $stmt->execute();
+        $stmt->close();
     }
 }

@@ -35,6 +35,18 @@
                 </button>
             </form>
             @foreach($pubRows as $row)
+                @php($isPremium = (int)($row['is_premium'] ?? 1) === 1)
+                <div style="margin-top: 10px; font-size: 11px; font-weight: 700;
+                            color: {{ $isPremium ? '#e67300' : '#2a9d2a' }};">
+                    #{{ $row['id'] }} · {{ $isPremium ? 'Premium (1 anuncio)' : 'Gratis' }}
+                </div>
+                <form method="POST" action="{{ $base }}/designs/{{ $row['id'] }}/premium" style="margin-top: 4px;">
+                    @csrf
+                    <input type="hidden" name="premium" value="{{ $isPremium ? 0 : 1 }}">
+                    <button class="btn" style="width: 100%;">
+                        {{ $isPremium ? 'Hacer gratis' : 'Hacer premium' }}
+                    </button>
+                </form>
                 <form method="POST" action="{{ $base }}/designs/{{ $row['id'] }}/unpublish" style="margin-top: 6px;">
                     @csrf
                     <button class="btn peligro" style="width: 100%;">Despublicar #{{ $row['id'] }}</button>

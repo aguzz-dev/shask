@@ -46,6 +46,30 @@ class AdminDesignController extends Controller
             ->with('ok', "Diseño \"{$preset['title']}\" publicado");
     }
 
+    /**
+     * Toggle a published design between premium (costs one rewarded ad) and
+     * free. Premium-by-default lives in the DB; this is how admins release
+     * specific official designs for free.
+     */
+    public function setPremium(Request $request, int $id)
+    {
+        $model = new PublicAsset;
+        abort_if(empty($model->findById($id)), 404);
+
+        $premium = (int) $request->input('premium') === 1;
+        $model->setPremium($id, $premium);
+
+        AdminAuditLog::log(
+            (int) $request->session()->get('admin_id'),
+            'design.premium',
+            ['id' => $id, 'premium' => $premium],
+            $request->ip()
+        );
+
+        return redirect('/' . config('app.admin_path') . '/designs')
+            ->with('ok', $premium ? "Diseño #{$id} ahora es premium" : "Diseño #{$id} ahora es gratis");
+    }
+
     public function unpublish(Request $request, int $id)
     {
         $model = new PublicAsset;
