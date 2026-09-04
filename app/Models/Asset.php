@@ -65,7 +65,20 @@ class Asset extends Database
         )->fetch_all(MYSQLI_ASSOC);
 
         // Diseños UGC realmente poseídos: ledger -> autoría propia -> compra legacy
-        $ownedIds    = (new AssetUser)->ownedAssetIds($id);
+        $ownedIds = (new AssetUser)->ownedAssetIds($id);
+
+        // Además, los diseños usados por los buzones del usuario. En el modelo
+        // consumible un diseño premium no se "posee", pero el buzón que lo usa
+        // igual tiene que poder renderizarlo — si no, la home lo descarta.
+        $postAssetRows = $this->query(
+            "SELECT DISTINCT asset_id FROM posts
+             WHERE user_id = '{$id}' AND asset_id IS NOT NULL AND asset_id > 0"
+        )->fetch_all(MYSQLI_ASSOC);
+        foreach ($postAssetRows as $row) {
+            $ownedIds[] = (int) $row['asset_id'];
+        }
+        $ownedIds = array_values(array_unique($ownedIds));
+
         $ownedAssets = [];
         if (!empty($ownedIds)) {
             $idsList     = implode(',', array_map('intval', $ownedIds));
