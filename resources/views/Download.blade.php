@@ -7,7 +7,7 @@
     <meta name="keywords" content="mensajes anónimos, preguntas anónimas, Shhask, Instagram story, Google Play, app social">
     <meta property="og:title" content="Shhask - Preguntas anónimas, sin filtro">
     <meta property="og:description" content="Armá tu buzón, pegalo en tu story y dejá que te pregunten lo que nunca te dirían de frente. Gratis en Google Play.">
-    <meta property="og:image" content="{{ asset('assets/shhask-logo-sticker.png') }}">
+    <meta property="og:image" content="{{ asset('assets/logo-sticker.webp') }}">
     <meta property="og:url" content="www.shhask.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
@@ -16,555 +16,513 @@
     <title>Shhask — preguntas anónimas, sin filtro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Londrina+Solid:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #FBF4EC;
-    --cream-card: #FEFEF2;
-    --ink: #2b2b2b;
-    --ink-soft: #676262;
-    --orange: #FF6A13;
-    --violet: #8667F2;
-    --violet-deep: #270B8A;
-    --violet-soft: #AC98F1;
-    --peach: #FFF1E6;
-    --blue-mist: #E9EFFF;
-    --white: #ffffff;
-    --border-thin: 1.4px;
-    --border-thick: 4.5px;
-    --tilt: 2.2deg;
-    --container: 1140px;
+    /* Base — orange (tokens/colors.css) */
+    --orange-50:#FFF1E7; --orange-100:#FFDCC4; --orange-300:#FF9757; --orange-500:#F85A00; --orange-600:#D44B00; --orange-700:#A73B00;
+    /* Base — ink */
+    --ink-900:#0D0B0A; --ink-800:#171311; --ink-600:#463B36; --ink-500:#6B5C55; --ink-400:#9A8A82; --ink-300:#C7BBB4; --ink-200:#E4DCD6; --ink-100:#F2ECE7;
+    /* Base — paper */
+    --paper:#FFFFFF; --paper-warm:#FFF8F2; --paper-dim:#FAF3ED;
+
+    /* Semantic (tokens/colors.css) */
+    --text-body:var(--ink-800); --text-strong:var(--ink-900); --text-muted:var(--ink-500); --text-faint:var(--ink-400);
+    --text-on-accent:#FFFFFF; --line-ink:var(--ink-900); --line-accent:var(--orange-500); --surface-inverse:var(--ink-900);
+
+    /* Typography (tokens/typography.css) */
+    --font-display:"Londrina Solid","Hanken Grotesk",system-ui,sans-serif;
+    --font-sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --text-heading:24px; --text-subhead:19px; --text-body-lg:18px; --text-body-md:16px; --text-caption:13px; --text-micro:11px;
+    --leading-tight:1.12; --leading-snug:1.3; --leading-body:1.5;
+    --weight-medium:500; --weight-semibold:600; --weight-bold:700; --weight-black:800;
+    --tracking-caps:0.09em;
+
+    /* Shape (tokens/shape.css) */
+    --radius-pill:999px; --radius-asym-sm:14px 4px 14px 4px; --radius-asym-md:22px 6px 22px 6px; --radius-asym-lg:34px 8px 34px 8px;
+    --shadow-hard-sm:3px 3px 0 var(--ink-900); --shadow-hard-md:5px 6px 0 var(--ink-900); --shadow-hard-lg:8px 10px 0 var(--ink-900);
+    --shadow-hard-accent:5px 6px 0 var(--orange-500);
+
+    /* Motion (tokens/motion.css) — used by the Button component */
+    --ease-pop:cubic-bezier(.34,1.56,.64,1); --ease-out:cubic-bezier(.22,.9,.3,1); --dur-fast:150ms;
+
+    /* Patterns (tokens/patterns.css) */
+    --pattern-dots:radial-gradient(circle at 50% 50%, currentColor 1.6px, transparent 1.7px) 0 0/14px 14px;
+    --pattern-grid:linear-gradient(currentColor 1px, transparent 1px) 0 0/22px 22px, linear-gradient(90deg, currentColor 1px, transparent 1px) 0 0/22px 22px;
+    --pattern-scallop:radial-gradient(circle at 50% 0, transparent 9px, currentColor 9px 10px, transparent 10px) 0 0/22px 14px;
+    --pattern-waves:repeating-radial-gradient(circle at 0 50%, transparent 0 8px, currentColor 8px 9px) 0 0/24px 18px;
+    --pattern-zigzag:repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 10px), repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 10px);
+    --pattern-stars:radial-gradient(circle at 50% 50%, currentColor 1px, transparent 2px) 0 0/26px 26px;
+    --pattern-noise:repeating-conic-gradient(currentColor 0 0.6deg, transparent 0.6deg 3deg) 0 0/7px 7px;
+    --pattern-rings:repeating-radial-gradient(circle at 50% 50%, transparent 0 7px, currentColor 7px 8px) 0 0/34px 34px;
+
+    /* Local to this page (matches the Claude Design source's own <style>) */
+    --ease-out-strong:cubic-bezier(.23,1,.32,1);
   }
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  html, body { margin:0; padding:0; background:var(--paper-warm); }
+  body { font-family:var(--font-sans); color:var(--text-body); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a { color:inherit; text-decoration:none; }
+  img { max-width:100%; display:block; }
+  button { font-family:inherit; }
 
-  body {
-    margin: 0;
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Hanken Grotesk', -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  h1, h2, h3 { font-family: 'Londrina Solid', cursive; font-weight: 900; margin: 0; text-wrap: balance; }
-  p { margin: 0; }
-  a { color: inherit; text-decoration: none; }
-  img { max-width: 100%; display: block; }
-  button { font-family: inherit; border: none; cursor: pointer; }
-
-  .wrap { max-width: var(--container); margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
-
-  /* Ancla el mesh del hero a la altura real del hero (nav + header), no a
-     todo el body — si no, "bottom:-160px" de un blob termina cerca del
-     footer en vez de cerca del pie del hero. */
-  .hero-shell { position: relative; }
-
-  /* ══ atmosphere: drifting gradient mesh, no flat background ══ */
-  .mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-  .mesh span {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: .55;
-    animation: drift 18s ease-in-out infinite;
-    /* Offset de parallax inyectado por JS al hacer scroll — en margin-top
-       (no transform) para no pisar la animación drift, que sí anima transform. */
-    margin-top: var(--py, 0px);
-  }
-  .mesh .b1 { width: 520px; height: 520px; background: var(--violet-soft); top: -180px; left: -120px; animation-delay: 0s; }
-  .mesh .b2 { width: 460px; height: 460px; background: var(--peach); top: -80px; right: -140px; animation-delay: 2s; }
-  .mesh .b3 { width: 420px; height: 420px; background: var(--blue-mist); bottom: -160px; left: 30%; animation-delay: 4s; }
-  .mesh .b4 { width: 360px; height: 360px; background: var(--orange); opacity: .18; top: 40%; right: 10%; animation-delay: 1s; }
-  @keyframes drift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -25px) scale(1.06); }
-    66% { transform: translate(-24px, 20px) scale(0.97); }
-  }
-
-  /* ══ sparkle + confetti (invented decorative marks) ══ */
-  .sparkle {
-    position: absolute;
-    width: 22px; height: 22px;
-    background: var(--orange);
-    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
-    animation: twinkle 3.2s ease-in-out infinite;
-  }
-  .sparkle.violet { background: var(--violet); }
-  .sparkle.ink { background: var(--ink); }
-  @keyframes twinkle {
-    0%, 100% { transform: scale(0.8) rotate(0deg); opacity: .55; }
-    50% { transform: scale(1.15) rotate(20deg); opacity: 1; }
-  }
-
-  .qmark {
-    position: absolute;
-    font-family: 'Londrina Solid', cursive;
-    color: var(--white);
-    -webkit-text-stroke: 2px var(--ink);
-    animation: bob 5s ease-in-out infinite;
-  }
-  @keyframes bob {
-    0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
-    50% { transform: translateY(-14px) rotate(var(--r, 0deg)); }
-  }
-
+  @keyframes shh-marquee-rev { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+  @keyframes shh-bob { 0%,100% { transform:translateY(0) rotate(-3deg); } 50% { transform:translateY(-7px) rotate(-1deg); } }
+  @keyframes shh-float-a { 0%,100% { transform:translateY(0) rotate(-3deg); } 50% { transform:translateY(-8px) rotate(-2deg); } }
+  @keyframes shh-float-b { 0%,100% { transform:translateY(0) rotate(4deg); } 50% { transform:translateY(-7px) rotate(2deg); } }
+  @keyframes shh-float-c { 0%,100% { transform:translateY(0) rotate(-1.5deg); } 50% { transform:translateY(-8px) rotate(0.5deg); } }
+  @keyframes shh-drop { from { opacity:0; transform:translateY(-14px) scale(.94); } to { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes shh-h1-a { from { opacity:0; transform:translateY(18px) rotate(-2.5deg); } to { opacity:1; transform:translateY(0) rotate(-2.5deg); } }
+  @keyframes shh-h1-b { from { opacity:0; transform:translateY(18px) rotate(1.5deg); } to { opacity:1; transform:translateY(0) rotate(1.5deg); } }
+  @keyframes shh-h1-c { from { opacity:0; transform:translateY(18px) rotate(-1.5deg); } to { opacity:1; transform:translateY(0) rotate(-1.5deg); } }
+  [data-rail]::-webkit-scrollbar { display:none; }
+  [data-reveal] { opacity:0; transition:opacity 420ms var(--ease-out-strong); transition-delay:var(--d, 0ms); }
+  [data-reveal][data-revealed] { opacity:1; }
   @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
-    .reveal { opacity: 1 !important; transform: none !important; }
+    *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:150ms !important; }
   }
 
-  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
-  .reveal.in { opacity: 1; transform: translateY(0); }
-
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--ink); color: var(--cream-card);
-    font-weight: 700; font-size: 12px; letter-spacing: .09em; text-transform: uppercase;
-    padding: 8px 16px 8px 14px; border-radius: 999px;
-  }
-  .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
-
-  .signature { border-top: var(--border-thin) solid var(--ink); border-left: var(--border-thin) solid var(--ink); border-right: var(--border-thick) solid var(--ink); border-bottom: var(--border-thick) solid var(--ink); }
-
-  .outline-word {
-    color: var(--orange);
-    -webkit-text-stroke: 2.5px var(--ink);
-    display: inline-block;
-  }
-
-  /* Botón real de la app (AuthButton/CenterCreateFab): relleno sólido +
-     borde asimétrico (fino arriba/izq, grueso abajo/der) + sombra dura sin
-     blur desplazada — no el "3D tipo Duolingo" de un botón genérico. Al
-     presionar, el botón se desplaza exactamente lo que mide la sombra y
-     esta desaparece: queda "empujado" contra el borde, como si lo hundieras. */
+  /* Button component (ported 1:1 from the design system's components/core/Button.jsx) */
   .btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: var(--ink); color: var(--cream-card);
-    font-weight: 700; font-size: 15.5px;
-    padding: 15px 28px; border-radius: 999px;
-    border-top: var(--border-thin) solid var(--ink);
-    border-left: var(--border-thin) solid var(--ink);
-    border-right: var(--border-thick) solid var(--ink);
-    border-bottom: var(--border-thick) solid var(--ink);
-    box-shadow: 3px 4px 0 var(--ink);
-    transition: transform .14s ease, box-shadow .14s ease;
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    font:var(--weight-bold) var(--text-body-md)/1 var(--font-sans); letter-spacing:.005em;
+    padding:12px 20px; border-radius:var(--radius-asym-md);
+    border:2px solid var(--ink-900); cursor:pointer;
+    transition:transform var(--dur-fast) var(--ease-pop), box-shadow var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
   }
-  .btn:hover { transform: translate(-1px, -2px); box-shadow: 4px 6px 0 var(--ink); }
-  .btn:active { transform: translate(3px, 4px); box-shadow: 0 0 0 var(--ink); }
-  .btn svg { width: 16px; height: 16px; }
-  .btn.orange { background: var(--orange); color: var(--white); }
-  .btn.orange:hover { box-shadow: 4px 6px 0 var(--ink); }
+  .btn--lg { padding:16px 28px; font-size:var(--text-body-lg); gap:10px; }
+  .btn--md { padding:12px 20px; font-size:var(--text-body-md); gap:9px; }
+  .btn--primary { background:var(--orange-500); color:var(--text-on-accent); box-shadow:var(--shadow-hard-md); }
+  .btn--ink { background:var(--ink-900); color:var(--paper-warm); box-shadow:var(--shadow-hard-accent); }
+  .btn:hover { transform:translate(-1px,-2px); }
+  .btn:active { transform:translate(4px,5px); box-shadow:1px 1px 0 var(--ink-900) !important; }
 
-  /* ══ nav ══ */
-  .nav { display: flex; align-items: center; justify-content: space-between; padding: 26px 0 0; }
-  .nav img { height: 20px; }
-  .btn.small { padding: 11px 20px; font-size: 14px; box-shadow: 2px 3px 0 var(--ink); }
-  .btn.small:hover { transform: translate(-1px, -2px); box-shadow: 3px 4px 0 var(--ink); }
-  .btn.small:active { transform: translate(2px, 3px); box-shadow: 0 0 0 var(--ink); }
+  /* Icon component fallback — standard Lucide outline icons (the design system's Icon.jsx
+     masks the same lucide-static SVGs from a CDN; inlined here to avoid a runtime dependency). */
+  .icon { display:inline-block; flex:0 0 auto; }
+  .icon svg { width:100%; height:100%; display:block; }
 
-  /* ══ hero ══ */
-  .hero { position: relative; padding: 70px 0 60px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 30px; align-items: center; }
-  .hero-copy > * + * { margin-top: 24px; }
-  .hero h1 { font-size: clamp(2.7rem, 5.8vw, 5.1rem); line-height: .98; color: var(--ink); }
-  .hero-sub { max-width: 44ch; font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.55; color: var(--ink-soft); }
-  .hero-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-  .hero-cta small { color: var(--ink-soft); font-size: 13px; font-weight: 600; }
+  /* Theme picker tabs */
+  .theme-tab {
+    flex:none; cursor:pointer; font-family:var(--font-sans); font-size:var(--text-caption); font-weight:700;
+    letter-spacing:var(--tracking-caps); text-transform:uppercase; padding:9px 14px; border-radius:999px;
+    white-space:nowrap; background:transparent; color:var(--ink-300); border:2px solid var(--ink-600);
+    transition:background-color 180ms var(--ease-out-strong), border-color 180ms var(--ease-out-strong), color 180ms var(--ease-out-strong), transform 160ms var(--ease-out-strong);
+  }
+  .theme-tab.is-active { background:var(--orange-500); border-color:var(--orange-500); color:#FFFFFF; }
+  .theme-tab:active { transform:scale(0.97); }
 
-  .hero-stage { position: relative; height: 460px; display: flex; align-items: center; justify-content: center; }
-  .sticker-wrap {
-    position: relative;
-    width: min(360px, 84%);
-    animation: wobble 7s ease-in-out infinite;
-  }
-  .sticker-badge {
-    width: 100%;
-    display: block;
-    filter: drop-shadow(0 24px 34px rgba(43,43,43,.22));
-  }
-  /* Barrido de brillo diagonal, como una calco recién pegada bajo la luz.
-     inset:0 (no -20%) porque el brillo ahora está enmascarado con el propio
-     PNG como máscara de alfa — el pseudo-elemento tiene que coincidir
-     exactamente con el cuadro de la imagen para que la máscara calce.
-     El recorrido diagonal lo da el background-size de 260% + la animación
-     de background-position, no el tamaño del cuadro. */
-  .sticker-wrap::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.7) 50%, transparent 65%);
-    background-size: 260% 260%;
-    background-position: -80% -80%;
-    animation: shine 5s ease-in-out infinite;
-    animation-delay: 1.4s;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    -webkit-mask-image: var(--logo-mask);
-    mask-image: var(--logo-mask);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-  }
-  @keyframes wobble {
-    0%, 100% { transform: rotate(-6deg) translateY(0); }
-    25% { transform: rotate(-3deg) translateY(-10px); }
-    50% { transform: rotate(-7deg) translateY(2px); }
-    75% { transform: rotate(-4deg) translateY(-6px); }
-  }
-  @keyframes shine {
-    0%, 30% { background-position: -80% -80%; }
-    55%, 100% { background-position: 180% 180%; }
-  }
-  .hero-stage .bubble {
-    position: absolute;
-    background: var(--cream-card);
-    border-radius: 20px 20px 20px 4px;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 14px;
-    max-width: 168px;
-  }
-  .hero-stage .bubble.b1 { top: 4%; left: -4%; transform: rotate(-6deg); }
-  .hero-stage .bubble.b2 { bottom: 10%; right: -6%; transform: rotate(5deg); }
+  /* Asset seed themes (tokens/themes.css) — the 6 style presets in the "vestí tu buzón" preview */
+  #theme-preview { --asset-bg:var(--paper); --asset-bg-2:var(--paper-dim); --asset-ink:var(--ink-900); --asset-accent:var(--orange-500); --asset-on-accent:#FFFFFF; --asset-border-color:var(--ink-900); transition:background-color 260ms ease, border-color 260ms ease; }
+  .theme-coquette { --asset-bg:#F8D7E3; --asset-bg-2:#FCEAE6; --asset-ink:#6B2038; --asset-accent:#E8608E; --asset-on-accent:#FFFFFF; --asset-border-color:#C74C74; }
+  .theme-y2k { --asset-bg:#7FE3FF; --asset-bg-2:#FF4FD8; --asset-ink:#2A1B72; --asset-accent:#C9FF2E; --asset-on-accent:#2A1B72; --asset-border-color:#2A1B72; }
+  .theme-grunge { --asset-bg:#0E0E10; --asset-bg-2:#1A1A1E; --asset-ink:#F2F2F0; --asset-accent:#B6FF2E; --asset-on-accent:#0E0E10; --asset-border-color:#B6FF2E; }
+  .theme-cottagecore { --asset-bg:#B7C9A8; --asset-bg-2:#F3EEDF; --asset-ink:#4A3728; --asset-accent:#8A6B4A; --asset-on-accent:#F3EEDF; --asset-border-color:#4A3728; }
+  .theme-clean-girl { --asset-bg:#EADFD1; --asset-bg-2:#DBCBB6; --asset-ink:#4A4038; --asset-accent:#A8927A; --asset-on-accent:#FFFFFF; --asset-border-color:#A8927A; }
+  .theme-gothic { --asset-bg:#241A33; --asset-bg-2:#120C1B; --asset-ink:#EDE6F5; --asset-accent:#7C5CB0; --asset-on-accent:#120C1B; --asset-border-color:#7C5CB0; }
 
-  /* ══ strip of invented shapes ══ */
-  .strip { display: flex; justify-content: center; align-items: center; gap: 26px; padding: 10px 0 70px; flex-wrap: wrap; }
-  .strip .blob {
-    width: 58px; height: 58px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Londrina Solid', cursive;
-    font-size: 22px;
-    color: var(--white);
-  }
-  .strip .blob:nth-child(1) { background: var(--orange); border-radius: 42% 58% 63% 37% / 45% 41% 59% 55%; transform: rotate(-8deg); }
-  .strip .blob:nth-child(2) { background: var(--violet); border-radius: 58% 42% 39% 61% / 55% 61% 39% 45%; transform: rotate(6deg); }
-  .strip .blob:nth-child(3) { background: var(--ink); border-radius: 50%; transform: rotate(0deg); }
-  .strip .blob:nth-child(4) { background: var(--violet-soft); border-radius: 63% 37% 42% 58% / 41% 55% 45% 59%; transform: rotate(-4deg); }
-  .strip .blob:nth-child(5) { background: var(--orange); border-radius: 39% 61% 58% 42% / 61% 45% 55% 39%; transform: rotate(10deg); }
+  /* Style rail cards (static — not theme-switchable, they're a showcase strip) */
+  .style-card { scroll-snap-align:start; position:relative; overflow:hidden; flex:none; width:150px; aspect-ratio:9/16; border:2px solid var(--line-ink); border-radius:var(--radius-asym-md); box-shadow:var(--shadow-hard-md); padding:14px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .style-card span { position:relative; font-family:var(--font-display); font-size:26px; line-height:.9; transform:rotate(-2.5deg); }
+  .style-card .pattern { position:absolute; inset:0; pointer-events:none; }
 
-  /* ══ section shell ══ */
-  section { position: relative; padding: 84px 0; }
-  .section-head { max-width: 620px; margin: 0 0 48px; }
-  .section-head h2 { font-size: clamp(2rem, 3.4vw, 2.9rem); color: var(--ink); }
-  .section-head p { margin-top: 14px; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.55; }
-
-  /* ══ how it works ══ */
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
-  .step {
-    background: var(--cream-card); border-radius: 24px; padding: 32px 26px 34px; position: relative;
-    transition: opacity .6s cubic-bezier(.22,1.4,.36,1), transform .6s cubic-bezier(.22,1.4,.36,1);
-  }
-  .step:nth-child(1) { transform: rotate(calc(var(--tilt) * -1)); }
-  .step:nth-child(2) { transform: rotate(var(--tilt)); transition-delay: .1s; }
-  .step:nth-child(3) { transform: rotate(calc(var(--tilt) * -1)); transition-delay: .2s; }
-  .step:not(.in) { opacity: 0; transform: translateY(30px) scale(.85) rotate(0deg) !important; }
-  .step:hover { transform: rotate(0deg) translateY(-6px) !important; }
-  .step-icon { width: 58px; height: 58px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; transition: transform .3s ease; }
-  .step:hover .step-icon { transform: rotate(-8deg) scale(1.08); }
-  .step-icon svg { width: 28px; height: 28px; }
-  .step:nth-child(1) .step-icon { background: var(--orange); }
-  .step:nth-child(2) .step-icon { background: var(--violet); }
-  .step:nth-child(3) .step-icon { background: var(--ink); }
-  .step .num {
-    position: absolute; top: -14px; right: 22px;
-    font-family: 'Londrina Solid', cursive; font-size: 15px;
-    background: var(--ink); color: var(--cream-card);
-    width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step h3 { font-size: 1.42rem; margin-bottom: 10px; }
-  .step p { color: var(--ink-soft); font-size: .98rem; line-height: 1.5; }
-
-  /* ══ phone mockup (invented, not a real screenshot) ══ */
-  .inbox-band { position: relative; }
-  .inbox-inner { display: flex; align-items: center; justify-content: space-between; gap: 48px; }
-  .inbox-copy { max-width: 400px; }
-  .inbox-copy h2 { font-size: clamp(1.95rem, 3.2vw, 2.7rem); }
-  .inbox-copy p { margin-top: 14px; color: var(--ink-soft); font-size: 1.03rem; line-height: 1.55; }
-
-  .phone {
-    width: 272px;
-    background: var(--ink);
-    border-radius: 42px;
-    padding: 14px;
-    box-shadow: 0 30px 50px rgba(43,43,43,.28);
-    transform: rotate(-3deg);
-  }
-  .phone-screen { background: var(--cream-card); border-radius: 30px; padding: 20px 16px 24px; min-height: 460px; position: relative; overflow: hidden; }
-  .phone-notch { width: 70px; height: 8px; background: var(--ink); border-radius: 6px; margin: 0 auto 18px; }
-  .phone-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-  .phone-head .avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: var(--orange); color: var(--white);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Londrina Solid', cursive; font-size: 16px;
-  }
-  .phone-head strong { font-size: 14px; }
-  .phone-head span { display: block; font-size: 11px; color: var(--ink-soft); }
-  .phone-head .live { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: #3ecf6b; }
-
-  .msg {
-    border-radius: 16px 16px 16px 4px; padding: 12px 14px; font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 12px; max-width: 88%;
-    opacity: 0; transform: translateY(14px) scale(.92);
-    transition: opacity .5s cubic-bezier(.2,.9,.3,1.4), transform .5s cubic-bezier(.2,.9,.3,1.4);
-  }
-  /* Las preguntas "llegan" una por una una vez que el teléfono entra en
-     pantalla — nth-of-type cuenta TODOS los div hijos de .phone-screen
-     (notch=1, head=2), así que el primer mensaje es el 3ro. */
-  .phone.in .msg { opacity: 1; }
-  .phone-screen > .msg:nth-of-type(3) { transition-delay: .15s; }
-  .phone-screen > .msg:nth-of-type(4) { transition-delay: .45s; }
-  .phone-screen > .msg:nth-of-type(5) { transition-delay: .75s; }
-  .phone-screen > .msg:nth-of-type(6) { transition-delay: 1.05s; }
-  .msg.m1 { background: var(--peach); transform: rotate(-1.2deg) translateY(14px) scale(.92); }
-  .msg.m2 { background: var(--violet-soft); color: var(--ink); margin-left: auto; transform: rotate(1.4deg) translateY(14px) scale(.92); }
-  .msg.m3 { background: var(--blue-mist); transform: rotate(-.8deg) translateY(14px) scale(.92); }
-  .phone.in .msg.m1 { transform: rotate(-1.2deg); }
-  .phone.in .msg.m2 { transform: rotate(1.4deg); }
-  .phone.in .msg.m3 { transform: rotate(-.8deg); }
-  .msg .tag { display: inline-block; background: var(--ink); color: var(--cream-card); font-size: 9px; font-weight: 800; letter-spacing: .05em; padding: 2px 7px; border-radius: 999px; margin-bottom: 6px; }
-  .phone-head .live { animation: pulse-live 1.8s ease-in-out infinite; }
-  @keyframes pulse-live {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(62,207,107,.5); }
-    50% { box-shadow: 0 0 0 5px rgba(62,207,107,0); }
-  }
-
-  /* ══ marketplace-style teaser, invented tiles ══ */
-  .mkt { display: grid; grid-template-columns: .95fr 1.05fr; gap: 48px; align-items: center; }
-  .mkt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .mkt-tile {
-    aspect-ratio: 1; border-radius: 20px; display: flex; align-items: center; justify-content: center;
-    font-family: 'Londrina Solid', cursive; font-size: 30px; color: var(--white);
-    transition: opacity .55s cubic-bezier(.22,1.4,.36,1), transform .55s cubic-bezier(.22,1.4,.36,1);
-  }
-  .mkt-grid:not(.in) .mkt-tile { opacity: 0; transform: translateY(24px) rotate(0deg) scale(.7) !important; }
-  .mkt-tile:hover { transform: scale(1.08) rotate(0deg) !important; }
-  .mkt-tile:nth-child(1) { background: var(--orange); transform: rotate(-4deg); transition-delay: 0s; }
-  .mkt-tile:nth-child(2) { background: var(--violet); transform: rotate(3deg) translateY(10px); transition-delay: .06s; }
-  .mkt-tile:nth-child(3) { background: var(--ink); transform: rotate(-3deg); transition-delay: .12s; }
-  .mkt-tile:nth-child(4) { background: var(--violet-soft); transform: rotate(4deg) translateY(6px); transition-delay: .18s; }
-  .mkt-tile:nth-child(5) { background: var(--cream-card); color: var(--ink); border-radius: 20px; transform: rotate(-2deg) translateY(-8px); transition-delay: .24s; }
-  .mkt-tile:nth-child(6) { background: var(--orange); transform: rotate(2deg); transition-delay: .3s; }
-  .mkt-copy h2 { font-size: clamp(1.95rem, 3.2vw, 2.7rem); }
-  .mkt-copy p { margin-top: 16px; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.6; max-width: 42ch; }
-
-  /* ══ final cta: solid color break ══ */
-  .cta-band { position: relative; background: var(--ink); color: var(--cream-card); text-align: center; overflow: hidden; }
-  .cta-band .mesh .b1 { background: var(--violet); opacity: .35; }
-  .cta-band .mesh .b2 { background: var(--orange); opacity: .25; }
-  .cta-band .mesh .b3 { background: var(--violet-soft); opacity: .2; }
-  .cta-band h2 { color: var(--cream-card); font-size: clamp(2.2rem, 5vw, 3.7rem); line-height: 1.02; }
-  .cta-band p { margin: 18px auto 0; max-width: 46ch; color: #cfc9c1; font-size: 1.05rem; }
-  .cta-band .btn.orange { margin-top: 34px; padding: 18px 34px; font-size: 17px; }
-  .cta-band img.logo { height: 26px; margin: 0 auto 26px; }
-
-  /* ══ footer ══ */
-  footer { padding: 46px 0 40px; }
-  .foot-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
-  .foot-inner img { height: 15px; opacity: .8; }
-  .foot-links { display: flex; gap: 26px; flex-wrap: wrap; }
-  .foot-links a { font-size: 13.5px; color: var(--ink-soft); font-weight: 600; }
-  .foot-links a:hover { color: var(--ink); }
-  .foot-copy { font-size: 12.5px; color: var(--ink-soft); margin-top: 20px; }
-
-  @media (max-width: 880px) {
-    .hero { grid-template-columns: 1fr; }
-    .hero-stage { order: -1; height: 340px; }
-    .steps { grid-template-columns: 1fr; }
-    .inbox-inner { flex-direction: column; text-align: center; }
-    .mkt { grid-template-columns: 1fr; }
-    .mkt-grid { order: -1; max-width: 340px; margin: 0 auto; }
-  }
+  /* FAQ accordion */
+  .faq-item { border-bottom:2px solid var(--line-ink); }
+  .faq-q { width:100%; background:none; border:0; padding:16px 2px; display:flex; align-items:center; justify-content:space-between; gap:14px; cursor:pointer; text-align:left; font-family:var(--font-sans); font-size:var(--text-subhead); font-weight:var(--weight-bold); color:var(--text-strong); transition:transform 160ms var(--ease-out-strong); }
+  .faq-q:active { transform:scale(0.99); }
+  .faq-sign { flex:none; font-family:var(--font-display); font-size:30px; line-height:1; color:var(--orange-500); }
+  .faq-a { margin:0; padding:0 2px 18px; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-muted); max-width:44ch; display:none; }
+  .faq-item.is-open .faq-a { display:block; }
 </style>
 </head>
 <body>
 
-<div class="hero-shell">
-<div class="mesh" aria-hidden="true">
-  <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span>
-</div>
+<div style="background:var(--paper-warm); overflow-x:hidden; padding-bottom:84px">
 
-<div class="wrap nav reveal in">
-  <img src="{{ asset('assets/shhask-logo-black.png') }}" alt="Shhask" />
-  <a class="btn small" href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2">Descargar</a>
-</div>
-
-<header class="wrap hero">
-  <div class="hero-copy">
-    <span class="eyebrow reveal in" style="transition-delay:.05s"><span class="dot"></span>100% anónimo</span>
-    <h1 class="reveal in" style="transition-delay:.12s">Preguntas anónimas.<br /><span class="outline-word">¡Sin filtro!</span></h1>
-    <p class="hero-sub reveal in" style="transition-delay:.22s">Armá tu buzón, pegalo en tu story de Instagram, y dejá que te digan lo que nunca te dirían mirándote a los ojos.</p>
-    <div class="hero-cta reveal in" style="transition-delay:.32s">
-      <a class="btn orange" href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-        Descargar gratis
-      </a>
-      <small>Disponible en Google Play</small>
-    </div>
-  </div>
-  <div class="hero-stage reveal in" style="transition-delay:.18s">
-    <span class="sparkle" style="top:6%; left:10%; animation-delay:.2s"></span>
-    <span class="sparkle violet" style="bottom:14%; left:4%; width:16px; height:16px; animation-delay:1.4s"></span>
-    <span class="sparkle" style="top:12%; right:6%; width:18px; height:18px; animation-delay:.8s"></span>
-    <span class="qmark" style="top:2%; right:20%; font-size:38px; --r:8deg; animation-delay:.4s">?</span>
-    <span class="qmark" style="bottom:4%; right:2%; font-size:28px; --r:-10deg; animation-delay:1.6s">?</span>
-    <div class="sticker-wrap" style="--logo-mask: url('{{ asset('assets/shhask-logo-sticker.png') }}')">
-      <img class="sticker-badge" src="{{ asset('assets/shhask-logo-sticker.png') }}" alt="Shhask" />
-    </div>
-    <div class="bubble b1 signature">¿Quién te gusta? 👀</div>
-    <div class="bubble b2 signature">Contame un secreto...</div>
-  </div>
-</header>
-</div>
-
-<div class="wrap strip">
-  <div class="blob">?</div>
-  <div class="blob">!</div>
-  <div class="blob">✦</div>
-  <div class="blob">?</div>
-  <div class="blob">¡</div>
-</div>
-
-<section id="como-funciona" style="position:relative">
-  <span class="sparkle violet" style="top:6%; left:6%; animation-delay:1s"></span>
-  <span class="sparkle" style="bottom:10%; right:8%; width:16px; height:16px; animation-delay:2.2s"></span>
-  <div class="wrap">
-    <div class="section-head reveal">
-      <span class="eyebrow"><span class="dot"></span>Así funciona</span>
-      <h2 style="margin-top:16px">Tres pasos. Cero drama.</h2>
-      <p>Nada de configuraciones raras — armás tu buzón y en cinco minutos ya te están preguntando cosas que jamás te dirían de frente.</p>
-    </div>
-    <div class="steps">
-      <div class="step reveal">
-        <span class="num">1</span>
-        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
-        <h3>Creá tu buzón</h3>
-        <p>Elegí un nombre, un estilo y una pista para romper el hielo. Queda listo en el momento.</p>
-      </div>
-      <div class="step reveal">
-        <span class="num">2</span>
-        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-3.9M8.6 13.5l6.8 3.9"/></svg></div>
-        <h3>Compartilo en tu story</h3>
-        <p>Pegás el link como sticker de Instagram y listo — tu buzón ya está esperando preguntas.</p>
-      </div>
-      <div class="step reveal">
-        <span class="num">3</span>
-        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
-        <h3>Respondé sin miedo</h3>
-        <p>Vos decidís qué contestar y qué no. El anonimato es de quien pregunta — el control es tuyo.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="inbox-band">
-  <div class="wrap inbox-inner">
-    <div class="inbox-copy reveal">
-      <span class="eyebrow"><span class="dot"></span>Tu bandeja</span>
-      <h2 style="margin-top:16px">Así se siente<br />que te pregunten.</h2>
-      <p>Preguntas nuevas cayendo en tiempo real, cada una de alguien que prefirió no dar la cara. Vos elegís a cuáles responder.</p>
-    </div>
-    <div class="phone reveal">
-      <div class="phone-screen">
-        <div class="phone-notch"></div>
-        <div class="phone-head">
-          <div class="avatar">?</div>
-          <div><strong>Tu buzón</strong><span>3 preguntas nuevas</span></div>
-          <div class="live"></div>
+  <div style="position:relative; background:var(--ink-900); border-bottom:3px solid var(--line-ink); overflow:hidden; padding:0 0 14px">
+    <div style="position:relative; left:-6%; width:112%; margin-bottom:22px; background:var(--orange-500); border-top:2px solid var(--line-ink); border-bottom:2px solid var(--line-ink); overflow:hidden; padding:7px 0; transform:rotate(-2.2deg)">
+      <div style="display:flex; width:max-content; animation:shh-marquee-rev 19s linear infinite; will-change:transform">
+        <div style="display:flex; gap:18px; padding-right:18px; font-family:var(--font-display); font-size:22px; line-height:1; color:var(--ink-900); white-space:nowrap; text-transform:lowercase">
+          <span>preguntas anónimas</span><span>·</span><span>preguntas anónimas</span><span>·</span><span>preguntas anónimas</span><span>·</span>
         </div>
-        <div class="msg m1"><span class="tag">Anónimo</span><br />¿de quién estuviste enamorado más tiempo?</div>
-        <div class="msg m2"><span class="tag">Vos</span><br />jaja no te la voy a hacer tan fácil 😏</div>
-        <div class="msg m1"><span class="tag">Anónimo</span><br />contame algo que nunca contaste acá</div>
-        <div class="msg m3"><span class="tag">Anónimo</span><br />¿qué es lo más random que hiciste este mes?</div>
+        <div style="display:flex; gap:18px; padding-right:18px; font-family:var(--font-display); font-size:22px; line-height:1; color:var(--ink-900); white-space:nowrap; text-transform:lowercase">
+          <span>preguntas anónimas</span><span>·</span><span>preguntas anónimas</span><span>·</span><span>preguntas anónimas</span><span>·</span>
+        </div>
       </div>
     </div>
   </div>
-</section>
 
-<section id="tienda" style="position:relative">
-  <span class="sparkle" style="top:10%; right:12%; animation-delay:.6s"></span>
-  <span class="sparkle ink" style="bottom:14%; right:30%; width:14px; height:14px; animation-delay:1.8s"></span>
-  <div class="wrap mkt">
-    <div class="mkt-grid reveal">
-      <div class="mkt-tile">✦</div>
-      <div class="mkt-tile">?</div>
-      <div class="mkt-tile">!</div>
-      <div class="mkt-tile">♥</div>
-      <div class="mkt-tile">✎</div>
-      <div class="mkt-tile">✦</div>
+  <header style="position:sticky; top:0; z-index:20; background:var(--ink-900); border-bottom:3px solid var(--line-ink)">
+    <div style="max-width:540px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px">
+      <img src="{{ asset('assets/shhask-logo-white.png') }}" alt="Shhask" style="height:26px; width:auto; display:block">
+      <nav style="display:flex; gap:16px; font-size:var(--text-caption); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase">
+        <a href="#estilos" style="color:var(--orange-300)">Estilos</a>
+        <a href="#privacidad" style="color:var(--orange-300)">Privacidad</a>
+      </nav>
     </div>
-    <div class="mkt-copy reveal">
-      <span class="eyebrow"><span class="dot"></span>Tienda</span>
-      <h2 style="margin-top:16px">Vestí tu buzón a tu manera.</h2>
-      <p>Cada pregunta que recibís te da hype. Gastalo en stickers, fondos y diseños de la tienda para que tu buzón se vea único — el tuyo, no una plantilla más.</p>
+  </header>
+
+  <section style="position:relative; background:var(--ink-900); border-bottom:3px solid var(--line-ink); overflow:hidden">
+  <div style="position:absolute; inset:0; color:var(--orange-500); opacity:.18; background:var(--pattern-grid); pointer-events:none"></div>
+  <div style="position:relative; max-width:540px; margin:0 auto; padding:34px 20px 44px">
+    <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid var(--line-ink); border-radius:var(--radius-pill); padding:6px 14px; background:var(--paper); font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; box-shadow:3px 3px 0 var(--ink-900)">
+      100% anónimo
+    </div>
+
+    <h1 style="margin:20px 0 0; font-family:var(--font-display); font-weight:400; font-size:clamp(66px,20vw,104px); line-height:0.82; letter-spacing:-0.01em; color:var(--paper-warm); text-transform:lowercase">
+      <span style="display:block; transform:rotate(-2.5deg); animation:shh-h1-a 380ms var(--ease-out-strong) both">preguntas</span>
+      <span style="display:block; color:var(--orange-500); transform:rotate(1.5deg); animation:shh-h1-b 380ms 70ms var(--ease-out-strong) both">anónimas</span>
+      <span style="display:block; color:transparent; -webkit-text-stroke:2px var(--paper-warm); transform:rotate(-1.5deg); animation:shh-h1-c 380ms 140ms var(--ease-out-strong) both">sin filtro</span>
+    </h1>
+
+    <p style="margin:24px 0 0; font-size:var(--text-body-lg); line-height:var(--leading-body); color:var(--ink-300); max-width:32ch; text-wrap:pretty">
+Armá tu buzón, compartilo en tu story y dejá que te digan lo que nunca te dirían de frente.
+    </p>
+
+    <div style="margin:26px 0 0; display:flex; flex-direction:column; gap:10px; align-items:flex-start">
+      <a href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2" target="_blank" rel="noopener" class="btn btn--primary btn--lg" style="width:100%">Descargar gratis</a>
+    </div>
+
+    <div style="margin:40px 0 0; position:relative">
+      <div style="position:absolute; top:-32px; right:-10px; width:92px; z-index:3; animation:shh-bob 4.5s ease-in-out infinite">
+        <img src="{{ asset('assets/logo-sticker.webp') }}" alt="" style="width:100%; display:block">
+      </div>
+      <div style="background:var(--paper); border:3px solid var(--line-ink); border-radius:var(--radius-asym-lg); box-shadow:var(--shadow-hard-lg); padding:18px; transform:rotate(-1deg)">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:12px; border-bottom:2px solid var(--line-ink)">
+          <span style="font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--text-muted)">shhask.com/vos</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--text-on-accent); background:var(--orange-500); border:2px solid var(--line-ink); border-radius:var(--radius-pill); padding:3px 10px">
+            <span id="feed-count" style="font-family:var(--font-display); font-size:15px; line-height:1">1</span> nuevas
+          </span>
+        </div>
+        <div id="feed-list" style="display:flex; flex-direction:column; gap:10px; padding-top:14px; min-height:206px"></div>
+      </div>
+    </div>
+
+  </div>
+  </section>
+
+  <section id="estilos" style="background:var(--surface-inverse); border-top:3px solid var(--line-ink); border-bottom:3px solid var(--line-ink)">
+    <div style="max-width:540px; margin:0 auto; padding:48px 20px 52px">
+      <h2 style="margin:0; font-family:var(--font-display); font-weight:400; font-size:clamp(48px,14vw,72px); line-height:0.85; color:var(--paper-warm); text-transform:lowercase">
+        <span style="display:block; transform:rotate(-2.5deg)">el mismo mensaje.</span>
+        <span style="display:block; color:var(--orange-500); transform:rotate(1.5deg)">tu estilo.</span>
+      </h2>
+      <p style="margin:18px 0 0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--ink-300); max-width:36ch; text-wrap:pretty">
+        Elegí fondo, stickers, tipografía y borde. El mensaje que subís a tu story se ve como vos, no como una plantilla.
+      </p>
+
+      <div id="theme-tabs" style="margin-top:24px; display:flex; flex-wrap:wrap; gap:8px"></div>
+
+      <div id="theme-preview" class="theme-y2k" style="margin-top:24px; position:relative; display:flex; justify-content:center; padding:30px 16px 34px; background:var(--asset-bg-2); border:3px solid var(--asset-border-color); border-radius:var(--radius-asym-lg); box-shadow:var(--shadow-hard-lg); overflow:hidden">
+        <div id="theme-pattern" style="position:absolute; inset:0; pointer-events:none; transition:opacity 150ms var(--ease-out-strong); color:var(--asset-ink)"></div>
+        <img id="theme-sticker" src="" alt="" style="position:absolute; top:10px; right:-16px; width:82px; display:none">
+        <div style="position:relative; width:236px; aspect-ratio:9/16; background:var(--asset-bg); border:3px solid var(--asset-border-color); transition:background-color 260ms ease, border-color 260ms ease, color 260ms ease; border-radius:var(--radius-asym-lg); box-shadow:var(--shadow-hard-lg); padding:18px; display:flex; flex-direction:column; justify-content:space-between; transform:rotate(-1.5deg)">
+          <span style="font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--asset-ink); opacity:.75">@vos</span>
+          <div>
+            <p style="margin:0 0 10px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--asset-ink); opacity:.7">alguien preguntó</p>
+            <p style="margin:0; font-family:var(--font-display); font-size:30px; line-height:0.94; color:var(--asset-ink); text-transform:lowercase">¿quién te gusta?</p>
+            <div style="margin-top:14px; background:var(--asset-accent); color:var(--asset-on-accent); border:2px solid var(--asset-border-color); border-radius:22px 22px 22px 6px; padding:8px 12px; display:inline-block; font-size:var(--text-micro); font-weight:700; letter-spacing:var(--tracking-caps); text-transform:uppercase">anónimo</div>
+          </div>
+          <div style="border:2px dashed var(--asset-border-color); border-radius:var(--radius-asym-sm); padding:8px; text-align:center; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--asset-ink); opacity:.8">pegá tu link acá</div>
+        </div>
+
+        <div style="position:absolute; top:26%; left:6px; width:142px; background:var(--asset-bg-2); color:var(--asset-ink); border:2px solid var(--asset-border-color); border-radius:22px 22px 22px 6px; padding:12px 14px; font-size:14px; font-weight:600; line-height:1.3; box-shadow:5px 6px 0 var(--asset-border-color); transform:rotate(-4deg); animation:shh-float-a 6s ease-in-out infinite">contame un secreto</div>
+        <div style="position:absolute; bottom:7%; right:8px; width:158px; background:var(--asset-accent); color:var(--asset-on-accent); border:2px solid var(--asset-border-color); border-radius:22px 22px 22px 6px; padding:12px 14px; font-size:14px; font-weight:600; line-height:1.3; box-shadow:5px 6px 0 var(--asset-border-color); transform:rotate(4deg); animation:shh-float-b 7.2s ease-in-out infinite">¿qué pensaste de mí?</div>
+      </div>
+
+      <p style="margin:18px 0 0; text-align:center; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--ink-400)">tocá un tema para probarlo</p>
+    </div>
+  </section>
+
+  <section style="position:relative; background:var(--orange-50); border-top:3px solid var(--line-ink); border-bottom:3px solid var(--line-ink)">
+    <div style="position:absolute; inset:0; overflow:hidden; color:var(--orange-500); opacity:.12; background:var(--pattern-zigzag); pointer-events:none"></div>
+    <span style="position:absolute; top:-17px; left:24px; z-index:3; background:var(--paper); border:2px solid var(--line-ink); border-radius:var(--radius-pill); box-shadow:3px 4px 0 var(--ink-900); padding:5px 16px; font-family:var(--font-display); font-size:22px; line-height:1.1; color:var(--ink-900); text-transform:lowercase; transform:rotate(-3deg)">así de simple</span>
+    <div style="position:relative; max-width:540px; margin:0 auto; padding:44px 20px 48px">
+      <p style="margin:0 0 10px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--orange-700)">Así funciona</p>
+      <h2 style="margin:0 0 24px; font-family:var(--font-display); font-weight:400; font-size:clamp(52px,15vw,80px); line-height:0.84; color:var(--text-strong); text-transform:lowercase; transform:rotate(-2.5deg)">tres pasos.<br>cero drama.</h2>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:22px 0; border-top:2px dashed var(--line-accent)">
+        <span style="flex:none; font-family:var(--font-display); font-size:60px; line-height:.78; color:var(--orange-600)">01</span>
+        <div style="padding-top:4px">
+          <h3 style="margin:0 0 4px; font-size:var(--text-heading); font-weight:var(--weight-black); color:var(--text-strong); line-height:var(--leading-tight)">Creá tu buzón</h3>
+          <p style="margin:0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-body)">Elegí un nombre, un estilo y una pista para romper el hielo. Queda listo en el momento.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:22px 0; border-top:2px dashed var(--line-accent)">
+        <span style="flex:none; font-family:var(--font-display); font-size:60px; line-height:.78; color:var(--orange-600)">02</span>
+        <div style="padding-top:4px">
+          <h3 style="margin:0 0 4px; font-size:var(--text-heading); font-weight:var(--weight-black); color:var(--text-strong); line-height:var(--leading-tight)">Compartilo en tu story</h3>
+          <p style="margin:0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-body)">Pegás el link como sticker de Instagram y listo. Tu buzón ya está esperando preguntas.</p>
+        </div>
+      </div>
+      <div style="display:flex; gap:16px; align-items:flex-start; padding:22px 0 4px; border-top:2px dashed var(--line-accent)">
+        <span style="flex:none; font-family:var(--font-display); font-size:60px; line-height:.78; color:var(--orange-600)">03</span>
+        <div style="padding-top:4px">
+          <h3 style="margin:0 0 4px; font-size:var(--text-heading); font-weight:var(--weight-black); color:var(--text-strong); line-height:var(--leading-tight)">Mostrá lo que te dejaron</h3>
+          <p style="margin:0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-body)">Elegí qué mensaje subir a tu story y con qué estilo. El anonimato es de quien pregunta, el control es tuyo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="position:relative; background:var(--paper-warm); overflow:hidden">
+    <div style="position:absolute; inset:0; color:var(--ink-900); opacity:.09; background:var(--pattern-stars); pointer-events:none"></div>
+    <div style="position:relative; max-width:540px; margin:0 auto; padding:52px 20px 56px">
+      <h2 style="margin:0; font-family:var(--font-display); font-weight:400; font-size:clamp(56px,16vw,88px); line-height:0.8; color:var(--text-strong); text-transform:lowercase; transform:rotate(-2.5deg)">cae solo.</h2>
+      <p style="margin:16px 0 0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-muted); max-width:34ch; text-wrap:pretty">Cada mensaje es de alguien que prefirió no dar la cara.</p>
+
+      <div style="position:relative; min-height:412px; margin-top:26px">
+        <div style="position:absolute; top:0; left:0; --d:0ms; width:74%; background:var(--paper); color:var(--text-strong); border:2px solid var(--line-ink); border-radius:22px 22px 22px 6px; box-shadow:var(--shadow-hard-md); padding:14px 16px; transform:rotate(-3deg); animation:shh-float-a 6.4s ease-in-out infinite" data-reveal>
+          <p style="margin:0 0 4px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--text-faint)">anónimo · hace 2 h</p>
+          <p style="margin:0; font-size:17px; font-weight:600; line-height:1.3">¿de quién estuviste enamorado más tiempo?</p>
+        </div>
+        <div style="position:absolute; top:26%; right:0; --d:80ms; width:70%; background:var(--ink-900); color:var(--paper-warm); border:2px solid var(--line-ink); border-radius:22px 22px 6px 22px; box-shadow:5px 6px 0 var(--orange-500); padding:14px 16px; transform:rotate(3deg); animation:shh-float-b 7.4s ease-in-out infinite" data-reveal>
+          <p style="margin:0; font-size:17px; font-weight:600; line-height:1.3">contame algo que nunca contaste acá</p>
+        </div>
+        <div style="position:absolute; top:53%; left:2%; --d:160ms; width:72%; background:var(--orange-500); color:var(--text-on-accent); border:2px solid var(--line-ink); border-radius:22px 22px 22px 6px; box-shadow:var(--shadow-hard-md); padding:14px 16px; transform:rotate(-1.5deg); animation:shh-float-c 6.8s ease-in-out infinite" data-reveal>
+          <p style="margin:0; font-size:17px; font-weight:600; line-height:1.3">¿qué es lo más random que hiciste este mes?</p>
+        </div>
+        <div style="position:absolute; bottom:0; right:2%; --d:240ms; width:66%; background:var(--paper); color:var(--text-strong); border:2px solid var(--line-ink); border-radius:22px 22px 6px 22px; box-shadow:var(--shadow-hard-md); padding:14px 16px; transform:rotate(2.5deg); animation:shh-float-b 8.2s ease-in-out infinite" data-reveal>
+          <p style="margin:0 0 4px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--text-faint)">anónimo · recién</p>
+          <p style="margin:0; font-size:17px; font-weight:600; line-height:1.3">¿quién te gusta? 👀</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacidad" style="position:relative; background:var(--ink-900); border-top:3px solid var(--line-ink); border-bottom:3px solid var(--line-ink); overflow:hidden">
+    <div style="position:absolute; inset:0; color:var(--orange-500); opacity:.14; background:var(--pattern-rings); pointer-events:none"></div>
+    <div style="position:relative; max-width:540px; margin:0 auto; padding:48px 20px 52px">
+      <h2 style="margin:0 0 8px; font-family:var(--font-display); font-weight:400; font-size:clamp(44px,12vw,64px); line-height:0.84; color:var(--paper-warm); text-transform:lowercase; transform:rotate(-2.5deg)">nadie ve quién te escribe.</h2>
+
+      <div data-reveal style="--d:80ms; max-width:300px; margin:22px 0 6px; background:var(--paper); border:2px dashed var(--orange-500); border-radius:var(--radius-asym-md); box-shadow:var(--shadow-hard-md); padding:14px 16px; transform:rotate(-1.2deg)">
+        <p style="margin:0 0 6px; display:flex; align-items:center; gap:6px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--orange-700)">
+          <span class="icon" style="width:13px;height:13px;color:var(--orange-600)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          </span>
+          la pista que te dejó
+        </p>
+        <p style="margin:0; font-size:var(--text-body-md); font-weight:var(--weight-semibold); line-height:var(--leading-snug); color:var(--text-strong)">nos cruzamos siempre en el 152</p>
+      </div>
+
+      <div style="display:flex; gap:14px; align-items:flex-start; padding:22px 0; border-bottom:2px dashed var(--ink-600); color:var(--orange-500)">
+        <span class="icon" style="width:26px;height:26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
+        </span>
+        <p style="margin:0; font-size:19px; line-height:var(--leading-snug); color:var(--paper-warm)"><strong>No guardamos quién pregunta.</strong> <span style="color:var(--ink-300)">Ni nombre, ni cuenta, ni ubicación.</span></p>
+      </div>
+      <div style="display:flex; gap:14px; align-items:flex-start; padding:22px 0; border-bottom:2px dashed var(--ink-600); color:var(--orange-500)">
+        <span class="icon" style="width:26px;height:26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </span>
+        <p style="margin:0; font-size:19px; line-height:var(--leading-snug); color:var(--paper-warm)"><strong>Borrás lo que no querés ver.</strong> <span style="color:var(--ink-300)">Cada mensaje se elimina de una.</span></p>
+      </div>
+      <div style="display:flex; gap:14px; align-items:flex-start; padding:22px 0 4px; color:var(--orange-500)">
+        <span class="icon" style="width:26px;height:26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <p style="margin:0; font-size:19px; line-height:var(--leading-snug); color:var(--paper-warm)"><strong>Cerrás el buzón cuando querés.</strong> <span style="color:var(--ink-300)">Y lo volvés a abrir cuando se te cante.</span></p>
+      </div>
+
+    </div>
+  </section>
+
+  <section style="background:var(--paper-warm); padding:48px 0 52px">
+    <div style="max-width:540px; margin:0 auto; padding:0 20px">
+      <h2 style="margin:0 0 14px; font-family:var(--font-display); font-weight:400; font-size:clamp(44px,12vw,64px); line-height:0.84; color:var(--text-strong); text-transform:lowercase; transform:rotate(-2.5deg)">vestí tu buzón.</h2>
+      <p style="margin:0; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--text-muted); max-width:36ch; text-wrap:pretty">Fondos, stickers y bordes para que tu buzón se vea único. El tuyo, no una plantilla más.</p>
+    </div>
+    <div data-rail style="margin-top:24px; overflow-x:auto; scrollbar-width:none; scroll-snap-type:x proximity; padding:6px 0 18px; -webkit-overflow-scrolling:touch">
+    <div style="display:flex; gap:14px; width:max-content; margin:0 auto; padding:0 20px">
+      <div class="style-card" style="background:#F8D7E3; transform:rotate(-1.5deg)">
+        <div class="pattern" style="color:#C74C74; opacity:.35; background:var(--pattern-scallop)"></div>
+        <span style="color:#6B2038">coquette</span>
+      </div>
+      <div class="style-card" style="background:#7FE3FF; transform:rotate(1.5deg)">
+        <div class="pattern" style="color:#2A1B72; opacity:.3; background:var(--pattern-grid)"></div>
+        <img src="{{ asset('assets/y2k-fantasy-flower.webp') }}" alt="" style="position:absolute; top:10px; right:-16px; width:82px">
+        <span style="color:#2A1B72">y2k</span>
+      </div>
+      <div class="style-card" style="background:#0E0E10; transform:rotate(-1deg)">
+        <div class="pattern" style="color:#B6FF2E; opacity:.22; background:var(--pattern-noise)"></div>
+        <span style="color:#B6FF2E">grunge</span>
+      </div>
+      <div class="style-card" style="background:#B7C9A8; transform:rotate(1.2deg)">
+        <div class="pattern" style="color:#4A3728; opacity:.3; background:var(--pattern-waves)"></div>
+        <span style="color:#4A3728">cottagecore</span>
+      </div>
+      <div class="style-card" style="background:#EADFD1; transform:rotate(-1.4deg)">
+        <div class="pattern" style="color:#4A4038; opacity:.3; background:var(--pattern-dots)"></div>
+        <span style="color:#4A4038">clean girl</span>
+      </div>
+      <div class="style-card" style="background:#241A33; transform:rotate(1.6deg)">
+        <div class="pattern" style="opacity:.5; background:url('{{ asset('assets/patterns/gothic-damask-portrait.webp') }}') 0 0/150px auto repeat"></div>
+        <span style="color:#C9B3E8">gothic</span>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section style="position:relative; overflow:hidden; background:var(--paper-dim); border-top:3px solid var(--line-ink)">
+    <span aria-hidden="true" style="position:absolute; top:-46px; right:-16px; font-family:var(--font-display); font-size:280px; line-height:.7; color:var(--ink-900); opacity:.07; pointer-events:none; user-select:none">?</span>
+    <div style="position:relative; max-width:540px; margin:0 auto; padding:48px 20px 52px">
+      <h2 style="margin:0 0 22px; font-family:var(--font-display); font-weight:400; font-size:clamp(56px,16vw,88px); line-height:0.8; color:var(--text-strong); text-transform:lowercase; transform:rotate(-2.5deg)">dudas.</h2>
+      <div id="faq-list" style="border-top:2px solid var(--line-ink)"></div>
+    </div>
+  </section>
+
+  <section style="background:var(--surface-inverse); border-top:3px solid var(--line-ink)">
+    <div style="max-width:540px; margin:0 auto; padding:52px 20px 56px; text-align:center">
+      <img src="{{ asset('assets/shhask-logo-white.png') }}" alt="Shhask" style="height:30px; width:auto; display:block; margin:0 auto 22px">
+      <h2 style="margin:0; font-family:var(--font-display); font-weight:400; font-size:clamp(44px,13vw,64px); line-height:0.85; color:var(--orange-500); text-transform:lowercase">
+        <span style="display:block; transform:rotate(-2.5deg)">sumate</span>
+        <span style="display:block; color:var(--paper-warm); transform:rotate(1.5deg)">a la joda</span>
+      </h2>
+      <p style="margin:20px auto 24px; font-size:var(--text-body-md); line-height:var(--leading-body); color:var(--ink-300); max-width:32ch; text-wrap:pretty">
+        Descargalo, armá tu buzón y compartilo. Lo peor que puede pasar es que te conozcan un poco más.
+      </p>
+      <a href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2" target="_blank" rel="noopener" class="btn btn--primary btn--lg" style="width:100%">Descargar gratis</a>
+    </div>
+  </section>
+
+  <footer style="background:var(--paper-warm)">
+    <div style="max-width:540px; margin:0 auto; padding:34px 20px 40px; display:flex; flex-direction:column; gap:18px; align-items:flex-start">
+      <img src="{{ asset('assets/logo-wordmark-ink.webp') }}" alt="Shhask" style="height:22px; width:auto; display:block; align-self:flex-start">
+      <nav style="display:flex; flex-wrap:wrap; gap:8px 18px; font-size:var(--text-body-sm, 14px); font-weight:var(--weight-semibold)">
+        <a href="/privacy-policy">Política de Privacidad</a>
+        <a href="/terms-of-service">Términos de Servicio</a>
+        <a href="/how-to-delete-user">Eliminar cuenta</a>
+      </nav>
+      <p style="margin:0; font-size:var(--text-caption); color:var(--text-faint)">© 2026 Shhask. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <div style="position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--orange-500); border-top:3px solid var(--line-ink)">
+    <div style="max-width:540px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:14px">
+      <span style="flex:1; font-family:var(--font-display); font-size:22px; line-height:1; color:var(--ink-900); text-transform:lowercase">gratis en google play</span>
+      <a href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2" target="_blank" rel="noopener" class="btn btn--ink btn--md">Descargar gratis</a>
     </div>
   </div>
-</section>
-
-<section class="cta-band">
-  <div class="mesh" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
-  <div class="wrap">
-    <img class="logo reveal" src="{{ asset('assets/shhask-logo-white.png') }}" alt="Shhask" />
-    <h2 class="reveal">¿Y si te preguntan<br />lo que nunca imaginaste?</h2>
-    <p class="reveal">Descargalo, armá tu buzón y compartilo. Lo peor que puede pasar es que te conozcan un poco más.</p>
-    <a class="btn orange reveal" href="https://play.google.com/store/apps/details?id=com.mateine.quest_app_2">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m6 11 6 6 6-6"/><path d="M5 21h14"/></svg>
-      Descargar gratis
-    </a>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap foot-inner">
-    <img src="{{ asset('assets/shhask-logo-black.png') }}" alt="Shhask" />
-    <div class="foot-links">
-      <a href="/privacy-policy">Política de Privacidad</a>
-      <a href="/terms-of-service">Términos de Servicio</a>
-      <a href="/how-to-delete-user">Eliminar cuenta</a>
-    </div>
-  </div>
-  <div class="wrap foot-copy">© 2026 Shhask. Todos los derechos reservados.</div>
-</footer>
+</div>
 
 <script>
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var els = document.querySelectorAll('.reveal:not(.in)');
+(function () {
+  // Hero "feed" — cycles 1..4 anonymous messages, matching the design's pool + interval.
+  var pool = [
+    "¿Quién te gusta? 👀",
+    "contame un secreto...",
+    "¿qué pensaste de mí la primera vez?",
+    "¿a quién extrañás y no lo decís?"
+  ];
+  var feedList = document.getElementById("feed-list");
+  var feedCount = document.getElementById("feed-count");
+  var n = 1;
+  function renderFeed() {
+    feedList.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var card = document.createElement("div");
+      card.style.cssText = "border:2px solid var(--line-ink); border-radius:var(--radius-asym-md); padding:12px 14px; background:var(--orange-50); animation:shh-drop 260ms var(--ease-pop, ease-out) both";
+      card.innerHTML = '<p style="margin:0 0 4px; font-size:var(--text-micro); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase; color:var(--text-faint)">anónimo</p>' +
+        '<p style="margin:0; font-size:var(--text-body-md); font-weight:var(--weight-semibold); line-height:var(--leading-snug); color:var(--text-strong)">' + pool[i] + "</p>";
+      feedList.appendChild(card);
+    }
+    var note = document.createElement("p");
+    note.style.cssText = "margin:auto 0 0; font-size:var(--text-micro); color:var(--text-faint); letter-spacing:var(--tracking-caps); text-transform:uppercase";
+    note.textContent = "demo · así se llena tu buzón";
+    feedList.appendChild(note);
+    feedCount.textContent = n;
+  }
+  renderFeed();
+  setInterval(function () {
+    n = n >= pool.length ? 1 : n + 1;
+    renderFeed();
+  }, 2200);
+
+  // Theme picker — 6 asset seed themes, swaps the preview card's palette + pattern + sticker.
+  var themes = [
+    { label: "coquette", cls: "theme-coquette", pattern: "var(--pattern-scallop)", opacity: .3 },
+    { label: "y2k", cls: "theme-y2k", pattern: "var(--pattern-grid)", opacity: .3, sticker: "{{ asset('assets/y2k-fantasy-flower.webp') }}" },
+    { label: "grunge", cls: "theme-grunge", pattern: "var(--pattern-noise)", opacity: .22, sticker: "{{ asset('assets/y2k-eye-face.webp') }}" },
+    { label: "cottagecore", cls: "theme-cottagecore", pattern: "var(--pattern-waves)", opacity: .28 },
+    { label: "clean girl", cls: "theme-clean-girl", pattern: "var(--pattern-dots)", opacity: .3 },
+    { label: "gothic", cls: "theme-gothic", pattern: "url('{{ asset('assets/patterns/gothic-damask-portrait.webp') }}') 0 0/180px auto repeat", opacity: .5, sticker: "{{ asset('assets/y2k-eye-face.webp') }}" }
+  ];
+  var tabsEl = document.getElementById("theme-tabs");
+  var previewEl = document.getElementById("theme-preview");
+  var patternEl = document.getElementById("theme-pattern");
+  var stickerEl = document.getElementById("theme-sticker");
+  var activeTheme = 1;
+
+  themes.forEach(function (t, i) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "theme-tab" + (i === activeTheme ? " is-active" : "");
+    btn.textContent = t.label;
+    btn.addEventListener("click", function () { selectTheme(i); });
+    tabsEl.appendChild(btn);
+  });
+
+  function selectTheme(i) {
+    if (i === activeTheme) return;
+    activeTheme = i;
+    Array.prototype.forEach.call(tabsEl.children, function (btn, idx) {
+      btn.classList.toggle("is-active", idx === i);
+    });
+    previewEl.className = themes[i].cls;
+    patternEl.style.opacity = themes[i].opacity;
+    patternEl.style.background = themes[i].pattern;
+    if (themes[i].sticker) {
+      stickerEl.src = themes[i].sticker;
+      stickerEl.style.display = "block";
+    } else {
+      stickerEl.style.display = "none";
+    }
+  }
+  selectTheme(1); // y2k is the default preview, matches the design's initial state
+
+  // FAQ accordion — single item open at a time.
+  var faqs = [
+    { q: "¿De verdad es anónimo?", a: "Sí. Quien te escribe no queda registrado: ni nombre, ni cuenta, ni ubicación. Vos ves el mensaje, nada más." },
+    { q: "¿Puedo saber quién me escribió?", a: "No, y esa es la idea. Lo único que podés ver es la pista que la persona decida dejarte." },
+    { q: "¿Cuánto cuesta?", a: "Nada. Se descarga gratis en Google Play y el buzón es gratis para siempre." },
+    { q: "¿Cómo lo comparto en Instagram?", a: "Copiás tu link y lo pegás como sticker en tu story. Quien lo toque entra directo a tu buzón." },
+    { q: "¿Puedo borrar mi cuenta?", a: "Sí, desde la app o desde el link de eliminar cuenta acá abajo. Se va todo." }
+  ];
+  var faqList = document.getElementById("faq-list");
+  var openIndex = 0;
+  var faqItems = [];
+
+  faqs.forEach(function (f, i) {
+    var item = document.createElement("div");
+    item.className = "faq-item" + (i === openIndex ? " is-open" : "");
+    item.innerHTML = '<button type="button" class="faq-q"><span>' + f.q + '</span><span class="faq-sign">' + (i === openIndex ? "-" : "+") + '</span></button>' +
+      '<p class="faq-a">' + f.a + "</p>";
+    item.querySelector(".faq-q").addEventListener("click", function () {
+      var wasOpen = openIndex === i;
+      openIndex = wasOpen ? -1 : i;
+      faqItems.forEach(function (el, idx) {
+        el.classList.toggle("is-open", idx === openIndex);
+        el.querySelector(".faq-sign").textContent = idx === openIndex ? "-" : "+";
+      });
+    });
+    faqList.appendChild(item);
+    faqItems.push(item);
+  });
+
+  // Reveal-on-scroll for [data-reveal] elements.
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        if (e.isIntersecting) { e.target.setAttribute("data-revealed", ""); io.unobserve(e.target); }
       });
-    }, { threshold: 0.15 });
-    els.forEach(function (el) { io.observe(el); });
+    }, { threshold: 0.25, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll("[data-reveal]").forEach(function (el) { io.observe(el); });
   } else {
-    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+    document.querySelectorAll("[data-reveal]").forEach(function (el) { el.setAttribute("data-revealed", ""); });
   }
-
-  // Parallax sutil de los blobs de fondo: cada uno se mueve a su propia
-  // velocidad según el scroll, para que la atmósfera tenga profundidad
-  // real en vez de quedar pegada como un fondo plano.
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var meshes = document.querySelectorAll('.mesh');
-    var ticking = false;
-    function applyParallax() {
-      var y = window.scrollY;
-      meshes.forEach(function (mesh) {
-        var spans = mesh.querySelectorAll('span');
-        spans.forEach(function (span, i) {
-          var speed = 0.05 + (i % 4) * 0.035;
-          span.style.setProperty('--py', (y * speed) + 'px');
-        });
-      });
-      ticking = false;
-    }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { requestAnimationFrame(applyParallax); ticking = true; }
-    }, { passive: true });
-  }
+})();
 </script>
 </body>
 </html>
