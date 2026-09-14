@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ asset('assets/shhask-icono.ico') }}" type="image/x-icon">
     <title>{{ '@' . $username }} — Shhask</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,16 +11,17 @@
     <style>
         :root {
             --orange-500: #F85A00;
+            --orange-300: #FF9757;
             --orange-50: #FFF1E7;
             --ink-900: #0D0B0A;
             --ink-700: #2A2320;
+            --ink-500: #6B5C55;
+            --ink-300: #C7BBB4;
             --paper: #FFFFFF;
             --paper-warm: #FFF8F2;
             --text-strong: var(--ink-900);
             --text-body: #171311;
             --text-muted: #6B5C55;
-            --text-faint: #9A8A82;
-            --text-accent: #D44B00;
             --line-ink: var(--ink-900);
             --font-display: "Londrina Solid", "Hanken Grotesk", system-ui, sans-serif;
             --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -30,48 +32,54 @@
             --radius-asym-md: 22px 6px 22px 6px;
             --radius-asym-lg: 34px 8px 34px 8px;
             --radius-pill: 999px;
-            --shadow-hard-sm: 3px 3px 0 var(--ink-900);
             --shadow-hard-md: 5px 6px 0 var(--ink-900);
             --ease-out-strong: cubic-bezier(.23,1,.32,1);
             --dur-fast: 150ms;
             --ease-pop: cubic-bezier(.34,1.56,.64,1);
-            --pattern-dots: radial-gradient(circle at 50% 50%, currentColor 1.6px, transparent 1.7px) 0 0/14px 14px;
             --pattern-scallop: radial-gradient(circle at 50% 0, transparent 9px, currentColor 9px 10px, transparent 10px) 0 0/22px 14px;
             --pattern-grid: linear-gradient(currentColor 1px, transparent 1px) 0 0/22px 22px, linear-gradient(90deg, currentColor 1px, transparent 1px) 0 0/22px 22px;
             --pattern-zigzag: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 10px), repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 10px);
             --pattern-waves: repeating-radial-gradient(circle at 0 50%, transparent 0 8px, currentColor 8px 9px) 0 0/24px 18px;
         }
         * { box-sizing: border-box; }
-        body { margin: 0; background: var(--paper-warm); font-family: var(--font-sans); color: var(--text-body); min-height: 100vh; padding-bottom: 98px; position: relative; overflow-x: hidden; }
-        a { color: inherit; }
+        body { margin: 0; background: var(--paper-warm); font-family: var(--font-sans); color: var(--text-body); min-height: 100vh; padding-bottom: 98px; overflow-x: hidden; }
+        a { color: inherit; text-decoration: none; }
 
-        .bg-pattern { position: absolute; inset: 0; color: var(--ink-900); opacity: .05; background: var(--pattern-dots); pointer-events: none; }
-        .wrap { position: relative; max-width: 420px; margin: 0 auto; padding: 24px 16px 20px; }
+        .hero { position: relative; background: var(--ink-900); border-bottom: 3px solid var(--line-ink); overflow: hidden; }
+        .hero-pattern { position: absolute; inset: 0; color: var(--orange-500); opacity: .18; background: var(--pattern-grid); pointer-events: none; }
 
-        .profile-header { position: relative; text-align: center; }
+        .marquee { position: relative; overflow: hidden; padding: 9px 0; border-bottom: 2px solid var(--ink-700); }
+        .marquee-track { display: flex; width: max-content; animation: shh-marquee 22s linear infinite; will-change: transform; }
+        .marquee-set { display: flex; gap: 20px; padding-right: 20px; font-size: var(--text-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--orange-300); white-space: nowrap; }
+        .marquee-set span.dot { color: var(--ink-500); }
+
+        .hero-inner { position: relative; max-width: 420px; margin: 0 auto; padding: 26px 16px 34px; }
         .profile-sticker {
-            position: absolute; top: -6px; right: 4px; width: 64px; height: 64px; z-index: 3;
+            position: absolute; top: 10px; right: 10px; width: 66px; height: 66px; z-index: 3;
             background: url('{{ asset('assets/logo-sticker.webp') }}') center/contain no-repeat;
             transform: rotate(-7deg); animation: shh-bob 5s ease-in-out infinite;
         }
         .avatar-frame {
-            display: inline-block; padding: 8px; background: var(--paper); border: 3px solid var(--line-ink);
-            border-radius: var(--radius-asym-lg); box-shadow: var(--shadow-hard-md); transform: rotate(1.4deg);
+            display: inline-block; padding: 7px; background: var(--paper); border: 3px solid var(--line-ink);
+            border-radius: var(--radius-asym-lg); box-shadow: 6px 7px 0 var(--orange-500); transform: rotate(-1.4deg);
         }
-        .avatar-frame .profile-image { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; background: linear-gradient(180deg, #CDDAFD, #FFF1E6); }
+        .avatar-frame .profile-image { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; background: var(--orange-50); }
         .avatar-frame .profile-image svg { width: 100%; height: 100%; }
 
-        h1.handle {
-            margin: 16px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 44px; line-height: .9;
-            letter-spacing: -0.015em; color: var(--text-strong); text-transform: lowercase; transform: rotate(-2.5deg);
+        .hero h1 {
+            margin: 18px 0 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(50px, 15vw, 64px);
+            line-height: .82; letter-spacing: -0.015em; text-transform: lowercase;
         }
-        .lema { margin: 8px 0 0; font-size: var(--text-body-sm); color: var(--text-muted); }
-        .bio { margin: 12px auto 0; max-width: 300px; font-size: var(--text-body-md); line-height: var(--leading-body); color: var(--text-body); }
+        .hero h1 .handle { display: block; color: var(--orange-500); transform: rotate(-2.5deg); }
+        .hero h1 .tagline { display: block; color: transparent; -webkit-text-stroke: 2px var(--paper-warm); transform: rotate(1.5deg); }
+        .hero .bio { margin: 18px 0 0; max-width: 30ch; font-size: var(--text-body-md); line-height: var(--leading-body); color: var(--ink-300); text-wrap: pretty; }
 
-        .medals { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+        .wrap { position: relative; max-width: 420px; margin: 0 auto; padding: 0 16px 20px; }
+
+        .medals { display: flex; flex-wrap: wrap; gap: 8px; margin: -16px 0 0; position: relative; z-index: 4; }
         .medal {
             display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 2px solid var(--line-ink);
-            border-radius: var(--radius-pill); box-shadow: 3px 4px 0 var(--ink-900); padding: 6px 13px;
+            border-radius: var(--radius-pill); box-shadow: 3px 4px 0 var(--ink-900); padding: 7px 13px;
             font-size: var(--text-caption); font-weight: var(--weight-bold); color: var(--ink-900);
         }
         .medal:nth-child(odd) { transform: rotate(-1.2deg); }
@@ -79,27 +87,25 @@
 
         .section-head {
             display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-            margin: 32px 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--line-ink);
+            margin: 30px 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--line-ink);
         }
         .section-head h2 {
-            margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1;
-            letter-spacing: -0.015em; color: var(--text-strong); text-transform: lowercase;
+            margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1;
+            letter-spacing: -0.015em; color: var(--text-strong); text-transform: lowercase; transform: rotate(-2.5deg);
         }
         .section-count { flex: none; font-size: var(--text-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); }
-        .section-tag { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: var(--text-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-accent); }
-        .section-sub { margin: 0 0 14px; font-size: var(--text-caption); line-height: var(--leading-body); color: var(--text-muted); }
 
-        .mailboxes { display: flex; flex-direction: column; gap: 14px; }
+        .mailboxes { display: flex; flex-direction: column; gap: 16px; }
         .mailbox {
             position: relative; overflow: hidden; display: flex; align-items: center; gap: 14px;
-            padding: 16px 18px; min-height: 104px; text-decoration: none; border: 2px solid var(--line-ink);
+            padding: 16px 18px; min-height: 108px; border: 2px solid var(--line-ink);
             border-radius: var(--radius-asym-lg); transition: transform var(--dur-fast) var(--ease-out-strong), box-shadow var(--dur-fast) var(--ease-out-strong);
         }
         .mailbox:nth-child(odd) { transform: rotate(-0.9deg); }
         .mailbox:nth-child(even) { transform: rotate(0.9deg); }
         .mailbox:active { transform: translate(4px, 5px) !important; }
         .mailbox .pattern { position: absolute; inset: 0; pointer-events: none; }
-        .mailbox .sticker { position: relative; flex: none; width: 64px; height: 64px; background-position: center; background-size: contain; background-repeat: no-repeat; }
+        .mailbox .sticker { position: relative; flex: none; width: 66px; height: 66px; background-position: center; background-size: contain; background-repeat: no-repeat; }
         .mailbox .copy { position: relative; flex: 1; min-width: 0; }
         .mailbox .eyebrow { display: block; font-size: var(--text-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-700); }
         .mailbox .title { display: block; margin-top: 4px; font-size: var(--text-subhead); font-weight: var(--weight-black); line-height: var(--leading-tight); color: var(--ink-900); }
@@ -108,36 +114,29 @@
 
         .empty { text-align: center; color: var(--text-muted); padding: 30px 10px; }
 
-        .designs-rail { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; padding: 4px 0 6px; }
-        .designs-rail::-webkit-scrollbar { display: none; }
-        .design-card {
-            position: relative; overflow: hidden; scroll-snap-align: start; flex: none; width: 124px; aspect-ratio: 1;
-            padding: 12px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end;
-            gap: 6px; border: 2px solid var(--line-ink); border-radius: var(--radius-asym-md);
+        .privacy-note {
+            margin: 20px 0 0; display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: var(--text-caption); color: var(--text-muted);
         }
-        .design-card .pattern { position: absolute; inset: 0; pointer-events: none; }
-        .design-card .sticker { position: absolute; top: 10px; right: 8px; width: 52px; height: 52px; background-position: center; background-size: contain; background-repeat: no-repeat; transform: rotate(-6deg); }
-        .design-card .downloads { position: relative; font-size: var(--text-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-900); }
+        .privacy-note svg { width: 15px; height: 15px; }
 
-        .promo-footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--ink-900); border-top: 3px solid var(--line-ink); }
+        .promo-footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--orange-500); border-top: 3px solid var(--line-ink); }
         .promo-inner { max-width: 420px; margin: 0 auto; padding: 13px 16px; display: flex; align-items: center; gap: 14px; }
-        .promo-inner span { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 23px; line-height: 1; letter-spacing: -0.015em; color: var(--paper-warm); text-transform: lowercase; }
+        .promo-inner span { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 23px; line-height: 1; letter-spacing: -0.015em; color: var(--ink-900); text-transform: lowercase; }
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 9px;
             font: var(--weight-bold) var(--text-body-sm)/1 var(--font-sans); letter-spacing: .005em;
             padding: 12px 20px; border-radius: var(--radius-asym-md); border: 2px solid var(--ink-900);
-            text-decoration: none; cursor: pointer;
-            transition: transform var(--dur-fast) var(--ease-pop), box-shadow var(--dur-fast) var(--ease-out-strong);
+            cursor: pointer; transition: transform var(--dur-fast) var(--ease-pop), box-shadow var(--dur-fast) var(--ease-out-strong);
         }
-        .btn--primary { background: var(--orange-500); color: #FFFFFF; box-shadow: var(--shadow-hard-md); }
+        .btn--ink { background: var(--ink-900); color: var(--paper-warm); box-shadow: 5px 6px 0 var(--orange-500); }
         .btn:hover { transform: translate(-1px, -2px); }
         .btn:active { transform: translate(4px, 5px); box-shadow: 1px 1px 0 var(--ink-900) !important; }
 
-        .icon { display: inline-flex; flex: none; }
-        .icon svg { width: 100%; height: 100%; display: block; }
-
+        @keyframes shh-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         @keyframes shh-bob { 0%, 100% { transform: translateY(0) rotate(-7deg); } 50% { transform: translateY(-5px) rotate(-5deg); } }
+        @keyframes shh-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: 150ms !important; }
@@ -145,31 +144,50 @@
     </style>
 </head>
 <body>
-    <div class="bg-pattern" aria-hidden="true"></div>
+    <div class="hero">
+        <div class="hero-pattern" aria-hidden="true"></div>
 
-    <div class="wrap">
-        <div class="profile-header">
+        <div class="marquee">
+            <div class="marquee-track">
+                <div class="marquee-set">
+                    <span>100% anónimo</span><span class="dot">•</span>
+                    <span>nadie sabe quién escribe</span><span class="dot">•</span>
+                    <span>buzón abierto</span><span class="dot">•</span>
+                </div>
+                <div class="marquee-set" aria-hidden="true">
+                    <span>100% anónimo</span><span class="dot">•</span>
+                    <span>nadie sabe quién escribe</span><span class="dot">•</span>
+                    <span>buzón abierto</span><span class="dot">•</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-inner">
             <div class="profile-sticker" aria-hidden="true"></div>
 
             <div class="avatar-frame">
                 <div id="avatar" class="profile-image"></div>
             </div>
 
-            <h1 class="handle"><span>@</span>{{ $username }}</h1>
-            <p class="lema">preguntame lo que sea 👀</p>
+            <h1>
+                <span class="handle"><span>@</span>{{ $username }}</span>
+                <span class="tagline">te escucha</span>
+            </h1>
 
             @if (!empty($bio))
                 <p class="bio">{{ $bio }}</p>
             @endif
-
-            @if (count($achievements))
-                <div class="medals">
-                    @foreach ($achievements as $a)
-                        <span class="medal">{{ $a['emoji'] }} {{ $a['name'] }}</span>
-                    @endforeach
-                </div>
-            @endif
         </div>
+    </div>
+
+    <div class="wrap">
+        @if (count($achievements))
+            <div class="medals">
+                @foreach ($achievements as $a)
+                    <span class="medal">{{ $a['emoji'] }} {{ $a['name'] }}</span>
+                @endforeach
+            </div>
+        @endif
 
         <div class="section-head">
             <h2>sus buzones</h2>
@@ -187,7 +205,7 @@
                     $pattern = $patterns[$i % count($patterns)];
                 @endphp
                 <a class="mailbox" href="{{ url('/' . $mailbox['url']) }}"
-                   style="background:rgba({{ $accent }},0.16); box-shadow:5px 6px 0 rgba({{ $accent }},1)">
+                   style="background:rgba({{ $accent }},0.16); box-shadow:5px 6px 0 rgba({{ $accent }},1); animation:shh-in 300ms var(--ease-out-strong) {{ $i * 60 }}ms both">
                     <span class="pattern" style="color:rgb({{ $accent }}); opacity:.16; background:{{ $pattern }}"></span>
                     @if ($mailbox['icon'])
                         <span class="sticker" style="background-image:url('{{ asset('images/' . $mailbox['icon'] . '.png') }}')"></span>
@@ -206,46 +224,16 @@
             @endforelse
         </div>
 
-        @if (count($creator_designs))
-            @php
-                $designPatterns = ['var(--pattern-dots)', 'var(--pattern-grid)', 'var(--pattern-waves)', 'var(--pattern-scallop)'];
-            @endphp
-            <div class="section-head">
-                <h2>lo que diseñó</h2>
-                <span class="section-tag">
-                    <span class="icon" style="width:15px;height:15px">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
-                    </span>
-                    en la tienda
-                </span>
-            </div>
-            <p class="section-sub">Diseños suyos que otros ya están usando en sus buzones.</p>
-
-            <div class="designs-rail">
-                @foreach ($creator_designs as $i => $design)
-                    @php
-                        $designColors = json_decode($design['color'] ?? '[]', true);
-                        $designAccent = (isset($designColors[0]) && is_array($designColors[0]))
-                            ? implode(',', array_slice($designColors[0], 0, 3))
-                            : '248,90,0';
-                        $designPattern = $designPatterns[$i % count($designPatterns)];
-                    @endphp
-                    <div class="design-card" style="background:rgba({{ $designAccent }},0.16); box-shadow:4px 5px 0 rgba({{ $designAccent }},1)">
-                        <span class="pattern" style="color:rgb({{ $designAccent }}); opacity:.16; background:{{ $designPattern }}"></span>
-                        @if ($design['icon'] ?? null)
-                            <span class="sticker" style="background-image:url('{{ asset('images/' . $design['icon'] . '.png') }}')"></span>
-                        @endif
-                        <span class="downloads">{{ $design['downloads_count'] ?? 0 }} usos</span>
-                    </div>
-                @endforeach
-            </div>
-        @endif
+        <p class="privacy-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
+            No guardamos tu nombre, tu IP ni tu cuenta.
+        </p>
     </div>
 
     <div class="promo-footer">
         <div class="promo-inner">
             <span>creá el tuyo, es gratis</span>
-            <a href="{{ url('/descarga') }}" class="btn btn--primary">Descargar</a>
+            <a href="{{ url('/descarga') }}" class="btn btn--ink">Descargar</a>
         </div>
     </div>
 
