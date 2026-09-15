@@ -8,6 +8,9 @@
     <meta property="og:title" content="Shhask - Preguntas anónimas, sin filtro">
     <meta property="og:description" content="Armá tu buzón, pegalo en tu story y dejá que te pregunten lo que nunca te dirían de frente. Gratis en Google Play.">
     <meta property="og:image" content="{{ asset('assets/logo-sticker.webp') }}">
+    <link rel="icon" href="{{ asset('assets/favicon-32.png') }}" type="image/png" sizes="32x32">
+    <link rel="icon" href="{{ asset('assets/favicon-16.png') }}" type="image/png" sizes="16x16">
+    <link rel="apple-touch-icon" href="{{ asset('assets/apple-touch-icon.png') }}">
     <meta property="og:url" content="www.shhask.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
@@ -156,7 +159,7 @@
 
   <header style="position:sticky; top:0; z-index:20; background:var(--ink-900); border-bottom:3px solid var(--line-ink)">
     <div style="max-width:540px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px">
-      <img src="{{ asset('assets/shhask-logo-white.png') }}" alt="Shhask" style="height:26px; width:auto; display:block">
+      <img src="{{ asset('assets/logo-wordmark-ink.webp') }}" alt="Shhask" style="height:26px; width:auto; display:block; filter:brightness(0) invert(1)">
       <nav style="display:flex; gap:16px; font-size:var(--text-caption); font-weight:var(--weight-bold); letter-spacing:var(--tracking-caps); text-transform:uppercase">
         <a href="#estilos" style="color:var(--orange-300)">Estilos</a>
         <a href="#privacidad" style="color:var(--orange-300)">Privacidad</a>
@@ -375,7 +378,7 @@ Armá tu buzón, compartilo en tu story y dejá que te digan lo que nunca te dir
 
   <section style="background:var(--surface-inverse); border-top:3px solid var(--line-ink)">
     <div style="max-width:540px; margin:0 auto; padding:52px 20px 56px; text-align:center">
-      <img src="{{ asset('assets/shhask-logo-white.png') }}" alt="Shhask" style="height:30px; width:auto; display:block; margin:0 auto 22px">
+      <img src="{{ asset('assets/logo-wordmark-ink.webp') }}" alt="Shhask" style="height:30px; width:auto; display:block; margin:0 auto 22px; filter:brightness(0) invert(1)">
       <h2 style="margin:0; font-family:var(--font-display); font-weight:400; font-size:clamp(44px,13vw,64px); line-height:0.85; color:var(--orange-500); text-transform:lowercase">
         <span style="display:block; transform:rotate(-2.5deg)">sumate</span>
         <span style="display:block; color:var(--paper-warm); transform:rotate(1.5deg)">a la joda</span>
